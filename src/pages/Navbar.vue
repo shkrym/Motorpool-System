@@ -133,7 +133,7 @@
   <!-- Sidebar overlay for mobile -->
   <div
     v-if="sidebarOpen"
-    class="sidebar-overlay fixed inset-0 z-[999] bg-black bg-opacity-50 md:hidden"
+        class="fixed inset-0 bg-gray-300/60 backdrop-blur-sm lg:hidden"
     @click="closeSidebar"
   ></div>
 </template>

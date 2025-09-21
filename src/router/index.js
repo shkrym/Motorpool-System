@@ -4,6 +4,8 @@ import Auth from '../pages/Auth.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import Settings from '../pages/Settings.vue'
 import Vehicles from '../pages/Vehicles.vue'
+import Trips from '../pages/Trips.vue'
+import Trimap from '../pages/TriMap.vue'
 import FuelLogs from '../pages/FuelLogs.vue'
 
 // Import the sub-pages for settings
@@ -30,6 +32,16 @@ const routes = [
     component: Vehicles,
     meta: { requiresAuth: true }
   },
+  {
+      path: '/trips/:id',
+      name: 'TripHistory',
+      component: Trips
+    },
+    {
+      path: '/tripmap/:id',
+      name: 'LiveMap',
+      component: Trimap
+    },
   {
     path: '/fuel',
     name: 'FuelLogs', 
@@ -106,16 +118,16 @@ router.beforeEach(async (to, from, next) => {
 })
 
 // Listen for auth changes
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+// supabase.auth.onAuthStateChange((event, session) => {
+//  if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
     // Redirect to auth page on logout
-    if (event === 'SIGNED_OUT') {
-      router.push('/')
-    }
-  } else if (event === 'SIGNED_IN') {
+  //  if (event === 'SIGNED_OUT') {
+    //  router.push('/')
+   // }
+ // } else if (event === 'SIGNED_IN') {
     // Redirect to dashboard on login
-    router.push('/dashboard')
-  }
-})
+   // router.push('/dashboard')
+ // }
+//})
 
 export default router

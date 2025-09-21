@@ -17,17 +17,8 @@
       @click="closeSidebar"
     ></div>
 
-    <main class="flex-1 flex flex-col transition-all duration-300 ease-out min-w-0"
-          :class="{ 
-            'lg:ml-20': sidebarCollapsed && sidebarOpen,
-            'lg:ml-[280px]': !sidebarCollapsed && sidebarOpen,
-            'ml-0': !sidebarOpen
-          }"
-          :style="{
-            marginLeft: !sidebarOpen ? '0' : (sidebarCollapsed ? '80px' : '280px')
-          }"
-    >
-      
+       <main class="main-content flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
+
       <!-- Header -->
       <header class="bg-white/95 backdrop-blur-xl py-5 px-8 border-b border-white/20 flex justify-between items-center shadow-sm sticky top-0 z-10">
         <div class="flex items-center gap-4">
@@ -184,22 +175,47 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex gap-2 justify-end">
-                  <button @click="viewVehicle(vehicle)" class="w-9 h-9 border-none rounded-lg cursor-pointer flex items-center justify-center transition-all duration-200 text-sm bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 hover:scale-105">
-                    <i class="fas fa-eye"></i>
-                  </button>
-                  <button
-                    @click="editVehicle(vehicle)"
-                    class="w-9 h-9 border-none rounded-lg cursor-pointer flex items-center justify-center transition-all duration-200 text-sm bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 hover:scale-105"
-                  >
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button
-                    @click="confirmDelete(vehicle)"
-                    class="w-9 h-9 border-none rounded-lg cursor-pointer flex items-center justify-center transition-all duration-200 text-sm bg-red-500/10 text-red-600 hover:bg-red-500/20 hover:scale-105"
-                  >
-                    <i class="fas fa-trash"></i>
-                  </button>
+                <div class="flex flex-wrap gap-2 justify-end">
+                  <!-- Top row: View, Edit, Delete -->
+                  <div class="flex gap-2 w-full justify-end mb-2">
+                    <button @click="viewVehicle(vehicle)" class="w-9 h-9 border-none rounded-lg cursor-pointer flex items-center justify-center transition-all duration-200 text-sm bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 hover:scale-105" title="View Details">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button
+                      @click="editVehicle(vehicle)"
+                      class="w-9 h-9 border-none rounded-lg cursor-pointer flex items-center justify-center transition-all duration-200 text-sm bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 hover:scale-105"
+                      title="Edit Vehicle"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button
+                      @click="confirmDelete(vehicle)"
+                      class="w-9 h-9 border-none rounded-lg cursor-pointer flex items-center justify-center transition-all duration-200 text-sm bg-red-500/10 text-red-600 hover:bg-red-500/20 hover:scale-105"
+                      title="Delete Vehicle"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <!-- Bottom row: History and Live Map buttons -->
+                  <div class="flex gap-2 w-full">
+                    <button
+                      @click="viewHistory(vehicle)"
+                      class="flex-1 bg-purple-500/10 text-purple-600 border border-purple-500/20 py-2 px-3 rounded-lg cursor-pointer font-medium flex items-center justify-center gap-2 transition-all duration-200 text-xs hover:bg-purple-500/20 hover:scale-105"
+                      title="View Trip History"
+                    >
+                      <i class="fas fa-history"></i>
+                      <span class="hidden sm:inline">History</span>
+                    </button>
+                    <button
+                      @click="viewLiveMap(vehicle)"
+                      class="flex-1 bg-teal-500/10 text-teal-600 border border-teal-500/20 py-2 px-3 rounded-lg cursor-pointer font-medium flex items-center justify-center gap-2 transition-all duration-200 text-xs hover:bg-teal-500/20 hover:scale-105"
+                      title="Live Map Tracking"
+                    >
+                      <i class="fas fa-map-marker-alt"></i>
+                      <span class="hidden sm:inline">Live</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -382,36 +398,6 @@
         <div class="p-8">
           <div class="mb-8">
             <h4 class="text-lg font-semibold m-0 mb-5 pb-2.5 border-b-2 border-gray-200" style="color: #0A400C;">Basic Information</h4>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div class="flex flex-col gap-1 p-4 bg-gray-50 rounded-lg">
-                <strong class="text-gray-700 text-xs uppercase font-semibold tracking-wider">Vehicle ID:</strong>
-                <span class="text-gray-900 text-sm font-medium">{{ selectedVehicle.vehicle_id }}</span>
-              </div>
-              <div class="flex flex-col gap-1 p-4 bg-gray-50 rounded-lg">
-                <strong class="text-gray-700 text-xs uppercase font-semibold tracking-wider">Plate Number:</strong>
-                <span class="text-gray-900 text-sm font-medium">{{ selectedVehicle.plate_number }}</span>
-              </div>
-              <div class="flex flex-col gap-1 p-4 bg-gray-50 rounded-lg">
-                <strong class="text-gray-700 text-xs uppercase font-semibold tracking-wider">Make:</strong>
-                <span class="text-gray-900 text-sm font-medium">{{ selectedVehicle.make }}</span>
-              </div>
-              <div class="flex flex-col gap-1 p-4 bg-gray-50 rounded-lg">
-                <strong class="text-gray-700 text-xs uppercase font-semibold tracking-wider">Model:</strong>
-                <span class="text-gray-900 text-sm font-medium">{{ selectedVehicle.model }}</span>
-              </div>
-              <div class="flex flex-col gap-1 p-4 bg-gray-50 rounded-lg">
-                <strong class="text-gray-700 text-xs uppercase font-semibold tracking-wider">Year:</strong>
-                <span class="text-gray-900 text-sm font-medium">{{ selectedVehicle.year }}</span>
-              </div>
-              <div class="flex flex-col gap-1 p-4 bg-gray-50 rounded-lg">
-                <strong class="text-gray-700 text-xs uppercase font-semibold tracking-wider">Type:</strong>
-                <span class="text-gray-900 text-sm font-medium">{{ selectedVehicle.vehicle_type.toUpperCase() }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mb-8">
-            <h4 class="text-lg font-semibold m-0 mb-5 pb-2.5 border-b-2 border-gray-200" style="color: #0A400C;">Status & Assignment</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div class="flex flex-col gap-1 p-4 bg-gray-50 rounded-lg">
                 <strong class="text-gray-700 text-xs uppercase font-semibold tracking-wider">Current Status:</strong>
@@ -754,6 +740,14 @@ export default {
       selectedVehicle.value = vehicle
     }
 
+    const viewHistory = (vehicle) => {
+      router.push(`/trips/${vehicle.id}`)
+    }
+
+    const viewLiveMap = (vehicle) => {
+      router.push(`/tripmap/${vehicle.id}`)
+    }
+
     const resetForm = () => {
       Object.assign(form, {
         vehicle_id: '',
@@ -941,6 +935,8 @@ export default {
       closeModal,
       editVehicle,
       viewVehicle,
+      viewHistory,
+      viewLiveMap,
       submitForm,
       confirmDelete,
       deleteVehicle,
@@ -983,5 +979,4 @@ export default {
 .fas, .far, .fal, .fab {
   font-family: "Font Awesome 6 Free";
 }
-
 </style>

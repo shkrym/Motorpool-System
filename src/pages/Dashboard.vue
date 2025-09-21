@@ -25,10 +25,7 @@
           <h1 class="m-0 text-2xl font-bold tracking-tight" style="color: #0A400C;">{{ getViewTitle() }}</h1>
         </div>
         <div class="header-actions flex items-center">
-          <div class="user-badge flex items-center rounded-full text-white p-2.5 font-semibold shadow-lg border-none" style="background-color: #0A400C;">
             <i class="fas fa-user-circle mr-2.5 text-white text-lg"></i>
-            <span>{{ userProfile?.full_name || 'Loading...' }}</span>
-          </div>
         </div>
       </header>
 
