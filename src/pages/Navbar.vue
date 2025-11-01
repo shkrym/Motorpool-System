@@ -11,8 +11,8 @@
   >
     <!-- Sidebar Header with Logo and Toggle Button -->
     <div
-      class="sidebar-header flex items-center justify-between p-4 border-b border-green-200"
-      style="background-color: #0A400C;"
+      class="sidebar-header flex items-center justify-between p-4 border-b border-green-200 bg-green-900/90"
+     
     >
       <div class="logo flex items-center font-bold tracking-tight">
         <i class="fas fa-car text-lg text-yellow-500" :class="{ 'mr-3': !sidebarCollapsed }"></i>
@@ -22,7 +22,7 @@
         <button 
           @click="toggleSidebar" 
           class="sidebar-toggle rounded-md p-2 transition-all duration-200 ease-in-out hover:scale-105 backdrop-blur-md text-white md:block hidden"
-          style="background-color: #0A400C;"
+          style="background-color: green-900/90;"
         >
           <i :class="sidebarCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left'"></i>
         </button>
@@ -49,7 +49,7 @@
         @click="handleMenuClick"
       >
         <i class="fas fa-tachometer-alt w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'Dashboard', 'text-gray-600': $route.name !== 'Dashboard' }"></i>
-        <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Overview</span>
+        <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Home</span>
       </router-link>
 
       <router-link
@@ -78,10 +78,18 @@
         <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Fuel Logs</span>
       </router-link>
 
-      <div class="menu-item flex items-center px-4 py-3 cursor-pointer transition-all duration-300 ease-in-out hover:translate-x-1" @click="navigateToMaintenance">
-        <i class="fas fa-wrench w-5 text-center text-base text-gray-600"></i>
-        <span v-if="!sidebarCollapsed" class="ml-3 text-sm text-gray-800">Maintenance</span>
-      </div>
+      <router-link
+        to="/maintenance"
+        class="menu-item flex items-center px-4 py-3 cursor-pointer transition-all duration-300 ease-in-out hover:translate-x-1"
+        :class="{
+          'active !border-l-4 font-semibold text-green-900 border-green-900': $route.name === 'Maintenance',
+        }"
+        :style="$route.name === 'Maintenance' ? 'background: linear-gradient(to right, rgba(10, 64, 12, 0.2), rgba(10, 64, 12, 0.05));' : ''"
+        @click="handleMenuClick"
+      >
+        <i class="fas fa-wrench w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'Maintenance', 'text-gray-600': $route.name !== 'Maintenance' }"></i>
+        <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Maintenance</span>
+      </router-link>
 
       <div class="menu-item flex items-center px-4 py-3 cursor-pointer transition-all duration-300 ease-in-out hover:translate-x-1" @click="navigateToReports">
         <i class="fas fa-chart-bar w-5 text-center text-base text-gray-600"></i>
@@ -91,10 +99,6 @@
       <div class="menu-section mt-6">
         <div class="menu-divider px-4 pb-3 text-xs uppercase font-semibold tracking-wide border-t border-green-200 pt-4" v-if="!sidebarCollapsed" style="color: #0A400C;">
           <span>Admin</span>
-        </div>
-        <div class="menu-item flex items-center px-4 py-3 cursor-pointer transition-all duration-300 ease-in-out hover:translate-x-1" @click="navigateToUserManagement">
-          <i class="fas fa-users w-5 text-center text-base text-gray-600"></i>
-          <span v-if="!sidebarCollapsed" class="ml-3 text-sm text-gray-800">User Management</span>
         </div>
         
         <router-link
@@ -119,11 +123,11 @@
           <i class="fas fa-user"></i>
         </div>
         <div class="user-details flex-1">
-          <div class="user-name font-semibold text-xs mb-1" style="color: #0A400C;">{{ userProfile?.full_name || 'Loading...' }}</div>
-          <div class="user-role text-xs capitalize px-2 py-0.5 rounded-full text-white" style="background-color: #0A400C;">{{ userProfile?.role || 'staff' }}</div>
+          <div class="user-name font-semibold text-xs ml-2 mb-1" style="color: #0A400C;">{{ userProfile?.full_name || 'Loading...' }}</div>
+          <div class="user-role text-xs capitalize px-2 rounded-full text-white" style="background-color: #0A400C;">{{ userProfile?.role || 'staff' }}</div>
         </div>
       </div>
-      <button @click="logout" class="logout-btn w-full flex items-center justify-center rounded-lg border border-red-400/30 bg-red-400/10 py-2 px-3 font-medium text-red-600 transition-all duration-200 ease-in-out hover:bg-red-400/20 hover:scale-105 hover:text-red-700 backdrop-blur-md text-sm" :title="sidebarCollapsed ? 'Logout' : ''">
+      <button @click="logout" class="logout-btn w-full flex items-center justify-center rounded-lg border border-red-400/30 bg-red-400/10 py-2 px-3 font-medium text-red-500 transition-all duration-200 ease-in-out hover:bg-red-400/20 hover:scale-105 hover:text-red-700 backdrop-blur-md text-sm" :title="sidebarCollapsed ? 'Logout' : ''">
         <i class="fas fa-sign-out-alt" :class="{ 'mr-2': !sidebarCollapsed }"></i>
         <span v-if="!sidebarCollapsed">Logout</span>
       </button>
@@ -161,16 +165,8 @@ export default {
     const userProfile = ref(null)
 
     // Navigation methods
-    const navigateToMaintenance = () => {
-      console.log('Maintenance feature coming soon!');
-    }
-
     const navigateToReports = () => {
       console.log('Reports feature coming soon!');
-    }
-
-    const navigateToUserManagement = () => {
-      console.log('User Management feature coming soon!');
     }
 
     // Sidebar methods
@@ -249,9 +245,7 @@ export default {
       closeSidebar,
       handleMenuClick,
       logout,
-      navigateToMaintenance,
-      navigateToReports,
-      navigateToUserManagement
+      navigateToReports
     }
   }
 }
