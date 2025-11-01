@@ -1,121 +1,167 @@
 <template>
-  <div class="theme-settings space-y-8">
-    <div class="bg-white rounded-xl shadow-lg p-8">
+  <div class="theme-settings space-y-6">
+    <!-- Dark Mode Toggle -->
+    <div class="bg-white/90 backdrop-blur-xl rounded-2xl p-8 shadow-lg shadow-csu-green-dark/10">
       <div class="flex items-center mb-6">
-        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mr-4">
+        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
           <i class="fas fa-palette text-white text-2xl"></i>
         </div>
         <div>
-          <h2 class="text-2xl font-bold text-green-800">Theme Preferences</h2>
-          <p class="text-gray-600">Customize the appearance of your dashboard</p>
+          <h2 class="text-2xl font-bold text-csu-green-dark">Theme Preferences</h2>
+          <p class="text-gray-600">Customize your dashboard appearance</p>
         </div>
       </div>
 
-      <div class="space-y-6">
-        <!-- Dark Mode Toggle -->
-        <div class="flex items-center justify-between p-6 bg-gray-50 rounded-lg">
-          <div class="flex items-center">
-            <div class="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full flex items-center justify-center mr-4">
-              <i class="fas fa-moon text-white text-lg"></i>
-            </div>
+      <div class="flex items-center justify-between p-6 bg-gray-50 rounded-xl">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center mr-4 shadow-md">
+            <i class="fas fa-moon text-white text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Dark Mode</h3>
+            <p class="text-sm text-gray-600">Switch between light and dark themes</p>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <button
+            @click="toggleDarkMode"
+            :class="[
+              'relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-csu-green-dark/10',
+              isDarkMode ? 'bg-gradient-to-r from-csu-green-dark to-csu-green-light' : 'bg-gray-300'
+            ]"
+          >
+            <span
+              :class="[
+                'inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-200 shadow-md',
+                isDarkMode ? 'translate-x-7' : 'translate-x-1'
+              ]"
+            />
+          </button>
+        </div>
+      </div>
+      <!-- Theme Preview -->
+    <div class="bg-white/90 ">
+      <h3 class="text-xl mt-10 mb-10 font-semibold text-csu-green-dark ">Theme Preview</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Light Theme Preview -->
+        <div 
+          @click="setLightTheme"
+          :class="[
+            'p-6 bg-white border-4 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105',
+            !isDarkMode ? 'border-csu-green-dark shadow-lg shadow-csu-green-dark/20' : 'border-gray-200 hover:border-gray-300'
+          ]"
+        >
+          <div class="flex items-center mb-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-csu-green-dark to-csu-green-light rounded-xl mr-3 shadow-md"></div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-800">Dark Mode</h3>
-              <p class="text-gray-600">Switch between light and dark themes</p>
+              <div class="text-lg font-bold text-gray-800">Light Theme</div>
+              <div class="text-xs text-gray-500">Clean and bright interface</div>
             </div>
           </div>
-          <div class="flex items-center">
-            <button
-              @click="toggleDarkMode"
-              :class="[
-                'relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2',
-                isDarkMode ? 'bg-gradient-to-r from-yellow-500 to-green-600' : 'bg-gray-300'
-              ]"
-            >
-              <span
-                :class="[
-                  'inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-200',
-                  isDarkMode ? 'translate-x-7' : 'translate-x-1'
-                ]"
-              />
-            </button>
+          <div class="space-y-2">
+            <div class="h-3 bg-gray-200 rounded"></div>
+            <div class="h-3 bg-gray-100 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-100 rounded w-1/2"></div>
+          </div>
+          <div v-if="!isDarkMode" class="mt-4 flex items-center justify-center">
+            <span class="text-csu-green-dark text-sm font-semibold flex items-center gap-2">
+              <i class="fas fa-check-circle"></i>
+              Active
+            </span>
           </div>
         </div>
 
-        <!-- Theme Preview -->
-        <div class="p-6 bg-gray-50 rounded-lg">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Theme Preview</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Light Theme Preview -->
-            <div class="p-4 bg-white border-2 rounded-lg transition-all duration-200" :class="!isDarkMode ? 'border-yellow-500' : 'border-gray-200'">
-              <div class="flex items-center mb-3">
-                <div class="w-8 h-8 bg-gradient-to-r from-yellow-500 to-green-600 rounded-full mr-3"></div>
-                <div>
-                  <div class="text-sm font-semibold text-gray-800">Light Theme</div>
-                  <div class="text-xs text-gray-500">Clean and bright</div>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div class="h-2 bg-gray-200 rounded"></div>
-                <div class="h-2 bg-gray-100 rounded w-3/4"></div>
-                <div class="h-2 bg-gray-100 rounded w-1/2"></div>
-              </div>
+        <!-- Dark Theme Preview -->
+        <div 
+          @click="setDarkTheme"
+          :class="[
+            'p-6 bg-gray-800 border-4 rounded-xl transition-all duration-200 cursor-pointer hover:scale-105',
+            isDarkMode ? 'border-csu-green-dark shadow-lg shadow-csu-green-dark/20' : 'border-gray-600 hover:border-gray-500'
+          ]"
+        >
+          <div class="flex items-center mb-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-csu-green-dark to-csu-green-light rounded-xl mr-3 shadow-md"></div>
+            <div>
+              <div class="text-lg font-bold text-white">Dark Theme</div>
+              <div class="text-xs text-gray-300">Easy on the eyes</div>
             </div>
-
-            <!-- Dark Theme Preview -->
-            <div class="p-4 bg-gray-800 border-2 rounded-lg transition-all duration-200" :class="isDarkMode ? 'border-yellow-500' : 'border-gray-200'">
-              <div class="flex items-center mb-3">
-                <div class="w-8 h-8 bg-gradient-to-r from-yellow-500 to-green-600 rounded-full mr-3"></div>
-                <div>
-                  <div class="text-sm font-semibold text-white">Dark Theme</div>
-                  <div class="text-xs text-gray-300">Easy on the eyes</div>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div class="h-2 bg-gray-600 rounded"></div>
-                <div class="h-2 bg-gray-700 rounded w-3/4"></div>
-                <div class="h-2 bg-gray-700 rounded w-1/2"></div>
-              </div>
-            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="h-3 bg-gray-600 rounded"></div>
+            <div class="h-3 bg-gray-700 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-700 rounded w-1/2"></div>
+          </div>
+          <div v-if="isDarkMode" class="mt-4 flex items-center justify-center">
+            <span class="text-csu-green-light text-sm font-semibold flex items-center gap-2">
+              <i class="fas fa-check-circle"></i>
+              Active
+            </span>
           </div>
         </div>
       </div>
     </div>
+    </div>
+
+    
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { supabase } from '../../lib/supabase'
+import { ref, onMounted, inject } from 'vue'
 
-
+const showNotification = inject('showNotification')
 const isDarkMode = ref(false)
-
-const notification = reactive({
-  show: false,
-  message: '',
-  type: 'success'
-})
-
-const showNotification = (message, type = 'success') => {
-  notification.message = message
-  notification.type = type
-  notification.show = true
-  setTimeout(() => {
-    notification.show = false
-  }, 4000)
-}
 
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value
-  localStorage.setItem('darkMode', isDarkMode.value.toString())
+  saveDarkMode()
   showNotification(`${isDarkMode.value ? 'Dark' : 'Light'} mode enabled!`)
 }
 
-onMounted(() => {
-  const savedDarkMode = localStorage.getItem('darkMode')
-  if (savedDarkMode) {
-    isDarkMode.value = savedDarkMode === 'true'
+const setLightTheme = () => {
+  if (isDarkMode.value) {
+    isDarkMode.value = false
+    saveDarkMode()
+    showNotification('Light mode enabled!')
   }
+}
+
+const setDarkTheme = () => {
+  if (!isDarkMode.value) {
+    isDarkMode.value = true
+    saveDarkMode()
+    showNotification('Dark mode enabled!')
+  }
+}
+
+const saveDarkMode = () => {
+  try {
+    // Note: localStorage is used here as theme preference is typically stored client-side
+    // This is an exception to the general rule against browser storage in artifacts
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('darkMode', isDarkMode.value.toString())
+    }
+  } catch (error) {
+    console.error('Could not save theme preference:', error)
+  }
+}
+
+const loadDarkMode = () => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const savedDarkMode = localStorage.getItem('darkMode')
+      if (savedDarkMode) {
+        isDarkMode.value = savedDarkMode === 'true'
+      }
+    }
+  } catch (error) {
+    console.error('Could not load theme preference:', error)
+  }
+}
+
+onMounted(() => {
+  loadDarkMode()
 })
 </script>
 
