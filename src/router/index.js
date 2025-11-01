@@ -4,9 +4,11 @@ import Auth from '../pages/Auth.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import Settings from '../pages/Settings.vue'
 import Vehicles from '../pages/Vehicles.vue'
+import Drivers from '../pages/DriverManagement.vue'
 import Trips from '../pages/Trips.vue'
 import Trimap from '../pages/TriMap.vue'
 import FuelLogs from '../pages/FuelLogs.vue'
+import Maintenance from '../pages/Maintenance.vue'
 
 // Import the sub-pages for settings
 import Profile from '../pages/settings/Profile.vue'
@@ -33,15 +35,21 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-      path: '/trips/:id',
-      name: 'TripHistory',
-      component: Trips
-    },
-    {
-      path: '/tripmap/:id',
-      name: 'LiveMap',
-      component: Trimap
-    },
+    path: '/drivers',
+    name: 'Drivers',
+    component: Drivers,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/trips/:id',
+    name: 'TripHistory',
+    component: Trips
+  },
+  {
+    path: '/tripmap/:id',
+    name: 'LiveMap',
+    component: Trimap
+  },
   {
     path: '/fuel',
     name: 'FuelLogs', 
@@ -49,11 +57,17 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/maintenance',
+    name: 'Maintenance', 
+    component: Maintenance,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/settings',
     name: 'Settings',
     component: Settings,
     meta: { requiresAuth: true },
-    redirect: '/settings/profile', // Add this line to redirect to a default child route
+    redirect: '/settings/profile',
     children: [
       {
         path: 'profile',
@@ -76,7 +90,6 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     redirect: (to) => {
-      // This will be handled by the navigation guard
       return '/dashboard'
     }
   }
@@ -86,11 +99,9 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
-
 // Global navigation guard
 router.beforeEach(async (to, from, next) => {
   try {
-    // Check if user is authenticated
     const { data: { session }, error } = await supabase.auth.getSession()
     
     if (error) {
@@ -100,15 +111,28 @@ router.beforeEach(async (to, from, next) => {
     const isAuthenticated = !!session?.user
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
     const requiresGuest = to.matched.some(record => record.meta.requiresGuest)
+    const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
+
+    // Check admin role if required
+    if (requiresAdmin && isAuthenticated) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single()
+      
+      if (profile?.role !== 'admin') {
+        alert('Access denied. Admin privileges required.')
+        next('/dashboard')
+        return
+      }
+    }
 
     if (requiresAuth && !isAuthenticated) {
-      // Route requires auth but user is not authenticated
       next('/')
     } else if (requiresGuest && isAuthenticated) {
-      // Route is for guests only but user is authenticated
       next('/dashboard')
     } else {
-      // Route is accessible
       next()
     }
   } catch (error) {
@@ -116,18 +140,5 @@ router.beforeEach(async (to, from, next) => {
     next('/')
   }
 })
-
-// Listen for auth changes
-// supabase.auth.onAuthStateChange((event, session) => {
-//  if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-    // Redirect to auth page on logout
-  //  if (event === 'SIGNED_OUT') {
-    //  router.push('/')
-   // }
- // } else if (event === 'SIGNED_IN') {
-    // Redirect to dashboard on login
-   // router.push('/dashboard')
- // }
-//})
 
 export default router
