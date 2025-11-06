@@ -240,15 +240,15 @@
             <div v-else class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <div class="overflow-x-auto">
                 <table class="w-full">
-                  <thead class="bg-gray-50 border-b border-gray-200">
+                  <thead class="bg-gradient-to-br from-green-800 to-green-600 border-b border-gray-200">
                     <tr>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Vehicle</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Year</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Type</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Driver</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Department</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Vehicle</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Year</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Status</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Driver</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Department</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -269,9 +269,9 @@
                       <td class="px-4 py-4 text-sm text-gray-700">{{ getDriverName(vehicle.assigned_driver_code) || '-' }}</td>
                       <td class="px-4 py-4 text-sm text-gray-700">{{ vehicle.assigned_department || '-' }}</td>
                       <td class="px-4 py-4">
-                        <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-4">
                           <button @click="viewVehicle(vehicle)" class="p-1.5 rounded hover:bg-blue-50 text-blue-600" title="View">
-                            <i class="fas fa-eye"></i> <span>view</span> 
+                            <i class="fas fa-eye"></i> 
                           </button>
                           <button @click="editVehicle(vehicle)" class="p-1.5 rounded hover:bg-amber-50 text-amber-600" title="Edit">
                             <i class="fas fa-edit"></i>
@@ -496,88 +496,142 @@
     </div>
 
     <!-- View Vehicle Details Modal -->
-    <div v-if="selectedVehicle" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm p-4" @click.self="selectedVehicle = null">
-      <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-hidden shadow-2xl animate-modalSlideIn">
-        <!-- Modal Header -->
-        <div class="relative py-4 px-6 bg-gradient-to-r from-[#0A400C] via-[#0d4f0f] to-[#155c1a] text-white">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-                <i class="fas fa-car text-lg"></i>
-              </div>
-              <div>
-                <h3 class="text-lg font-bold">{{ selectedVehicle.plate_number }}</h3>
-                <p class="text-green-100 text-xs">ID: {{ selectedVehicle.vehicle_id }}</p>
-              </div>
-            </div>
-            <button 
-              @click="selectedVehicle = null" 
-              class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-            >
-              <i class="fas fa-times text-sm"></i>
-            </button>
+<div v-if="selectedVehicle" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm p-4" @click.self="selectedVehicle = null">
+  <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl animate-modalSlideIn">
+    <!-- Modal Header -->
+    <div class="relative py-4 px-6 bg-gradient-to-br from-green-800 to-green-600 text-white">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+            <i class="fas fa-car text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold">{{ selectedVehicle.plate_number }}</h3>
+            <p class="text-green-100 text-xs">ID: {{ selectedVehicle.vehicle_id }}</p>
           </div>
         </div>
+        <button 
+          @click="selectedVehicle = null" 
+          class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+        >
+          <i class="fas fa-times text-sm"></i>
+        </button>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400"></div>
+    </div>
 
-        <!-- Modal Body -->
-        <div class="p-5 overflow-y-auto max-h-[calc(90vh-100px)]">
-          
-          <!-- Status Badge -->
-          <div class="mb-4">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
+    <!-- Modal Body -->
+    <div class="p-5 mt-2">
+      
+      <!-- Vehicle Specifications Card -->
+      <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-3.5 mb-3 border border-gray-200">
+        <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <i class="fas fa-cog text-[#0A400C]"></i>
+          Specifications
+        </h4>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white rounded-lg p-2.5 border border-gray-100">
+            <p class="text-xs text-gray-500 uppercase font-medium mb-0.5">Year</p>
+            <p class="text-base font-bold text-gray-900">{{ selectedVehicle.year }}</p>
+          </div>
+          <div class="bg-white rounded-lg p-2.5 border border-gray-100">
+            <p class="text-xs text-gray-500 uppercase font-medium mb-0.5">Type</p>
+            <p class="text-base font-bold text-gray-900">{{ selectedVehicle.vehicle_type.toUpperCase() }}</p>
+          </div>
+          <div class="bg-white rounded-lg p-2.5 border border-gray-100">
+            <p class="text-xs text-gray-500 uppercase font-medium mb-0.5">Status</p>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border mt-1"
                   :class="getStatusColor(selectedVehicle.status, 'badge')">
               <i :class="getStatusIcon(selectedVehicle.status)" class="text-xs"></i>
               {{ formatStatus(selectedVehicle.status) }}
             </span>
           </div>
-
-          <!-- Vehicle Info Grid -->
-          <div class="space-y-3 mb-4">
-            <div class="flex items-center justify-between py-2 border-b border-gray-100">
-              <span class="text-xs text-gray-500 uppercase font-medium">Year</span>
-              <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.year }}</span>
-            </div>
-            <div class="flex items-center justify-between py-2 border-b border-gray-100">
-              <span class="text-xs text-gray-500 uppercase font-medium">Type</span>
-              <span class="text-sm font-bold text-gray-900">{{ selectedVehicle.vehicle_type.toUpperCase() }}</span>
-            </div>
-            <div class="flex items-center justify-between py-2 border-b border-gray-100">
-              <span class="text-xs text-gray-500 uppercase font-medium">Driver</span>
-              <span class="text-sm font-semibold text-gray-900">{{ getDriverName(selectedVehicle.assigned_driver_code) || 'Unassigned' }}</span>
-            </div>
-            <div class="flex items-center justify-between py-2 border-b border-gray-100">
-              <span class="text-xs text-gray-500 uppercase font-medium">Department</span>
-              <span class="text-sm font-semibold text-gray-900">{{ selectedVehicle.assigned_department || 'Not assigned' }}</span>
-            </div>
-          </div>
-
-          <!-- Notes Section -->
-          <div v-if="selectedVehicle.notes" class="mb-4">
-            <p class="text-xs text-gray-500 uppercase font-medium mb-2">Notes</p>
-            <div class="bg-amber-50 border-l-3 border-amber-400 rounded p-3">
-              <p class="text-sm text-gray-700 leading-relaxed">{{ selectedVehicle.notes }}</p>
-            </div>
-          </div>
-
-          <!-- Registration Info -->
-          <div class="text-xs text-gray-500 space-y-1 mb-5 pt-3 border-t border-gray-100">
-            <p><i class="fas fa-calendar-plus text-green-600 mr-2"></i>Added: {{ formatDate(selectedVehicle.created_at) }}</p>
-            <p v-if="selectedVehicle.updated_at !== selectedVehicle.created_at">
-              <i class="fas fa-edit text-blue-600 mr-2"></i>Updated: {{ formatDate(selectedVehicle.updated_at) }}
-            </p>
-          </div>
-
-          <!-- Action Button -->
-          <button 
-            @click="editVehicle(selectedVehicle); selectedVehicle = null" 
-            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all font-semibold text-sm shadow-md"
-          >
-            <i class="fas fa-edit"></i>
-            Edit Vehicle
-          </button>
         </div>
       </div>
+
+      <!-- Assignment Information Card -->
+      <div class="bg-gradient-to-br from-blue-50 to-white rounded-xl p-3.5 mb-3 border border-blue-100">
+        <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <i class="fas fa-users text-[#0A400C]"></i>
+          Assignment
+        </h4>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex items-center gap-2.5 bg-white rounded-lg p-2.5 border border-gray-100">
+            <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-user text-blue-600 text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase font-medium">Driver</p>
+              <p class="text-sm font-bold text-gray-900 truncate">{{ getDriverName(selectedVehicle.assigned_driver_code) || 'Unassigned' }}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5 bg-white rounded-lg p-2.5 border border-gray-100">
+            <div class="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-building text-purple-600 text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-gray-500 uppercase font-medium">Department</p>
+              <p class="text-sm font-bold text-gray-900 truncate">{{ selectedVehicle.assigned_department || 'Not assigned' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div v-if="selectedVehicle.notes" class="mb-3">
+        <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-2">
+          <i class="fas fa-clipboard text-[#0A400C]"></i>
+          Notes
+        </h4>
+        <div class="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-2.5">
+          <p class="text-sm text-gray-700 leading-relaxed">{{ selectedVehicle.notes }}</p>
+        </div>
+      </div>
+
+      <!-- Registration Info -->
+      <div class="bg-gradient-to-br gap-2 from-gray-50 to-white rounded-xl p-4 mb-4 border border-gray-200">
+        <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2.5 flex items-center gap-2">
+          <i class="fas fa-calendar-check  text-[#0A400C]"></i>
+          Registration
+        </h4>
+        <div class="grid grid-cols-2 gap-8 text-xs text-gray-600">
+          <div class="flex items-center ml-4 gap-7">
+            <i class="fas fa-calendar-plus text-green-600 w-4"></i>
+            <div>
+              <span class="font-medium block text-gray-500">Added</span>
+              <span class="text-gray-900">{{ formatDate(selectedVehicle.created_at) }}</span>
+            </div>
+          </div>
+          <div v-if="selectedVehicle.updated_at !== selectedVehicle.created_at" class="flex items-center ml-4 gap-7">
+            <i class="fas fa-edit text-blue-600 w-4"></i>
+            <div>
+              <span class="font-medium block text-gray-500">Updated</span>
+              <span class="text-gray-900">{{ formatDate(selectedVehicle.updated_at) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-3">
+        <button 
+          @click="editVehicle(selectedVehicle); selectedVehicle = null" 
+          class="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all font-semibold text-sm shadow-md hover:scale-105"
+        >
+          <i class="fas fa-edit"></i>
+          Edit Vehicle
+        </button>
+        <button 
+          @click="viewHistory(selectedVehicle); selectedVehicle = null" 
+          class="flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all font-semibold text-sm shadow-md hover:scale-105"
+        >
+          <i class="fas fa-history"></i>
+          History
+        </button>
+      </div>
     </div>
+  </div>
+</div>
 
     <!-- Delete Confirmation Modal -->
     <div v-if="vehicleToDelete" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
@@ -834,19 +888,20 @@ export default {
     }
 
     const loadDrivers = async () => {
-      try {
+    try {
         const { data, error } = await supabase
-          .from('profiles')
+          .from('drivers') // *** CHANGE 1: Use the new 'drivers' table ***
           .select('id, employee_id, full_name')
-          .eq('role', 'driver')
+          .eq('is_active', true) // *** CHANGE 2: Filter by 'is_active' (best practice for new table) ***
           .order('full_name')
 
         if (error) throw error
         drivers.value = data || []
-      } catch (error) {
+    } catch (error) {
         console.error('Error loading drivers:', error)
-      }
+        // Optionally display a user-friendly error message here
     }
+}
 
     const loadTrips = async () => {
       // This will be handled by TripManagement component
