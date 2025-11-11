@@ -12,38 +12,30 @@
 
      <main class="main-content flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }"> 
       <!-- Header -->
-      <header class="bg-white/95 backdrop-blur-xl py-3 sm:py-4 px-4 sm:px-6 border-b border-white/20 flex justify-between items-center shadow-sm sticky top-0 z-10">
-        <div class="flex items-center gap-3">
-          <button
-            @click="openSidebar"
-            class="bg-green-800 border-none text-white py-2 px-2.5 rounded-lg cursor-pointer transition-all duration-200 hover:bg-green-700 hover:scale-105 md:hidden"
-            v-if="!sidebarOpen"
-            style="background-color: #0A400C;"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
-          <h1 class="m-0 text-lg sm:text-xl lg:text-2xl font-bold tracking-tight" 
-              style="color: #0A400C;">Maintenance Schedule</h1>
-        </div>
-        <div class="flex items-center gap-2 sm:gap-4">
-          <button
-            @click="showAddModal = true"
-            class="bg-gradient-to-br text-white border-none py-2 px-2.5 sm:py-2.5 sm:px-4 rounded-lg cursor-pointer font-semibold flex items-center gap-1.5 transition-all duration-300 shadow-lg text-xs sm:text-sm hover:-translate-y-0.5 hover:shadow-xl"
-            style="background: linear-gradient(135deg, #0A400C, #155c1a); box-shadow: 0 10px 25px rgba(10, 64, 12, 0.3);"
-          >
-            <i class="fas fa-plus text-xs"></i>
-            <span class="hidden sm:inline">Add Schedule</span>
-          </button>
-          <div class="hidden lg:flex items-center py-2 px-3 bg-gradient-to-br from-slate-50 to-slate-200 rounded-lg font-semibold shadow-md border text-xs" 
-               style="color: #0A400C; border-color: rgba(10, 64, 12, 0.1); box-shadow: 0 4px 14px rgba(10, 64, 12, 0.1);">
-            <i class="fas fa-user-circle mr-2 text-sm" style="color: #4ade80;"></i>
-            {{ userProfile?.full_name || 'Admin User' }}
+      <header class="sticky top-0 z-50 bg-gradient-to-br from-green-800 to-green-600 text-white shadow-lg">
+        <div class="px-4 sm:px-6 py-4">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-3">
+              <button
+                @click="openSidebar"
+                v-if="!sidebarOpen"
+                class="lg:hidden bg-green-800 text-white py-2.5 px-3 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <i class="fas fa-bars"></i>
+              </button>
+              <div>
+                <h1 class="text-xl sm:text-2xl font-bold">Maintenance Schedule</h1>
+                <p class="text-xs sm:text-sm text-green-100 mt-0.5">
+                  Schedule and track vehicle maintenance
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
       <!-- Main Content -->
-      <div class="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto">
+      <div class="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto bg-green-100/80">
         <div class="max-w-7xl mx-auto">
           <!-- Stats Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -62,53 +54,54 @@
           </div>
 
           <!-- Filters Section -->
-         <div class="bg-white/90 backdrop-blur-xl p-4 sm:p-5 rounded-xl mb-6 sm:mb-8 shadow-lg flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-center"
-                style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-            
-            <div class="relative flex-1 min-w-0">
-                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+            <div class="flex flex-col lg:flex-row gap-4">
+              <div class="flex-1 relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 <input
-                type="text"
-                v-model="searchQuery"
-                placeholder="Search by plate, type, or service..."
-                class="w-full py-3 pl-11 pr-4 border border-slate-300 rounded-lg text-sm bg-white transition-colors duration-200 focus:outline-none focus:ring-4"
-                style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
-                :style="{ 'border-color': searchQuery ? '#0A400C' : '' }"
+                  type="text"
+                  v-model="searchQuery"
+                  placeholder="Search by plate, type, or service..."
+                  class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent"
                 >
-            </div>
+              </div>
 
-            <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-                
-                <select v-model="filterStatus" 
-                        class="py-2.5 px-3 border border-slate-300 rounded-lg bg-white text-sm text-gray-700 min-w-0 sm:min-w-36 focus:outline-none focus:ring-4"
-                        style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
-                        :style="{ 'border-color': filterStatus ? '#0A400C' : '' }">
-                <option value="">All Status</option>
-                <option value="overdue">Overdue</option>
-                <option value="due-soon">Due Soon</option>
-                <option value="up-to-date">Up to Date</option>
+              <div class="flex items-center gap-2 flex-wrap">
+                <select v-model="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                  <option value="">All Status</option>
+                  <option value="overdue">Overdue</option>
+                  <option value="due-soon">Due Soon</option>
+                  <option value="up-to-date">Up to Date</option>
                 </select>
 
-                <select v-model="filterType" 
-                        class="py-2.5 px-3 border border-slate-300 rounded-lg bg-white text-sm text-gray-700 min-w-0 sm:min-w-36 focus:outline-none focus:ring-4"
-                        style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
-                        :style="{ 'border-color': filterType ? '#0A400C' : '' }">
-                <option value="">All Types</option>
-                <option value="car">Car</option>
-                <option value="van">Van</option>
-                <option value="truck">Truck</option>
-                <option value="suv">SUV</option>
-                <option value="motorcycle">Motorcycle</option>
-                <option value="bus">Bus</option>
+                <select v-model="filterType" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                  <option value="">All Types</option>
+                  <option value="car">Car</option>
+                  <option value="van">Van</option>
+                  <option value="truck">Truck</option>
+                  <option value="suv">SUV</option>
+                  <option value="motorcycle">Motorcycle</option>
+                  <option value="bus">Bus</option>
                 </select>
 
-                <button @click="clearFilters" 
-                        class="bg-slate-500/10 text-slate-600 border border-slate-500/20 py-2.5 px-4 rounded-lg cursor-pointer font-medium flex items-center justify-center gap-1.5 transition-all duration-200 text-sm hover:bg-slate-500/20 hover:text-slate-700 whitespace-nowrap">
-                <i class="fas fa-times"></i>
-                <span class="hidden sm:inline">Clear</span>
+                <button 
+                  @click="clearFilters" 
+                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <i class="fas fa-times mr-2"></i>
+                  <span class="hidden sm:inline">Clear</span>
                 </button>
+
+                <button 
+                  @click="showAddModal = true"
+                  class="bg-gradient-to-br from-green-800 to-green-700 text-white py-2 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                >
+                  <i class="fas fa-plus"></i>
+                  <span class="hidden sm:inline">Add Schedule</span>
+                </button>
+              </div>
             </div>
-            </div>
+          </div>
 
           <!-- Maintenance Cards Grid -->
           <div class="maintenance-content">
@@ -346,7 +339,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabase'
 import Navbar from './Navbar.vue'
 
@@ -466,7 +459,29 @@ export default {
           .order('next_due_date', { ascending: true })
         
         if (error) throw error
-        maintenance.value = data || []
+        
+        // Recalculate status for each record based on current date
+        if (data) {
+          maintenance.value = data.map(record => ({
+            ...record,
+            status: calculateStatus(record.next_due_date)
+          }))
+          
+          // Update database with recalculated statuses (fire and forget)
+          data.forEach(record => {
+            const newStatus = calculateStatus(record.next_due_date)
+            if (newStatus !== record.status) {
+              supabase
+                .from('maintenance')
+                .update({ status: newStatus })
+                .eq('id', record.id)
+                .then(() => {})
+                .catch(err => console.error('Error auto-updating status:', err))
+            }
+          })
+        } else {
+          maintenance.value = []
+        }
       } catch (error) {
         console.error('Error loading maintenance:', error)
         maintenance.value = []
@@ -537,22 +552,39 @@ export default {
       })
     }
 
+    // Helper function to calculate status based on due date
+    const calculateStatus = (nextDueDate) => {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const dueDate = new Date(nextDueDate)
+      dueDate.setHours(0, 0, 0, 0)
+      
+      if (dueDate < today) {
+        return 'overdue'
+      } else if (dueDate <= new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)) {
+        return 'due-soon'
+      } else {
+        return 'up-to-date'
+      }
+    }
+
     // CRUD operations
     const saveMaintenance = async () => {
       submitting.value = true
       try {
         const nextDueDate = new Date(formData.value.last_service_date)
         nextDueDate.setDate(nextDueDate.getDate() + parseInt(formData.value.interval_days))
+        const nextDueDateStr = nextDueDate.toISOString().split('T')[0]
 
         const payload = {
           vehicle_id: formData.value.vehicle_id,
           service_type: formData.value.service_type,
           last_service_date: formData.value.last_service_date,
-          next_due_date: nextDueDate.toISOString().split('T')[0],
+          next_due_date: nextDueDateStr,
           interval_days: parseInt(formData.value.interval_days),
           estimated_cost: parseFloat(formData.value.estimated_cost) || 0,
           notes: formData.value.notes,
-          status: 'up-to-date'
+          status: calculateStatus(nextDueDateStr)
         }
 
         if (editingId.value) {
@@ -581,29 +613,50 @@ export default {
     }
 
 const editMaintenance = (m) => {
-    editingId.value = maintenance.id
+  editingId.value = m.id
   formData.value = {
-    vehicle_id: maintenance.vehicle_id,
-    service_type: maintenance.service_type,
-    last_service_date: maintenance.last_service_date,
-    interval_days: maintenance.interval_days,
-    estimated_cost: maintenance.estimated_cost,
-    notes: maintenance.notes
+    vehicle_id: m.vehicle_id,
+    service_type: m.service_type,
+    last_service_date: m.last_service_date,
+    interval_days: m.interval_days,
+    estimated_cost: m.estimated_cost,
+    notes: m.notes || ''
   }
   showAddModal.value = true
 }
 
 const markAsCompleted = async (id) => {
   try {
+    // Get the maintenance record first to know the interval
+    const maintenanceRecord = maintenance.value.find(m => m.id === id)
+    if (!maintenanceRecord) {
+      alert('Maintenance record not found')
+      return
+    }
+
+    // Calculate new dates
+    const today = new Date()
+    const todayStr = today.toISOString().split('T')[0]
+    const nextDueDate = new Date(today)
+    nextDueDate.setDate(nextDueDate.getDate() + maintenanceRecord.interval_days)
+    const nextDueDateStr = nextDueDate.toISOString().split('T')[0]
+
+    // Update with new dates and status
     const { error } = await supabase
       .from('maintenance')
-      .update({ status: 'completed' })
+      .update({ 
+        last_service_date: todayStr,
+        next_due_date: nextDueDateStr,
+        status: calculateStatus(nextDueDateStr)
+      })
       .eq('id', id)
     
     if (error) throw error
     await loadMaintenance()
+    alert('Maintenance marked as completed! Next service scheduled.')
   } catch (error) {
     console.error('Error updating maintenance:', error)
+    alert('Error marking as completed: ' + error.message)
   }
 }
 
@@ -635,6 +688,20 @@ const closeModal = () => {
     notes: '',
   }
 }
+
+// Lifecycle - Load data when component mounts
+onMounted(async () => {
+  await loadVehicles()
+  await loadMaintenance()
+  await loadUserProfile()
+  window.addEventListener('resize', handleResize)
+  handleResize()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
 return {
       // Sidebar
       sidebarCollapsed,

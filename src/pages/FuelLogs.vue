@@ -20,31 +20,30 @@
         <main class="main-content flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
       
       <!-- Header -->
-      <header class="bg-white/95 backdrop-blur-xl py-5 px-8 border-b border-white/20 flex flex-col sm:flex-row justify-between items-start sm:items-center shadow-sm sticky top-0 z-10 gap-4 sm:gap-0">
-        <div class="flex items-center gap-4 w-full sm:w-auto">
-          <button
-            @click="openSidebar"
-            class="bg-green-800 border-none text-white py-2.5 px-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-green-700 hover:scale-105 lg:hidden"
-            v-if="!sidebarOpen"
-            style="background-color: #0A400C;"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
-          <h1 class="m-0 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" 
-              style="color: #0A400C;">Fuel Logs</h1>
+      <header class="sticky top-0 z-50 bg-gradient-to-br from-green-800 to-green-600 text-white shadow-lg">
+        <div class="px-4 sm:px-6 py-4">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-3">
+              <button
+                @click="openSidebar"
+                v-if="!sidebarOpen"
+                class="lg:hidden bg-green-800 text-white py-2.5 px-3 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <i class="fas fa-bars"></i>
+              </button>
+              <div>
+                <h1 class="text-xl sm:text-2xl font-bold">Fuel Logs</h1>
+                <p class="text-xs sm:text-sm text-green-100 mt-0.5">
+                  Track and manage fuel consumption
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <button
-          @click="openAddModal"
-          class="bg-gradient-to-br text-white border-none py-2 px-3 sm:py-3 sm:px-5 rounded-xl cursor-pointer font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg text-xs sm:text-sm hover:-translate-y-0.5 hover:shadow-xl"
-          style="background: linear-gradient(135deg, #0A400C, #155c1a); box-shadow: 0 10px 25px rgba(10, 64, 12, 0.3);"
-        >
-          <i class="fas fa-plus"></i>
-          <span class="hidden sm:inline">Add Fuel Log</span>
-        </button>
       </header>
 
       <!-- Main Content -->
-      <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+      <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-green-100/80">
         <div class="max-w-7xl mx-auto">
           
           <!-- Statistics Cards -->
@@ -75,24 +74,20 @@
           </div>
 
           <!-- Filters Section -->
-          <div class="bg-white/90 backdrop-blur-xl p-4 sm:p-5 rounded-xl mb-6 sm:mb-8 shadow-lg"
-               style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-            <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-center">
-              <div class="relative flex-1 min-w-0">
-                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+            <div class="flex flex-col lg:flex-row gap-4">
+              <div class="flex-1 relative">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 <input
                   type="text"
                   v-model="searchQuery"
                   placeholder="Search by vehicle plate, driver, trip..."
-                  class="w-full py-3 pl-11 pr-4 border border-slate-300 rounded-lg text-sm bg-white transition-colors duration-200 focus:outline-none focus:ring-4"
-                  style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
-                  :style="{ 'border-color': searchQuery ? '#0A400C' : '' }"
+                  class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent"
                 >
               </div>
 
-              <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-                <select v-model="vehicleFilter" class="py-2.5 px-3 border border-slate-300 rounded-lg bg-white text-sm text-gray-700 min-w-0 sm:min-w-36 focus:outline-none focus:ring-4"
-                        style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
+              <div class="flex items-center gap-2 flex-wrap">
+                <select v-model="vehicleFilter" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                   <option value="">All Vehicles</option>
                   <option v-for="vehicle in vehicles" :key="vehicle.id" :value="vehicle.id">
                     {{ vehicle.plate_number }}
@@ -102,13 +97,23 @@
                 <input 
                   type="date" 
                   v-model="dateFilter"
-                  class="py-2.5 px-3 border border-slate-300 rounded-lg bg-white text-sm text-gray-700 min-w-0 sm:min-w-36 focus:outline-none focus:ring-4"
-                  style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
+                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                 >
 
-                <button @click="clearFilters" class="bg-slate-500/10 text-slate-600 border border-slate-500/20 py-2.5 px-4 rounded-lg cursor-pointer font-medium flex items-center justify-center gap-1.5 transition-all duration-200 text-sm hover:bg-slate-500/20 hover:text-slate-700 whitespace-nowrap">
-                  <i class="fas fa-times"></i>
+                <button 
+                  @click="clearFilters"
+                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <i class="fas fa-times mr-2"></i>
                   <span class="hidden sm:inline">Clear</span>
+                </button>
+
+                <button 
+                  @click="openAddModal"
+                  class="bg-gradient-to-br from-green-800 to-green-700 text-white py-2 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                >
+                  <i class="fas fa-plus"></i>
+                  <span class="hidden sm:inline">Add Fuel Log</span>
                 </button>
               </div>
             </div>
@@ -510,32 +515,32 @@ export default {
         if (tripsError) throw tripsError
         trips.value = tripsData
 
-        // Load drivers
-        const { data: driversData, error: driversError } = await supabase
-          .from('profiles')
-          .select('id, full_name, employee_id')
-          .eq('role', 'driver')
-          .order('full_name')
-        
-        if (driversError) throw driversError
-        drivers.value = driversData
+        // Load drivers
+        const { data: driversData, error: driversError } = await supabase
+          .from('drivers')
+          .select('id, full_name, employee_id')
+          .eq('is_active', true)
+          .order('full_name')
+        
+        if (driversError) throw driversError
+        drivers.value = driversData
 
-        // Load fuel logs
-        const { data: logsData, error: logsError } = await supabase
-          .from('fuel_logs')
-          .select(`
-            *,
-            profiles:driver_id (full_name)
-          `)
-          .order('created_at', { ascending: false })
-          .limit(100)
-        
-        if (logsError) throw logsError
-        
-        fuelLogs.value = logsData.map(log => ({
-          ...log,
-          driver_name: log.profiles?.full_name || null
-        }))
+        // Load fuel logs
+        const { data: logsData, error: logsError } = await supabase
+          .from('fuel_logs')
+          .select(`
+            *,
+            drivers:driver_id (full_name)
+          `)
+          .order('created_at', { ascending: false })
+          .limit(100)
+        
+        if (logsError) throw logsError
+        
+        fuelLogs.value = logsData.map(log => ({
+          ...log,
+          driver_name: log.drivers?.full_name || null
+        }))
 
       } catch (error) {
         console.error('Error loading data:', error)

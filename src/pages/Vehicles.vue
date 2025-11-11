@@ -836,9 +836,8 @@ export default {
     const loadDrivers = async () => {
       try {
         const { data, error } = await supabase
-          .from('profiles')
-          .select('id, employee_id, full_name')
-          .eq('role', 'driver')
+          .from('drivers')
+          .select('id, employee_id, full_name, is_active')
           .order('full_name')
 
         if (error) throw error

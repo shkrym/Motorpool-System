@@ -211,6 +211,27 @@
                   />
                 </div>
               </div>
+              
+              <!-- Password field for new drivers only -->
+              <div v-if="!editingDriver" class="mt-5">
+                <div class="flex flex-col gap-2">
+                  <label class="font-semibold text-gray-700 text-sm">
+                    Password <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    v-model="form.password"
+                    placeholder="Enter a secure password (min. 6 characters)"
+                    required
+                    minlength="6"
+                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]"
+                  />
+                  <p class="text-xs text-gray-500 mt-1">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Minimum 6 characters. Driver can change this after first login.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- License Information -->
@@ -506,9 +527,8 @@ export default {
       loading.value = true
       try {
         const { data, error } = await supabase
-          .from('profiles')
+          .from('drivers')
           .select('*')
-          .eq('role', 'driver')
           .order('created_at', { ascending: false })
 
         if (error) throw error
@@ -525,7 +545,7 @@ export default {
       try {
         const { data, error } = await supabase
           .from('vehicles')
-          .select('id, plate_number, vehicle_id, assigned_driver_id')
+          .select('id, plate_number, vehicle_id, assigned_driver_code')
 
         if (error) throw error
         vehicles.value = data || []
@@ -535,7 +555,9 @@ export default {
     }
 
     const getAssignedVehicle = (driverId) => {
-      const vehicle = vehicles.value.find(v => v.assigned_driver_id === driverId)
+      const driver = drivers.value.find(d => d.id === driverId)
+      if (!driver) return null
+      const vehicle = vehicles.value.find(v => v.assigned_driver_code === driver.employee_id)
       return vehicle ? `${vehicle.vehicle_id} (${vehicle.plate_number})` : null
     }
 
@@ -621,7 +643,7 @@ export default {
           }
 
           const { error } = await supabase
-            .from('profiles')
+            .from('drivers')
             .update(updateData)
             .eq('id', editingDriver.value.id)
 
@@ -638,27 +660,33 @@ export default {
 
           alert('Driver updated successfully!')
         } else {
-          // Create new driver
+          // Create new driver with auth account
+          console.log('Creating auth user...')
           const { data: authData, error: authError } = await supabase.auth.signUp({
             email: form.email,
-            password: form.password,
-            options: {
-              data: {
-                employee_id: form.employee_id,
-                full_name: form.full_name,
-                role: 'driver'
-              }
-            }
+            password: form.password
           })
 
-          if (authError) throw authError
-          if (!authData.user) throw new Error('Failed to create user account')
+          if (authError) {
+            console.error('Auth error:', authError)
+            throw new Error(`Authentication failed: ${authError.message}`)
+          }
+          
+          if (!authData.user) {
+            throw new Error('Failed to create user account - no user returned')
+          }
 
-          // Insert into profiles
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
+          console.log('Auth user created successfully:', authData.user.id)
+
+          // Wait a moment for auth to complete
+          await new Promise(resolve => setTimeout(resolve, 300))
+
+          // Insert into drivers table
+          console.log('Inserting into drivers table...')
+          const { data: driverData, error: driverError } = await supabase
+            .from('drivers')
             .insert({
-              id: authData.user.id,
+              user_id: authData.user.id,
               employee_id: form.employee_id,
               full_name: form.full_name,
               email: form.email,
@@ -667,15 +695,18 @@ export default {
               license_expiry: form.license_expiry || null,
               position: form.position,
               department: form.department || null,
-              role: 'driver',
               is_active: form.is_active
             })
             .select()
             .single()
 
-          if (profileError) throw profileError
+          if (driverError) {
+            console.error('Driver insert error:', driverError)
+            throw new Error(`Failed to save driver data: ${driverError.message}`)
+          }
 
-          drivers.value.unshift(profileData)
+          console.log('Driver created successfully:', driverData)
+          drivers.value.unshift(driverData)
           alert('Driver registered successfully!')
         }
 
@@ -698,7 +729,7 @@ export default {
       
       try {
         // Check if driver is assigned to a vehicle
-        const assignedVehicle = vehicles.value.find(v => v.assigned_driver_id === driverToDelete.value.id)
+        const assignedVehicle = vehicles.value.find(v => v.assigned_driver_code === driverToDelete.value.employee_id)
         if (assignedVehicle) {
           alert(`Cannot delete driver. They are currently assigned to vehicle ${assignedVehicle.plate_number}. Please reassign the vehicle first.`)
           driverToDelete.value = null
@@ -706,7 +737,7 @@ export default {
         }
 
         const { error } = await supabase
-          .from('profiles')
+          .from('drivers')
           .delete()
           .eq('id', driverToDelete.value.id)
         

@@ -172,6 +172,27 @@
 
         <!-- Modal Content -->
         <form @submit.prevent="submitForm" class="p-6 overflow-y-auto max-h-[calc(90vh-88px)]">
+          <!-- Vehicle Selection -->
+          <div class="mb-6">
+            <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+              <i class="fas fa-car text-green-600"></i>
+              Vehicle Selection
+            </h4>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">Select Vehicle *</label>
+              <select 
+                v-model="form.vehicle_id" 
+                required
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+              >
+                <option value="">Choose a vehicle</option>
+                <option v-for="vehicle in availableVehicles" :key="vehicle.id" :value="vehicle.id">
+                  {{ vehicle.vehicle_id }} - {{ vehicle.plate_number }} ({{ vehicle.vehicle_type }})
+                </option>
+              </select>
+            </div>
+          </div>
+
           <!-- Route Information -->
           <div class="mb-6">
             <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
@@ -183,7 +204,7 @@
                 <label class="block text-sm font-semibold text-slate-700 mb-2">Origin Location *</label>
                 <input 
                   type="text" 
-                  v-model="tripForm.origin" 
+                  v-model="form.origin" 
                   required 
                   placeholder="Starting point"
                   class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -193,7 +214,7 @@
                 <label class="block text-sm font-semibold text-slate-700 mb-2">Destination *</label>
                 <input 
                   type="text" 
-                  v-model="tripForm.destination" 
+                  v-model="form.destination" 
                   required 
                   placeholder="End point"
                   class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -213,16 +234,16 @@
                 <label class="block text-sm font-semibold text-slate-700 mb-2">Start Date & Time *</label>
                 <input 
                   type="datetime-local" 
-                  v-model="tripForm.start_time" 
+                  v-model="form.start_time" 
                   required 
                   class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
               </div>
               <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">End Date & Time</label>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Expected End Date & Time</label>
                 <input 
                   type="datetime-local" 
-                  v-model="tripForm.end_time" 
+                  v-model="form.expected_end_time" 
                   class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
               </div>
@@ -239,55 +260,53 @@
               <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-2">Assigned Driver</label>
                 <select 
-                  v-model="tripForm.driver_id" 
+                  v-model="form.driver_id" 
                   class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
                 >
-                  <option value="">Select a driver</option>
-                  <option v-for="driver in drivers" :key="driver.id" :value="driver.id">
-                    {{ driver.full_name }}
+                  <option value="">Select a driver (optional)</option>
+                  <option v-for="driver in activeDrivers" :key="driver.id" :value="driver.id">
+                    {{ driver.full_name }} ({{ driver.employee_id }})
                   </option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Distance (kilometers)</label>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Start Odometer</label>
                 <input 
                   type="number" 
-                  v-model.number="tripForm.distance" 
+                  v-model.number="form.start_odometer" 
                   step="0.1" 
                   min="0"
-                  placeholder="0.0"
+                  placeholder="e.g., 45000"
                   class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
               </div>
-              
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-2">Trip Purpose</label>
                 <select 
-                  v-model="tripForm.purpose" 
+                  v-model="form.purpose" 
                   class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
                 >
                   <option value="">Select purpose</option>
-                  <option value="official">Official Business</option>
-                  <option value="transport">Personnel Transport</option>
-                  <option value="delivery">Delivery</option>
-                  <option value="maintenance">Maintenance</option>
-                  <option value="emergency">Emergency</option>
-                  <option value="other">Other</option>
+                  <option value="Official Business">Official Business</option>
+                  <option value="Personnel Transport">Personnel Transport</option>
+                  <option value="Delivery">Delivery</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Emergency">Emergency</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Trip Status</label>
-                <select 
-                  v-model="tripForm.status" 
-                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Passenger Count</label>
+                <input 
+                  type="number" 
+                  v-model.number="form.passenger_count" 
+                  min="0"
+                  placeholder="e.g., 5"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
-                  <option value="ongoing">Ongoing</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
               </div>
             </div>
           </div>
@@ -297,7 +316,7 @@
           <div class="mb-6">
             <label class="block text-sm font-semibold text-slate-700 mb-2">Additional Notes</label>
             <textarea 
-              v-model="tripForm.notes" 
+              v-model="form.notes" 
               rows="4" 
               placeholder="Add any relevant information about this trip..."
               class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
@@ -779,11 +798,11 @@ export default {
       try {
         const tripData = {
           trip_id: editingTrip.value?.trip_id || `TRP-${Date.now()}`,
-          vehicle_id: form.vehicle_id,
-          driver_id: form.driver_id,
+          vehicle_id: form.vehicle_id || null,
+          driver_id: form.driver_id || null,
           origin: form.origin || null,
           destination: form.destination,
-          purpose: form.purpose,
+          purpose: form.purpose || null,
           start_time: form.start_time,
           expected_end_time: form.expected_end_time || null,
           passenger_name: form.passenger_name || null,

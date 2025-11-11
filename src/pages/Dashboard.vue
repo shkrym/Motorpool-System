@@ -393,6 +393,7 @@ export default {
         'maintenance': 'fas fa-wrench',
         'vehicle': 'fas fa-car',
         'trip': 'fas fa-route',
+        'driver': 'fas fa-user-plus',
         'default': 'fas fa-circle'
       }
       return icons[type] || icons.default
@@ -404,6 +405,7 @@ export default {
         'maintenance': 'bg-red-500',
         'vehicle': 'bg-blue-500',
         'trip': 'bg-orange-500',
+        'driver': 'bg-purple-500',
         'default': 'bg-gray-500'
       }
       return classes[type] || classes.default
@@ -474,7 +476,7 @@ export default {
             created_at, 
             liters,
             vehicles (plate_number),
-            profiles (full_name)
+            drivers (full_name)
           `)
           .order('created_at', { ascending: false })
           .limit(5)
@@ -488,7 +490,7 @@ export default {
               type: 'fuel',
               description: `Fuel logged for ${log.vehicles?.plate_number || 'vehicle'} - ${log.liters}L`,
               created_at: log.created_at,
-              user: log.profiles?.full_name || 'System'
+              user: log.drivers?.full_name || 'System'
             })
           })
         }
@@ -550,7 +552,7 @@ export default {
             destination,
             status,
             vehicles (plate_number),
-            profiles (full_name)
+            drivers (full_name)
           `)
           .order('created_at', { ascending: false })
           .limit(5)
@@ -564,7 +566,54 @@ export default {
               type: 'trip',
               description: `Trip to ${trip.destination} - ${trip.vehicles?.plate_number || 'vehicle'} (${trip.status})`,
               created_at: trip.created_at,
-              user: trip.profiles?.full_name || 'Driver'
+              user: trip.drivers?.full_name || 'Driver'
+            })
+          })
+        }
+
+        // E. Fetch recent driver registrations
+        const { data: recentDrivers, error: driversError } = await supabase
+          .from('drivers')
+          .select('id, created_at, full_name, employee_id')
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        if (driversError) {
+          console.error('Error loading drivers:', driversError)
+        } else if (recentDrivers) {
+          recentDrivers.forEach(driver => {
+            allActivities.push({
+              id: `driver-${driver.id}`,
+              type: 'driver',
+              description: `New driver registered: ${driver.full_name} (${driver.employee_id})`,
+              created_at: driver.created_at,
+              user: 'Admin'
+            })
+          })
+        }
+
+        // F. Fetch recent maintenance schedules
+        const { data: maintenanceSchedules, error: scheduleError } = await supabase
+          .from('maintenance')
+          .select(`
+            id,
+            created_at,
+            service_type,
+            vehicles (plate_number)
+          `)
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        if (scheduleError) {
+          console.error('Error loading maintenance schedules:', scheduleError)
+        } else if (maintenanceSchedules) {
+          maintenanceSchedules.forEach(schedule => {
+            allActivities.push({
+              id: `schedule-${schedule.id}`,
+              type: 'maintenance',
+              description: `${schedule.service_type} scheduled for ${schedule.vehicles?.plate_number || 'vehicle'}`,
+              created_at: schedule.created_at,
+              user: 'Maintenance Team'
             })
           })
         }
