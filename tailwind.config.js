@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '480px', // Extra small devices (large phones)
+      },
       colors: {
         'csu-green-dark': '#0A400C',
         'csu-green-light': '#18aa1d', 

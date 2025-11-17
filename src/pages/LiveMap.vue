@@ -5,26 +5,50 @@
       :sidebar-open="sidebarOpen"
       @toggle-sidebar="toggleSidebar"
       @close-sidebar="closeSidebar"
+      @open-sidebar="openSidebar"
     />
 
-    <div class="flex-1 flex flex-col overflow-hidden" :class="{'ml-16': sidebarCollapsed, 'ml-0': !sidebarCollapsed}">
+    <div class="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
       
+      <!-- Backdrop overlay for mobile sidebar -->
+      <div
+        v-if="sidebarOpen && !sidebarCollapsed"
+        class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+        @click="closeSidebar"
+      ></div>
+
       <!-- Header -->
       <header class="bg-gradient-to-br from-green-800 to-green-600 text-white shadow-xl">
-        <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div class="px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
           <div class="flex items-center justify-between">
-            <div>
-              <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">🗺️ Live GPS Tracking</h1>
-              <p class="text-green-100 text-sm mt-1">Real-time vehicle location monitoring</p>
+            <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <button
+                @click="openSidebar"
+                v-if="!sidebarOpen"
+                class="lg:hidden bg-green-700 text-white py-2 px-3 rounded-lg hover:bg-green-600 transition-colors flex-shrink-0"
+              >
+                <i class="fas fa-bars"></i>
+              </button>
+              <div class="flex-1 min-w-0">
+                <h1 class="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">🗺️ Live GPS Tracking</h1>
+                <p class="text-green-100 text-xs sm:text-sm mt-1 hidden sm:block">Real-time vehicle location monitoring</p>
+              </div>
             </div>
-            <div class="flex items-center gap-4">
-              <div class="text-right">
-                <div class="text-xs text-green-200">Active Vehicles</div>
-                <div class="text-2xl font-bold">{{ activeVehicles }}</div>
+            <div class="flex items-center gap-2 sm:gap-4">
+              <div class="text-right hidden xs:block">
+                <div class="text-xs text-green-200">Active</div>
+                <div class="text-lg sm:text-2xl font-bold">{{ activeVehicles }}</div>
               </div>
               <button 
+                @click="toggleVehicleList"
+                class="lg:hidden bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-all flex items-center gap-2"
+              >
+                <i class="fas fa-list"></i>
+                <span class="hidden xs:inline text-sm">Vehicles</span>
+              </button>
+              <button 
                 @click="refreshLocations"
-                class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-all flex items-center gap-2"
+                class="bg-white/20 hover:bg-white/30 px-3 sm:px-4 py-2 rounded-lg transition-all flex items-center gap-2"
                 :disabled="loading"
               >
                 <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
@@ -36,34 +60,48 @@
       </header>
 
       <!-- Main Content -->
-      <div class="flex-1 flex overflow-hidden bg-gradient-to-br from-green-50/70 to-emerald-100/70">
+      <div class="flex-1 flex overflow-hidden bg-gradient-to-br from-green-50/70 to-emerald-100/70 relative">
         
-        <!-- Sidebar - Vehicle List -->
-        <div class="w-80 bg-white/90 backdrop-blur-xl shadow-xl overflow-y-auto">
-          <div class="p-4 border-b border-gray-200">
+        <!-- Sidebar - Vehicle List (Desktop: sidebar, Mobile: slide-out overlay) -->
+        <div 
+          class="w-80 bg-white/90 backdrop-blur-xl shadow-xl overflow-y-auto transition-transform duration-300 z-20"
+          :class="{
+            'hidden lg:block': !vehicleListOpen,
+            'fixed inset-y-0 left-0 lg:relative': vehicleListOpen,
+            'translate-x-0': vehicleListOpen,
+            '-translate-x-full lg:translate-x-0': !vehicleListOpen
+          }"
+        >
+          <div class="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
             <input 
               v-model="searchQuery"
               type="text" 
               placeholder="🔍 Search vehicles..."
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              class="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
             />
+            <button 
+              @click="toggleVehicleList"
+              class="lg:hidden ml-2 text-gray-500 hover:text-gray-700 p-2"
+            >
+              <i class="fas fa-times"></i>
+            </button>
           </div>
 
-          <div class="p-4 space-y-3">
+          <div class="p-3 sm:p-4 space-y-3">
             <div 
               v-for="vehicle in filteredVehicles" 
               :key="vehicle.vehicle_id"
-              @click="selectVehicle(vehicle)"
-              class="bg-white rounded-lg p-4 border-2 cursor-pointer transition-all hover:shadow-lg"
+              @click="selectVehicleAndClose(vehicle)"
+              class="bg-white rounded-lg p-3 sm:p-4 border-2 cursor-pointer transition-all hover:shadow-lg"
               :class="selectedVehicle?.vehicle_id === vehicle.vehicle_id ? 'border-green-500 shadow-lg' : 'border-gray-200'"
             >
               <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <div class="font-semibold text-gray-900">{{ vehicle.plate_number }}</div>
-                  <div class="text-sm text-gray-600">{{ vehicle.vehicle_code }}</div>
-                  <div class="text-xs text-gray-500 mt-1">{{ vehicle.make }} {{ vehicle.model }}</div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-gray-900 truncate">{{ vehicle.plate_number }}</div>
+                  <div class="text-sm text-gray-600 truncate">{{ vehicle.vehicle_code }}</div>
+                  <div class="text-xs text-gray-500 mt-1 truncate">{{ vehicle.make }} {{ vehicle.model }}</div>
                 </div>
-                <div class="text-right">
+                <div class="text-right flex-shrink-0 ml-2">
                   <div :class="getStatusColor(vehicle.seconds_since_update)" class="text-xs font-semibold">
                     {{ formatTime(vehicle.device_timestamp) }}
                   </div>
@@ -74,15 +112,15 @@
               <div v-if="vehicle.driver_code" class="mt-2 pt-2 border-t border-gray-100">
                 <div class="text-xs text-gray-600 flex items-center gap-1">
                   <i class="fas fa-user"></i>
-                  {{ vehicle.driver_code }}
+                  <span class="truncate">{{ vehicle.driver_code }}</span>
                 </div>
               </div>
 
               <!-- GPS Update Time -->
               <div class="mt-2 pt-2 border-t border-gray-100">
-                <div class="text-xs text-gray-500">
+                <div class="text-xs text-gray-500 flex items-center gap-1">
                   <i class="fas fa-clock"></i>
-                  Updated {{ formatTime(vehicle.device_timestamp) }}
+                  <span>Updated {{ formatTime(vehicle.device_timestamp) }}</span>
                 </div>
               </div>
             </div>
@@ -100,104 +138,104 @@
           </div>
         </div>
 
+        <!-- Overlay for mobile when vehicle list is open -->
+        <div 
+          v-if="vehicleListOpen"
+          @click="toggleVehicleList"
+          class="lg:hidden fixed inset-0 bg-black/50 z-10"
+        ></div>
+
         <!-- Map Container -->
         <div class="flex-1 relative">
           <div id="map" class="w-full h-full"></div>
           
           <!-- Map Controls -->
-          <div class="absolute top-4 right-4 bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-4 space-y-2">
+          <div class="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-2 sm:p-4 space-y-1.5 sm:space-y-2">
             <button 
               @click="centerMap"
-              class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm flex items-center justify-center gap-2"
+              class="w-full px-2 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2"
             >
               <i class="fas fa-crosshairs"></i>
-              Center All
+              <span class="hidden sm:inline">Center All</span>
             </button>
             <button 
               @click="toggleTrails"
-              class="w-full px-4 py-2 transition-all text-sm flex items-center justify-center gap-2"
+              class="w-full px-2 sm:px-4 py-1.5 sm:py-2 transition-all text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2"
               :class="showTrails ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-500 text-white hover:bg-gray-600'"
             >
               <i :class="showTrails ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
-              {{ showTrails ? '2H Trail' : 'Show 2H Trail' }}
+              <span>2H Trail</span>
             </button>
             <button 
               @click="toggle24HTrails"
-              class="w-full px-4 py-2 transition-all text-sm flex items-center justify-center gap-2"
+              class="w-full px-2 sm:px-4 py-1.5 sm:py-2 transition-all text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2"
               :class="show24HTrails ? 'bg-purple-600 text-white hover:bg-purple-700' : 'bg-gray-500 text-white hover:bg-gray-600'"
               :disabled="loading24HTrails"
             >
               <i v-if="loading24HTrails" class="fas fa-spinner fa-spin"></i>
               <i v-else :class="show24HTrails ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
-              {{ show24HTrails ? '24H Trail' : 'Show 24H Trail' }}
+              <span>24H Trail</span>
             </button>
           </div>
 
           <!-- Selected Vehicle Info Panel -->
           <div 
             v-if="selectedVehicle"
-            class="absolute bottom-4 left-4 bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-6 max-w-md"
+            class="absolute bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-auto bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-3 sm:p-6 sm:max-w-md"
           >
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <h3 class="text-xl font-bold text-gray-900">{{ selectedVehicle.plate_number }}</h3>
-                <p class="text-sm text-gray-600">{{ selectedVehicle.vehicle_code }}</p>
+            <div class="flex justify-between items-start mb-3 sm:mb-4">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-base sm:text-xl font-bold text-gray-900 truncate">{{ selectedVehicle.plate_number }}</h3>
+                <p class="text-xs sm:text-sm text-gray-600 truncate">{{ selectedVehicle.vehicle_code }}</p>
               </div>
               <button 
                 @click="selectedVehicle = null"
-                class="text-gray-400 hover:text-gray-600 transition-colors"
+                class="text-gray-400 hover:text-gray-600 transition-colors ml-2 flex-shrink-0"
               >
                 <i class="fas fa-times"></i>
               </button>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 text-sm">
+            <div class="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
               <div>
                 <div class="text-gray-500">Type</div>
-                <div class="font-semibold">{{ selectedVehicle.vehicle_type }}</div>
+                <div class="font-semibold truncate">{{ selectedVehicle.vehicle_type }}</div>
               </div>
               <div>
                 <div class="text-gray-500">Status</div>
-                <div class="font-semibold capitalize">{{ selectedVehicle.vehicle_status }}</div>
+                <div class="font-semibold capitalize truncate">{{ selectedVehicle.vehicle_status }}</div>
               </div>
               <div v-if="selectedVehicle.driver_code" class="col-span-2">
                 <div class="text-gray-500">Driver</div>
-                <div class="font-semibold">{{ selectedVehicle.driver_code }}</div>
+                <div class="font-semibold truncate">{{ selectedVehicle.driver_code }}</div>
               </div>
               <div class="col-span-2">
                 <div class="text-gray-500">GPS Coordinates</div>
-                <div class="font-mono text-xs bg-gray-100 p-2 rounded">
+                <div class="font-mono text-xs bg-gray-100 p-2 rounded break-all">
                   {{ selectedVehicle.latitude?.toFixed(6) || 'N/A' }}, {{ selectedVehicle.longitude?.toFixed(6) || 'N/A' }}
                 </div>
               </div>
-              <div>
-                <div class="text-gray-500">Last Update</div>
-                <div class="font-semibold text-xs">{{ formatTime(selectedVehicle.device_timestamp) }}</div>
-              </div>
-              <div>
-                <div class="text-gray-500">Status</div>
-                <div class="font-semibold capitalize">{{ selectedVehicle.vehicle_status }}</div>
-              </div>
               <div class="col-span-2">
                 <div class="text-gray-500">Last GPS Update</div>
-                <div class="font-semibold text-sm">{{ formatDateTime(selectedVehicle.device_timestamp) }}</div>
+                <div class="font-semibold text-xs sm:text-sm">{{ formatDateTime(selectedVehicle.device_timestamp) }}</div>
               </div>
             </div>
 
-            <div class="mt-4 space-y-2">
+            <div class="mt-3 sm:mt-4 space-y-1.5 sm:space-y-2">
               <button 
                 @click="centerOnVehicle"
-                class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+                class="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
               >
                 <i class="fas fa-crosshairs"></i>
-                Center on Vehicle
+                <span>Center on Vehicle</span>
               </button>
               <button 
                 @click="show24HourHistory"
-                class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                class="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
               >
                 <i class="fas fa-history"></i>
-                View Route History (24H)
+                <span class="hidden xs:inline">View Route History (24H)</span>
+                <span class="xs:hidden">24H History</span>
               </button>
             </div>
           </div>
@@ -206,79 +244,79 @@
     </div>
 
     <!-- 24-Hour Route History Modal -->
-    <div v-if="show24HModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] backdrop-blur-sm p-4" @click.self="close24HModal">
-      <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
+    <div v-if="show24HModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] backdrop-blur-sm p-2 sm:p-4" @click.self="close24HModal">
+      <div class="bg-white rounded-xl sm:rounded-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl">
         <!-- Modal Header -->
-        <div class="relative py-6 px-8 bg-gradient-to-br from-blue-800 to-blue-600 text-white">
+        <div class="relative py-4 px-4 sm:py-6 sm:px-8 bg-gradient-to-br from-blue-800 to-blue-600 text-white">
           <div class="flex items-center justify-between">
-            <div>
-              <h3 class="text-2xl font-bold">24-Hour Route History</h3>
-              <p class="text-blue-100 text-sm mt-1">{{ selectedVehicle?.plate_number }} - Last 24 hours</p>
+            <div class="flex-1 min-w-0 mr-2">
+              <h3 class="text-lg sm:text-2xl font-bold truncate">24-Hour Route History</h3>
+              <p class="text-blue-100 text-xs sm:text-sm mt-1 truncate">{{ selectedVehicle?.plate_number }} - Last 24 hours</p>
             </div>
             <button 
               @click="close24HModal" 
-              class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors flex-shrink-0"
             >
-              <i class="fas fa-times text-lg"></i>
+              <i class="fas fa-times text-sm sm:text-lg"></i>
             </button>
           </div>
         </div>
 
         <!-- Modal Body -->
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-          <div v-if="loading24H" class="text-center py-16">
-            <i class="fas fa-spinner fa-spin text-5xl mb-5 text-blue-600"></i>
-            <p class="text-gray-600">Loading 24-hour route history...</p>
+        <div class="p-3 sm:p-6 overflow-y-auto max-h-[calc(95vh-80px)] sm:max-h-[calc(90vh-120px)]">
+          <div v-if="loading24H" class="text-center py-12 sm:py-16">
+            <i class="fas fa-spinner fa-spin text-4xl sm:text-5xl mb-4 sm:mb-5 text-blue-600"></i>
+            <p class="text-sm sm:text-base text-gray-600">Loading 24-hour route history...</p>
           </div>
 
-          <div v-else-if="history24H.length === 0" class="text-center py-16">
-            <i class="fas fa-route text-7xl mb-5 text-gray-300"></i>
-            <h3 class="text-2xl font-bold text-gray-900 mb-2">No Route History</h3>
-            <p class="text-gray-600">No GPS data found for the last 24 hours</p>
+          <div v-else-if="history24H.length === 0" class="text-center py-12 sm:py-16">
+            <i class="fas fa-route text-5xl sm:text-7xl mb-4 sm:mb-5 text-gray-300"></i>
+            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">No Route History</h3>
+            <p class="text-sm sm:text-base text-gray-600">No GPS data found for the last 24 hours</p>
           </div>
 
           <div v-else>
             <!-- Summary Stats -->
-            <div class="grid grid-cols-3 gap-4 mb-6">
-              <div class="bg-blue-50 rounded-xl p-4 text-center">
-                <div class="text-3xl font-bold text-blue-600">{{ history24H.length }}</div>
-                <div class="text-sm text-gray-600 mt-1">GPS Points</div>
+            <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+              <div class="bg-blue-50 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center">
+                <div class="text-xl sm:text-3xl font-bold text-blue-600">{{ history24H.length }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 mt-1">GPS Points</div>
               </div>
-              <div class="bg-green-50 rounded-xl p-4 text-center">
-                <div class="text-3xl font-bold text-green-600">{{ formatDuration(history24HDuration) }}</div>
-                <div class="text-sm text-gray-600 mt-1">Duration</div>
+              <div class="bg-green-50 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center">
+                <div class="text-xl sm:text-3xl font-bold text-green-600">{{ formatDuration(history24HDuration) }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 mt-1">Duration</div>
               </div>
-              <div class="bg-purple-50 rounded-xl p-4 text-center">
-                <div class="text-3xl font-bold text-purple-600">{{ history24H[0]?.timestamp ? formatTime(history24H[0].timestamp) : 'N/A' }}</div>
-                <div class="text-sm text-gray-600 mt-1">Latest Update</div>
+              <div class="bg-purple-50 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center">
+                <div class="text-xl sm:text-3xl font-bold text-purple-600">{{ history24H[0]?.timestamp ? formatTime(history24H[0].timestamp) : 'N/A' }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 mt-1">Latest Update</div>
               </div>
             </div>
 
             <!-- Route Timeline -->
-            <div class="bg-gray-50 rounded-xl p-6">
-              <h4 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div class="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-6">
+              <h4 class="font-semibold text-sm sm:text-base text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                 <i class="fas fa-map-marked-alt text-blue-600"></i>
                 Route Timeline
               </h4>
-              <div class="space-y-2 max-h-96 overflow-y-auto">
+              <div class="space-y-1.5 sm:space-y-2 max-h-80 sm:max-h-96 overflow-y-auto">
                 <div 
                   v-for="(point, index) in history24H" 
                   :key="index"
-                  class="flex items-center gap-3 bg-white rounded-lg p-3 hover:shadow-md transition-shadow"
+                  class="flex items-center gap-2 sm:gap-3 bg-white rounded-lg p-2 sm:p-3 hover:shadow-md transition-shadow"
                 >
-                  <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
+                  <div class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
                     {{ index + 1 }}
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="text-sm font-medium text-gray-900">{{ formatDateTime(point.timestamp) }}</div>
-                    <div class="text-xs text-gray-500 font-mono">{{ point.lat.toFixed(6) }}, {{ point.long.toFixed(6) }}</div>
+                    <div class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ formatDateTime(point.timestamp) }}</div>
+                    <div class="text-xs text-gray-500 font-mono truncate">{{ point.lat.toFixed(6) }}, {{ point.long.toFixed(6) }}</div>
                   </div>
                   <button 
                     @click="focusOnPoint(point)"
-                    class="flex-shrink-0 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium"
+                    class="flex-shrink-0 px-2 sm:px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs font-medium"
                   >
-                    <i class="fas fa-crosshairs mr-1"></i>
-                    View
+                    <i class="fas fa-crosshairs sm:mr-1"></i>
+                    <span class="hidden sm:inline">View</span>
                   </button>
                 </div>
               </div>
@@ -312,7 +350,8 @@ const route = useRoute()
 
 // State
 const sidebarCollapsed = ref(false)
-const sidebarOpen = ref(false)
+const sidebarOpen = ref(true) // Sidebar open by default (like other pages)
+const vehicleListOpen = ref(false) // Mobile vehicle list toggle
 const vehicles = ref([])
 const selectedVehicle = ref(null)
 const searchQuery = ref('')
@@ -376,8 +415,24 @@ function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
 
+function openSidebar() {
+  sidebarOpen.value = true
+}
+
 function closeSidebar() {
   sidebarOpen.value = false
+}
+
+function toggleVehicleList() {
+  vehicleListOpen.value = !vehicleListOpen.value
+}
+
+function selectVehicleAndClose(vehicle) {
+  selectVehicle(vehicle)
+  // Close vehicle list on mobile after selection
+  if (window.innerWidth < 1024) { // lg breakpoint
+    vehicleListOpen.value = false
+  }
 }
 
 function getStatusColor(secondsSinceUpdate) {
@@ -436,21 +491,37 @@ function formatTime(timestamp) {
   if (!timestamp) return 'N/A'
   
   try {
-    // Database stores PH time, so just use it directly
+    // Database stores PH time (UTC+8), parse it WITHOUT timezone conversion
     let date = new Date(timestamp)
     if (isNaN(date.getTime())) return 'N/A'
     
+    // Get the UTC components (which are actually PH time in the database)
+    // and treat them as local time to avoid timezone conversion
+    const year = date.getUTCFullYear()
+    const month = date.getUTCMonth()
+    const day = date.getUTCDate()
+    const hours = date.getUTCHours()
+    const minutes = date.getUTCMinutes()
+    const seconds = date.getUTCSeconds()
+    
+    // Create a new date with these values as LOCAL time
+    const phDate = new Date(year, month, day, hours, minutes, seconds)
+    
+    // Calculate time difference using the corrected PH time
     const now = new Date()
-    const diffMs = now - date
+    const diffMs = now - phDate
     const diffMins = Math.floor(diffMs / 60000)
     
     // Show relative time
     if (diffMins < 1) return 'Just now'
     if (diffMins < 60) return `${diffMins}m ago`
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`
+    const days = Math.floor(diffMins / 1440)
+    if (days === 1) return 'Yesterday'
+    if (days < 7) return `${days} days ago`
     
-    // For older data, show date without conversion
-    return date.toLocaleDateString('en-PH')
+    // For older data, show date
+    return phDate.toLocaleDateString('en-PH')
   } catch (error) {
     console.error('Error formatting time:', timestamp, error)
     return 'N/A'
