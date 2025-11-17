@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-yellow-50 to-green-100 font-sans">
+  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 font-sans">
     <Navbar 
       :sidebarCollapsed="sidebarCollapsed"
       :sidebarOpen="sidebarOpen"

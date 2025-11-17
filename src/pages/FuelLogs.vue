@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 to-green-100 font-inter">
+  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 font-inter">
     <!-- Include Navbar Component -->
     <Navbar 
       :sidebar-collapsed="sidebarCollapsed"
@@ -43,7 +43,7 @@
       </header>
 
       <!-- Main Content -->
-      <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-green-100/80">
+      <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gradient-to-br from-green-50/70 to-emerald-100/70">
         <div class="max-w-7xl mx-auto">
           
           <!-- Statistics Cards -->

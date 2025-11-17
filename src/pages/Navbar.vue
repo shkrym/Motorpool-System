@@ -91,10 +91,18 @@
         <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Maintenance</span>
       </router-link>
 
-      <div class="menu-item flex items-center px-4 py-3 cursor-pointer transition-all duration-300 ease-in-out hover:translate-x-1" @click="navigateToReports">
-        <i class="fas fa-chart-bar w-5 text-center text-base text-gray-600"></i>
-        <span v-if="!sidebarCollapsed" class="ml-3 text-sm text-gray-800">Reports</span>
-      </div>
+      <router-link
+        to="/livemap"
+        class="menu-item flex items-center px-4 py-3 cursor-pointer transition-all duration-300 ease-in-out hover:translate-x-1"
+        :class="{
+          'active !border-l-4 font-semibold text-green-900 border-green-900': $route.name === 'LiveMap',
+        }"
+        :style="$route.name === 'LiveMap' ? 'background: linear-gradient(to right, rgba(10, 64, 12, 0.2), rgba(10, 64, 12, 0.05));' : ''"
+        @click="handleMenuClick"
+      >
+        <i class="fas fa-map-marked-alt w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'LiveMap', 'text-gray-600': $route.name !== 'LiveMap' }"></i>
+        <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Live GPS Map</span>
+      </router-link>
 
       <div class="menu-section mt-6">
         <div class="menu-divider px-4 pb-3 text-xs uppercase font-semibold tracking-wide border-t border-green-200 pt-4" v-if="!sidebarCollapsed" style="color: #0A400C;">
@@ -163,11 +171,6 @@ export default {
   setup(props, { emit }) {
     const router = useRouter()
     const userProfile = ref(null)
-
-    // Navigation methods
-    const navigateToReports = () => {
-      console.log('Reports feature coming soon!');
-    }
 
     // Sidebar methods
     const toggleSidebar = () => {
@@ -244,8 +247,7 @@ export default {
       toggleSidebar,
       closeSidebar,
       handleMenuClick,
-      logout,
-      navigateToReports
+      logout
     }
   }
 }

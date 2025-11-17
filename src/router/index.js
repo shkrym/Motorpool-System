@@ -9,11 +9,7 @@ import Trips from '../pages/Trips.vue'
 import Trimap from '../pages/TriMap.vue'
 import FuelLogs from '../pages/FuelLogs.vue'
 import Maintenance from '../pages/Maintenance.vue'
-
-// Import the sub-pages for settings
-import Profile from '../pages/settings/Profile.vue'
-import Security from '../pages/settings/Security.vue'
-import Theme from '../pages/settings/Theme.vue'
+import LiveMap from '../pages/LiveMap.vue'  // Leaflet - Free & Simple!
 
 const routes = [
   {
@@ -47,8 +43,14 @@ const routes = [
   },
   {
     path: '/tripmap/:id',
-    name: 'LiveMap',
+    name: 'TripMap',
     component: Trimap
+  },
+  {
+    path: '/livemap',
+    name: 'LiveMap',
+    component: LiveMap,  // Leaflet - Default!
+    meta: { requiresAuth: true }
   },
   {
     path: '/fuel',
@@ -66,25 +68,7 @@ const routes = [
     path: '/settings',
     name: 'Settings',
     component: Settings,
-    meta: { requiresAuth: true },
-    redirect: '/settings/profile',
-    children: [
-      {
-        path: 'profile',
-        name: 'ProfileSettings',
-        component: Profile,
-      },
-      {
-        path: 'security',
-        name: 'SecuritySettings',
-        component: Security,
-      },
-      {
-        path: 'theme',
-        name: 'ThemeSettings',
-        component: Theme,
-      }
-    ]
+    meta: { requiresAuth: true }
   },
   // Catch all route - redirect to dashboard if authenticated, auth if not
   {

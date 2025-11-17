@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100">
     <Navbar 
       :sidebar-collapsed="sidebarCollapsed"
       :sidebar-open="sidebarOpen"
@@ -61,7 +61,7 @@
       </header>
 
       <!-- Main Content Area -->
-      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8  bg-green-100/80">
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-green-50/70 to-emerald-100/70">
         <div class="max-w-7xl mx-auto">
           
           <!-- VEHICLES TAB -->
@@ -899,7 +899,11 @@ export default {
     }
 
     const viewLiveMap = (vehicle) => {
-      router.push(`/tripmap/${vehicle.id}`)
+      // Navigate to Live GPS Map and focus on this vehicle
+      router.push({
+        path: '/livemap',
+        query: { vehicle: vehicle.id }
+      })
     }
 
     const submitVehicleForm = async () => {
