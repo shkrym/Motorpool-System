@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100">
+  <div class="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <Navbar 
       :sidebar-collapsed="sidebarCollapsed"
       :sidebar-open="sidebarOpen"
@@ -21,13 +21,6 @@
         <div class="px-4 sm:px-6 py-4">
           <div class="flex items-center justify-between flex-wrap gap-4">
             <div class="flex items-center gap-3">
-              <button
-                @click="openSidebar"
-                v-if="!sidebarOpen"
-                class="lg:hidden bg-green-800 text-white py-2.5 px-3 rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <i class="fas fa-bars"></i>
-              </button>
               <div>
                 <h1 class="text-xl sm:text-2xl font-bold">Fleet Management</h1>
                 <p class="text-xs sm:text-sm text-green-100 mt-0.5">
@@ -61,7 +54,7 @@
       </header>
 
       <!-- Main Content Area -->
-      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-green-50/70 to-emerald-100/70">
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8  bg-green-100/80">
         <div class="max-w-7xl mx-auto">
           
           <!-- VEHICLES TAB -->
@@ -240,15 +233,15 @@
             <div v-else class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <div class="overflow-x-auto">
                 <table class="w-full">
-                  <thead class="bg-gray-50 border-b border-gray-200">
+                  <thead class="bg-gradient-to-br from-green-800 to-green-600 border-b border-gray-200">
                     <tr>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Vehicle</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Year</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Type</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Driver</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Department</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Vehicle</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Year</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Status</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Driver</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Department</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -269,9 +262,9 @@
                       <td class="px-4 py-4 text-sm text-gray-700">{{ getDriverName(vehicle.assigned_driver_code) || '-' }}</td>
                       <td class="px-4 py-4 text-sm text-gray-700">{{ vehicle.assigned_department || '-' }}</td>
                       <td class="px-4 py-4">
-                        <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-4">
                           <button @click="viewVehicle(vehicle)" class="p-1.5 rounded hover:bg-blue-50 text-blue-600" title="View">
-                            <i class="fas fa-eye"></i> <span>view</span> 
+                            <i class="fas fa-eye"></i> 
                           </button>
                           <button @click="editVehicle(vehicle)" class="p-1.5 rounded hover:bg-amber-50 text-amber-600" title="Edit">
                             <i class="fas fa-edit"></i>
@@ -837,13 +830,15 @@ export default {
       try {
         const { data, error } = await supabase
           .from('drivers')
-          .select('id, employee_id, full_name, is_active')
+          .select('id, employee_id, full_name')
+          .eq('is_active', true)
           .order('full_name')
 
         if (error) throw error
         drivers.value = data || []
       } catch (error) {
         console.error('Error loading drivers:', error)
+        drivers.value = []
       }
     }
 
@@ -899,11 +894,7 @@ export default {
     }
 
     const viewLiveMap = (vehicle) => {
-      // Navigate to Live GPS Map and focus on this vehicle
-      router.push({
-        path: '/livemap',
-        query: { vehicle: vehicle.id }
-      })
+      router.push(`/tripmap/${vehicle.id}`)
     }
 
     const submitVehicleForm = async () => {

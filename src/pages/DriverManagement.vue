@@ -132,39 +132,47 @@
 
     <!-- Add/Edit Driver Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm p-4" @click.self="closeModal">
-      <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
-        <div class="py-6 px-8 bg-gradient-to-br from-green-800 to-green-700 text-white flex items-center justify-between">
-          <div>
-            <h3 class="text-2xl font-bold">{{ editingDriver ? 'Edit Driver' : 'Register New Driver' }}</h3>
-            <p class="text-green-100 text-sm mt-1">{{ editingDriver ? 'Update driver information' : 'Add a new driver to your fleet' }}</p>
+      <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl animate-modalSlideIn">
+        <!-- Modal Header -->
+        <div class="relative py-6 px-8 bg-gradient-to-br from-green-800 to-green-600 text-white">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-2xl font-bold">{{ editingDriver ? 'Edit Driver' : 'Register New Driver' }}</h3>
+              <p class="text-green-100 text-sm mt-1">{{ editingDriver ? 'Update driver information' : 'Add a new driver to your fleet' }}</p>
+            </div>
+            <button 
+              @click="closeModal" 
+              class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            >
+              <i class="fas fa-times text-lg"></i>
+            </button>
           </div>
-          <button @click="closeModal" class="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-            <i class="fas fa-times text-lg"></i>
-          </button>
+          <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400"></div>
         </div>
-          
+
+        <!-- Modal Body -->
         <form @submit.prevent="submitForm" class="p-8 overflow-y-auto max-h-[calc(90vh-120px)]">
           <div class="space-y-6">
             
-            <!-- Personal Information -->
+            <!-- Driver Identification Section -->
             <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
               <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-                <i class="fas fa-user text-[#0A400C]"></i>
-                Personal Information
+                <i class="fas fa-id-card text-[#0A400C]"></i>
+                Driver Identification
               </h4>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">
+                  <label class="font-semibold text-gray-700 text-sm flex items-center gap-2">
                     Employee ID <span class="text-red-500">*</span>
-                    <span v-if="editingDriver" class="text-xs text-gray-500 font-normal ml-1">(Cannot be changed)</span>
+                    <span v-if="editingDriver" class="text-xs text-gray-500 font-normal">(Cannot be changed)</span>
                   </label>
                   <input
                     type="text"
                     v-model="form.employee_id"
-                    placeholder="e.g., DRV-001"
+                    placeholder="e.g., EMP-001"
                     required
                     :disabled="editingDriver !== null"
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div class="flex flex-col gap-2">
@@ -172,130 +180,87 @@
                   <input
                     type="text"
                     v-model="form.full_name"
-                    placeholder="Juan Dela Cruz"
+                    placeholder="e.g., Juan Dela Cruz"
                     required
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]"
+                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all"
                   />
                 </div>
               </div>
             </div>
 
-            <!-- Contact Information -->
+            <!-- License Information Section -->
             <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
               <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-                <i class="fas fa-address-book text-[#0A400C]"></i>
-                Contact Information
-              </h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">
-                    Email <span class="text-red-500">*</span>
-                    <span v-if="editingDriver" class="text-xs text-gray-500 font-normal ml-1">(Cannot be changed)</span>
-                  </label>
-                  <input
-                    type="email"
-                    v-model="form.email"
-                    placeholder="juan@example.com"
-                    required
-                    :disabled="editingDriver !== null"
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  />
-                </div>
-                <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">Phone</label>
-                  <input
-                    type="tel"
-                    v-model="form.phone"
-                    placeholder="+63 912 345 6789"
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]"
-                  />
-                </div>
-              </div>
-              
-              <!-- Password field for new drivers only -->
-              <div v-if="!editingDriver" class="mt-5">
-                <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">
-                    Password <span class="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    v-model="form.password"
-                    placeholder="Enter a secure password (min. 6 characters)"
-                    required
-                    minlength="6"
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]"
-                  />
-                  <p class="text-xs text-gray-500 mt-1">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Minimum 6 characters. Driver can change this after first login.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- License Information -->
-            <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
-              <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-                <i class="fas fa-id-card text-[#0A400C]"></i>
+                <i class="fas fa-id-badge text-[#0A400C]"></i>
                 License Information
               </h4>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">License Number</label>
+                  <label class="font-semibold text-gray-700 text-sm">License Number <span class="text-red-500">*</span></label>
                   <input
                     type="text"
                     v-model="form.license_number"
-                    placeholder="e.g., N01-12-345678"
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]"
+                    placeholder="e.g., N01-12-123456"
+                    required
+                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all uppercase"
                   />
                 </div>
                 <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">License Expiry</label>
+                  <label class="font-semibold text-gray-700 text-sm">License Expiry <span class="text-red-500">*</span></label>
                   <input
                     type="date"
                     v-model="form.license_expiry"
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]"
+                    required
+                    :min="new Date().toISOString().split('T')[0]"
+                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all"
                   />
                 </div>
               </div>
             </div>
 
-            <!-- Work Information -->
+            <!-- Contact Information Section -->
             <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
               <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-                <i class="fas fa-briefcase text-[#0A400C]"></i>
-                Work Information
+                <i class="fas fa-phone text-[#0A400C]"></i>
+                Contact Information
               </h4>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">Position</label>
+                  <label class="font-semibold text-gray-700 text-sm">Phone Number</label>
                   <input
-                    type="text"
-                    v-model="form.position"
-                    placeholder="e.g., Driver"
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]"
+                    type="tel"
+                    v-model="form.phone"
+                    placeholder="e.g., 09123456789"
+                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all"
                   />
                 </div>
                 <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">Department</label>
+                  <label class="font-semibold text-gray-700 text-sm">Email</label>
                   <input
-                    type="text"
-                    v-model="form.department"
-                    placeholder="e.g., Transportation"
-                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]"
+                    type="email"
+                    v-model="form.email"
+                    placeholder="e.g., driver@example.com"
+                    class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all"
                   />
                 </div>
               </div>
-              <div class="flex items-center gap-3 mt-5 p-4 bg-white rounded-lg border border-gray-200">
+            </div>
+
+            <!-- Status Section -->
+            <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+              <h4 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <i class="fas fa-toggle-on text-[#0A400C]"></i>
+                Status
+              </h4>
+              <div class="flex items-center gap-3">
                 <input
                   type="checkbox"
                   id="is_active"
                   v-model="form.is_active"
                   class="w-5 h-5 text-[#0A400C] border-gray-300 rounded focus:ring-2 focus:ring-[#0A400C]"
                 />
-                <label for="is_active" class="text-sm font-medium text-gray-700 cursor-pointer">
-                  Mark as Active Driver
+                <label for="is_active" class="text-sm text-gray-700 cursor-pointer">
+                  Driver is active and available for assignments
                 </label>
               </div>
             </div>
@@ -314,11 +279,11 @@
             <button 
               type="submit" 
               :disabled="submitting" 
-              class="flex items-center gap-2 bg-gradient-to-r from-[#0A400C] to-[#155c1a] text-white px-8 py-3 rounded-lg font-semibold hover:scale-105 transition-all shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+              class="flex items-center gap-2 bg-gradient-to-r from-[#0A400C] to-[#155c1a] text-white px-8 py-3 rounded-lg font-semibold hover:scale-105 transition-all shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <i v-if="submitting" class="fas fa-spinner fa-spin"></i>
               <i v-else class="fas" :class="editingDriver ? 'fa-check' : 'fa-plus'"></i>
-              {{ editingDriver ? 'Update Driver' : 'Register Driver' }}
+              {{ editingDriver ? 'Update Driver' : 'Add Driver' }}
             </button>
           </div>
         </form>

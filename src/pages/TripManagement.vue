@@ -158,7 +158,7 @@
     <div v-if="showModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
         <!-- Modal Header -->
-        <div class="relative py-6 px-8 bg-gradient-to-r from-[#0A400C] via-[#0d4f0f] to-[#155c1a] text-white p-6 flex justify-between items-center">
+        <div class="relative py-6 px-8  bg-gradient-to-br from-green-800 to-green-600 text-white p-6 flex justify-between items-center">
           <div class="flex items-center gap-3">
             <div class="p-2 bg-white/20 rounded-lg">
               <i class="fas fa-route text-xl"></i>
@@ -168,6 +168,7 @@
           <button class="p-2 hover:bg-white/20 rounded-lg transition-colors" @click="closeModal">
             <i class="fas fa-times text-xl"></i>
           </button>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400"></div>
         </div>
 
         <!-- Modal Content -->
@@ -257,15 +258,17 @@
               Trip Details
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Assigned Driver</label>
+                        <div class="flex flex-col gap-2">
+                <label class="font-semibold text-gray-700 text-sm">
+                  <i class="fas fa-user mr-2"></i>Driver
+                </label>
                 <select 
                   v-model="form.driver_id" 
-                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                  class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all"
                 >
-                  <option value="">Select a driver (optional)</option>
-                  <option v-for="driver in activeDrivers" :key="driver.id" :value="driver.id">
-                    {{ driver.full_name }} ({{ driver.employee_id }})
+                  <option value="">Select Driver</option>
+                  <option v-for="driver in drivers" :key="driver.id" :value="driver.id">
+                    {{ driver.employee_id }} - {{ driver.full_name }}
                   </option>
                 </select>
               </div>
@@ -707,6 +710,60 @@ export default {
       const driver = props.drivers.find(d => d.id === driverId)
       return driver ? driver.full_name : 'Unknown'
     }
+
+   // Add this method with the other methods
+    const loadDrivers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('drivers')
+          .select('id, employee_id, full_name')
+          .eq('is_active', true)
+          .order('full_name')
+
+        if (error) throw error
+        drivers.value = data || []
+      } catch (error) {
+        console.error('Error loading drivers:', error)
+        drivers.value = []
+      }
+    }
+
+    const loadData = async () => {
+      loading.value = true
+      try {
+        // Load all data in parallel for better performance
+        const [vehiclesData, tripsData, driversData, logsData] = await Promise.all([
+          supabase.from('vehicles').select('*').order('plate_number'),
+          supabase.from('trips').select('*').order('created_at', { ascending: false }).limit(50),
+          supabase.from('drivers').select('id, employee_id, full_name').eq('is_active', true).order('full_name'),
+          supabase.from('fuel_logs').select(`*, drivers:driver_id (full_name)`).order('created_at', { ascending: false })
+        ])
+
+        if (vehiclesData.error) throw vehiclesData.error
+        if (tripsData.error) throw tripsData.error
+        if (driversData.error) throw driversData.error
+        if (logsData.error) throw logsData.error
+
+        vehicles.value = vehiclesData.data || []
+        trips.value = tripsData.data || []
+        drivers.value = driversData.data || []
+        fuelLogs.value = (logsData.data || []).map(log => ({
+          ...log,
+          driver_name: log.drivers?.full_name || null
+        }))
+
+      } catch (error) {
+        console.error('Error loading data:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // Add this helper for driver display format
+    const formatDriverOption = (driver) => {
+      return `${driver.employee_id} - ${driver.full_name}`
+    }
+
 
     const onVehicleSelect = () => {
       if (form.vehicle_id) {
