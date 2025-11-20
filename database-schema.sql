@@ -42,6 +42,7 @@ CREATE TABLE public.gps_data (
   long double precision,
   timestamp timestamp with time zone,
   vehicle_id uuid,
+  is_queued boolean DEFAULT false,
   CONSTRAINT gps_data_pkey PRIMARY KEY (id),
   CONSTRAINT gps_data_vehicle_id_fkey FOREIGN KEY (vehicle_id) REFERENCES public.vehicles(id)
 );

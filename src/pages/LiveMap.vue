@@ -604,10 +604,28 @@ async function toggle24HTrails() {
   }
 }
 
+// Calculate distance between two GPS coordinates using Haversine formula
+// Returns distance in kilometers
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371 // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c // Distance in km
+}
+
 function clearAllTrails() {
-  // Remove all polylines
-  Object.values(trailPolylines).forEach(polyline => {
-    map.removeLayer(polyline)
+  // Remove all polylines (handle both array and single polyline)
+  Object.values(trailPolylines).forEach(polylineData => {
+    if (Array.isArray(polylineData)) {
+      polylineData.forEach(p => map.removeLayer(p))
+    } else {
+      map.removeLayer(polylineData)
+    }
   })
   trailPolylines = {}
   
@@ -634,19 +652,20 @@ async function loadVehicleTrail(vehicle) {
   try {
     console.log(`📍 Loading trail for vehicle: ${vehicle.plate_number} (${vehicle.vehicle_id})`)
     
-    // PLAN B: Direct query approach - no RPC, no views
-    // Query last 2 hours of GPS data directly
+    // Query approach: Get recent GPS data including queued data with NULL timestamps
+    // Strategy: Get last 500 points by ID (which includes both timestamped and queued data)
+    // then filter to last 2 hours where timestamp exists
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
     
     console.log(`  → Querying gps_data for vehicle_id: ${vehicle.vehicle_id}`)
-    console.log(`  → Time filter: >= ${twoHoursAgo}`)
+    console.log(`  → Time filter: >= ${twoHoursAgo} (or recent NULL timestamps for queued data)`)
     
+    // Get recent records by ID to include queued data with NULL timestamps
     const { data: allData, error: fetchError } = await supabase
       .from('gps_data')
-      .select('lat, long, timestamp')
+      .select('id, lat, long, timestamp')
       .eq('vehicle_id', vehicle.vehicle_id)
-      .gte('timestamp', twoHoursAgo)
-      .order('timestamp', { ascending: true }) // Chronological order
+      .order('id', { ascending: false }) // Most recent first by ID
       .limit(500)
     
     if (fetchError) {
@@ -658,66 +677,69 @@ async function loadVehicleTrail(vehicle) {
     console.log(`✓ Fetched ${allData?.length || 0} GPS points for ${vehicle.plate_number}`)
     
     if (!allData || allData.length === 0) {
-      console.warn(`  ⚠️  No GPS data found for this vehicle in last 2 hours`)
-      
-      // Debug: Check if ANY data exists for this vehicle (all time)
-      const { data: allTimeData, error: debugError } = await supabase
-        .from('gps_data')
-        .select('timestamp')
-        .eq('vehicle_id', vehicle.vehicle_id)
-        .order('timestamp', { ascending: false })
-        .limit(1)
-      
-      if (debugError) {
-        console.error(`  → Debug query failed:`, debugError)
-      } else if (allTimeData && allTimeData.length > 0) {
-        console.warn(`  → Found GPS data but it's older than 2 hours. Latest: ${allTimeData[0].timestamp}`)
-      } else {
-        console.warn(`  → No GPS data found for this vehicle at all`)
-        // Show sample of what vehicle_ids exist
-        const { data: sampleIds } = await supabase
-          .from('gps_data')
-          .select('vehicle_id')
-          .not('vehicle_id', 'is', null)
-          .limit(5)
-        console.log(`  → Sample vehicle_ids in database:`, sampleIds?.map(row => row.vehicle_id) || [])
-        console.log(`  → Looking for: ${vehicle.vehicle_id}`)
-      }
+      console.warn(`  ⚠️  No GPS data found for this vehicle`)
       return
     }
     
-    // Filter out invalid points
-    const validData = allData.filter(point => 
+    // Filter to last 2 hours OR recent NULL timestamps (queued data)
+    // Strategy: Keep timestamped data from last 2 hours + recent queued data (NULL timestamp)
+    const filteredByTime = allData.filter(point => {
+      if (!point.timestamp) {
+        // NULL timestamp = queued data, keep it (it's recent by ID)
+        return true
+      }
+      // Regular timestamped data - check if within 2 hours
+      const pointTime = new Date(point.timestamp)
+      const twoHoursAgoDate = new Date(Date.now() - 2 * 60 * 60 * 1000)
+      return pointTime >= twoHoursAgoDate
+    })
+    
+    console.log(`✓ ${filteredByTime.length} points after time filtering (includes queued data)`)
+    
+    // Filter out invalid coordinates (but allow NULL timestamp for queued data)
+    const validData = filteredByTime.filter(point => 
       point.lat != null && 
       point.long != null && 
-      point.timestamp &&
       !isNaN(point.lat) &&
       !isNaN(point.long)
     )
     
-    console.log(`✓ ${validData.length} valid GPS points after filtering`)
+    // Sort by timestamp (nulls last), then by ID for consistent order
+    validData.sort((a, b) => {
+      if (!a.timestamp && !b.timestamp) return a.id - b.id
+      if (!a.timestamp) return 1 // NULLs go to end
+      if (!b.timestamp) return -1
+      return new Date(a.timestamp) - new Date(b.timestamp)
+    })
+    
+    console.log(`✓ ${validData.length} valid GPS points after coordinate filtering`)
     
     if (validData.length === 0) {
-      console.warn(`  ⚠️  All GPS points were invalid (missing lat/long/timestamp)`)
+      console.warn(`  ⚠️  All GPS points were invalid (missing coordinates)`)
       return
     }
     
+    const queuedCount = validData.filter(p => !p.timestamp).length
+    const liveCount = validData.length - queuedCount
+    console.log(`  → ${liveCount} live points (timestamped), ${queuedCount} queued points (no timestamp)`)
+    
     if (validData.length > 0) {
-      console.log(`  → First timestamp: ${validData[0].timestamp}`)
-      console.log(`  → Last timestamp: ${validData[validData.length - 1].timestamp}`)
-      console.log(`  → First coordinates: [${validData[0].lat}, ${validData[0].long}]`)
-      console.log(`  → Last coordinates: [${validData[validData.length - 1].lat}, ${validData[validData.length - 1].long}]`)
+      console.log(`  → First point: [${validData[0].lat}, ${validData[0].long}] at ${validData[0].timestamp || 'QUEUED'}`)
+      console.log(`  → Last point: [${validData[validData.length - 1].lat}, ${validData[validData.length - 1].long}] at ${validData[validData.length - 1].timestamp || 'QUEUED'}`)
     }
     
     if (validData && validData.length > 0) {
       const data = validData
-      const routeCoords = data.map(point => [point.lat, point.long])
-      console.log(`  → First point: [${routeCoords[0]}]`)
-      console.log(`  → Last point: [${routeCoords[routeCoords.length - 1]}]`)
+      console.log(`  → First point: [${data[0].lat}, ${data[0].long}] at ${data[0].timestamp || 'QUEUED'}`)
+      console.log(`  → Last point: [${data[data.length - 1].lat}, ${data[data.length - 1].long}] at ${data[data.length - 1].timestamp || 'QUEUED'}`)
       
-      // Remove existing trail
+      // Remove existing trails
       if (trailPolylines[vehicle.vehicle_id]) {
-        map.removeLayer(trailPolylines[vehicle.vehicle_id])
+        if (Array.isArray(trailPolylines[vehicle.vehicle_id])) {
+          trailPolylines[vehicle.vehicle_id].forEach(p => map.removeLayer(p))
+        } else {
+          map.removeLayer(trailPolylines[vehicle.vehicle_id])
+        }
       }
       
       // Remove existing breadcrumbs
@@ -728,15 +750,79 @@ async function loadVehicleTrail(vehicle) {
       // Choose color based on vehicle status
       const trailColor = getTrailColor(vehicle.seconds_since_update)
       
-      // Add new trail polyline
-      trailPolylines[vehicle.vehicle_id] = L.polyline(routeCoords, {
-        color: trailColor,
-        weight: 4,
-        opacity: 0.8,
-        smoothFactor: 1
-      }).addTo(map)
+      // Split trail into segments to avoid straight lines across gaps
+      // Detect gaps: large time jumps (>5min) or large distance jumps (>500m)
+      const segments = []
+      let currentSegment = []
       
-      console.log(`  ✓ Added trail polyline with ${routeCoords.length} points`)
+      for (let i = 0; i < data.length; i++) {
+        const point = data[i]
+        const coord = [point.lat, point.long]
+        
+        if (i === 0) {
+          // First point - start new segment
+          currentSegment.push(coord)
+        } else {
+          const prevPoint = data[i - 1]
+          let hasGap = false
+          
+          // Check for time gap (if both points have timestamps)
+          if (point.timestamp && prevPoint.timestamp) {
+            const timeDiff = Math.abs(new Date(point.timestamp) - new Date(prevPoint.timestamp))
+            const fiveMinutes = 5 * 60 * 1000
+            if (timeDiff > fiveMinutes) {
+              hasGap = true
+              console.log(`  → Gap detected: ${Math.round(timeDiff / 1000 / 60)}min time difference`)
+            }
+          }
+          
+          // Check for distance gap (using Haversine formula)
+          const distance = calculateDistance(
+            prevPoint.lat, prevPoint.long,
+            point.lat, point.long
+          )
+          if (distance > 0.5) { // 500 meters
+            hasGap = true
+            console.log(`  → Gap detected: ${distance.toFixed(2)}km distance jump`)
+          }
+          
+          if (hasGap) {
+            // Save current segment and start new one
+            if (currentSegment.length > 0) {
+              segments.push([...currentSegment])
+            }
+            currentSegment = [coord]
+          } else {
+            // Continue current segment
+            currentSegment.push(coord)
+          }
+        }
+      }
+      
+      // Add final segment
+      if (currentSegment.length > 0) {
+        segments.push(currentSegment)
+      }
+      
+      console.log(`  → Split into ${segments.length} trail segments`)
+      
+      // Draw each segment as a separate polyline
+      trailPolylines[vehicle.vehicle_id] = []
+      segments.forEach((segmentCoords, idx) => {
+        if (segmentCoords.length > 1) { // Need at least 2 points for a line
+          const polyline = L.polyline(segmentCoords, {
+            color: trailColor,
+            weight: 4,
+            opacity: 0.8,
+            smoothFactor: 1
+          }).addTo(map)
+          
+          trailPolylines[vehicle.vehicle_id].push(polyline)
+          console.log(`  → Segment ${idx + 1}: ${segmentCoords.length} points`)
+        }
+      })
+      
+      console.log(`  ✓ Added ${segments.length} trail polyline segments`)
       
       // Add breadcrumb circles at each GPS point
       trailCircles[vehicle.vehicle_id] = []
@@ -745,21 +831,24 @@ async function loadVehicleTrail(vehicle) {
         const progress = index / (data.length - 1 || 1) // 0 to 1
         const opacity = Math.max(0.4, 0.4 + progress * 0.6) // 0.4 to 1.0
         
+        // Use different styling for queued data (no timestamp)
+        const isQueued = !point.timestamp
+        
         const circle = L.circleMarker([point.lat, point.long], {
-          radius: 3,
-          fillColor: trailColor,
-          color: '#fff',
-          weight: 1,
+          radius: isQueued ? 4 : 3,
+          fillColor: isQueued ? '#f59e0b' : trailColor, // Orange for queued
+          color: isQueued ? '#fbbf24' : '#fff',
+          weight: isQueued ? 2 : 1,
           opacity: opacity,
           fillOpacity: opacity
         }).addTo(map)
         
-        // Add tooltip showing time
-        const timeStr = formatDateTime(point.timestamp)
+        // Add tooltip showing time or queued status
+        const timeStr = point.timestamp ? formatDateTime(point.timestamp) : '⚠️ QUEUED (No signal)'
         circle.bindTooltip(`${vehicle.plate_number}<br>${timeStr}`, {
           permanent: false,
           direction: 'top',
-          className: 'custom-tooltip'
+          className: isQueued ? 'queued-tooltip' : 'custom-tooltip'
         })
         
         trailCircles[vehicle.vehicle_id].push(circle)
@@ -1210,5 +1299,21 @@ onUnmounted(() => {
 
 .custom-tooltip::before {
   border-top-color: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Queued data tooltip styling - warning style for data without signal */
+.queued-tooltip {
+  background: rgba(251, 191, 36, 0.95) !important;
+  border: 2px solid #f59e0b !important;
+  color: #78350f !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4) !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+}
+
+.queued-tooltip::before {
+  border-top-color: rgba(251, 191, 36, 0.95) !important;
 }
 </style>

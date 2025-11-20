@@ -3,59 +3,55 @@
 #include "SPIFFS.h"
 #include "time.h"
 #include <TinyGPS++.h>
+#include <vector>
 
-#define GPS_RX_PIN 17      // GPS TX -> ESP32 RX
+#define GPS_RX_PIN 17
 #define GPS_TX_PIN 16
 #define GPS_BAUD   9600
+
 // ---------- CONFIG ----------
 const char* WIFI_SSID = "realme C67";
 const char* WIFI_PASS = "87654321";
-
-const char* SUPABASE_URL = "https://ggpjhaagszuoacafuihq.supabase.co/rest/v1/gps_data"; // REST endpoint
+const char* SUPABASE_URL = "https://ggpjhaagszuoacafuihq.supabase.co/rest/v1/gps_data";
 const char* ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdncGpoYWFnc3p1b2FjYWZ1aWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxMDIwNTQsImV4cCI6MjA3NTY3ODA1NH0.Ujoz5Lal_iWyrale7aJh2aABt-yr5fc9pBG-AKPzXqQ";
 
-const unsigned long UPLOAD_INTERVAL_MS = 30000UL; // change time interval in milliseconds
+// === KEY CHANGE: Read GPS more frequently ===
+const unsigned long GPS_READ_INTERVAL_MS = 10000UL;  // Read GPS every 10 seconds
+const unsigned long UPLOAD_INTERVAL_MS = 30000UL;    // Upload every 30 seconds
+
 const char* QUEUE_PATH = "/queue.txt";
+const char* VEHICLE_ID = "9ed8941c-3ffd-4939-8993-40ea005b4b2c";
 
-// ⚠️ IMPORTANT: Set your vehicle UUID from vehicles table in Supabase
-const char* VEHICLE_ID = "9ed8941c-3ffd-4939-8993-40ea005b4b2c"; // ← Your vehicle UUID
-
-// NTP config (for timestamps); Philippines UTC+8
+// NTP config
 const char* NTP_SERVER = "time.google.com";
-const long GMT_OFFSET_SEC = 8 * 3600;  // ← Philippines time (UTC+8)
+const long GMT_OFFSET_SEC = 8 * 3600;
 const int DAYLIGHT_OFFSET_SEC = 0;
-// ----------------------------
 
-// Globals
+// === GPS Buffer Structure ===
+struct GPSReading {
+  float lat;
+  float lng;
+  String timestamp;
+};
+
+std::vector<GPSReading> gpsBuffer; // Temporary buffer between reads
+unsigned long lastGPSReadMillis = 0;
 unsigned long lastUploadMillis = 0;
-float lat, lng;
+
 TinyGPSPlus gps;
 
-// --------- Helpers: timestamps ----------
+// --------- Timestamp Helper ----------
 String getISOUTCTimestamp() {
-  // Return ISO8601 UTC timestamp like "2025-11-12T15:00:00Z"
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
-    // fallback to millis-time (not ideal)
     return String();
   }
   char buf[30];
-  strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &timeinfo); // Z for UTC
+  strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
   return String(buf);
 }
 
-String getLocalISOwithOffset() {
-  // If you prefer local timestamp with +08:00 offset: "2025-11-12T23:00:00+08:00"
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) return String();
-  char buf[40];
-  strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &timeinfo);
-  // append offset
-  String s = String(buf) + "+08:00";
-  return s;
-}
-
-// ---------- Queue (SPIFFS) ----------
+// ---------- SPIFFS Queue Functions ----------
 bool initSPIFFS() {
   if (!SPIFFS.begin(true)) {
     Serial.println("SPIFFS Mount Failed");
@@ -72,7 +68,7 @@ void appendToQueue(const String &jsonLine) {
   }
   f.println(jsonLine);
   f.close();
-  Serial.println("Queued payload -> " + jsonLine);
+  Serial.println("Queued: " + jsonLine);
 }
 
 std::vector<String> readQueueLines() {
@@ -80,10 +76,7 @@ std::vector<String> readQueueLines() {
   if (!SPIFFS.exists(QUEUE_PATH)) return lines;
 
   File f = SPIFFS.open(QUEUE_PATH, FILE_READ);
-  if (!f) {
-    Serial.println("Failed to open queue file for read");
-    return lines;
-  }
+  if (!f) return lines;
 
   while (f.available()) {
     String line = f.readStringUntil('\n');
@@ -95,19 +88,15 @@ std::vector<String> readQueueLines() {
 }
 
 bool overwriteQueueWith(const std::vector<String> &remaining) {
-  // Write remaining lines atomically by writing to temp and renaming
   const char* tmpPath = "/queue_tmp.txt";
   File t = SPIFFS.open(tmpPath, FILE_WRITE);
-  if (!t) {
-    Serial.println("Failed to open temp queue file for write");
-    return false;
-  }
+  if (!t) return false;
+  
   for (auto &ln : remaining) {
     t.println(ln);
   }
   t.close();
 
-  // remove original and rename
   if (SPIFFS.exists(QUEUE_PATH)) SPIFFS.remove(QUEUE_PATH);
   SPIFFS.rename(tmpPath, QUEUE_PATH);
   return true;
@@ -116,7 +105,7 @@ bool overwriteQueueWith(const std::vector<String> &remaining) {
 void clearQueue() {
   if (SPIFFS.exists(QUEUE_PATH)) {
     SPIFFS.remove(QUEUE_PATH);
-    Serial.println("Queue file cleared.");
+    Serial.println("Queue cleared");
   }
 }
 
@@ -125,166 +114,131 @@ void initTime() {
   configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
   Serial.println("Time sync requested...");
   delay(1500);
-  struct tm timeinfo;
-  if (getLocalTime(&timeinfo)) {
-    Serial.println("Time obtained: " + String(asctime(&timeinfo)));
-  } else {
-    Serial.println("Failed to obtain time");
-  }
 }
 
 bool postJSON(const String &jsonPayload, int &httpResponseCode, String &responseBody) {
   if (WiFi.status() != WL_CONNECTED) return false;
 
   HTTPClient http;
-  http.begin(String(SUPABASE_URL)); // HTTPS
+  http.begin(String(SUPABASE_URL));
   http.addHeader("Content-Type", "application/json");
   http.addHeader("apikey", ANON_KEY);
   http.addHeader("Authorization", "Bearer " + String(ANON_KEY));
-  // Option: add "Prefer: return=representation" if you want body back
 
   httpResponseCode = http.POST(jsonPayload);
   responseBody = http.getString();
   http.end();
 
-  // Supabase returns 201 for successful POST
   return (httpResponseCode >= 200 && httpResponseCode < 300);
 }
 
-// Attempt to drain queue: return true if all queued entries were uploaded successfully
+// ---------- Build Payload Helper ----------
+String buildPayload(float lat, float lng, String ts, bool isQueued) {
+  String payload = "{\"lat\":" + String(lat, 6) + ",\"long\":" + String(lng, 6);
+  if (ts.length()) payload += ",\"timestamp\"😕"" + ts + "\"";
+  payload += ",\"vehicle_id\"😕"" + String(VEHICLE_ID) + "\"";
+  if (isQueued) payload += ",\"is_queued\":true";
+  payload += "}";
+  return payload;
+}
+
+// ---------- Drain Queue ----------
 bool drainQueue() {
   std::vector<String> lines = readQueueLines();
-  if (lines.empty()) {
-    return true; // nothing to do
-  }
+  if (lines.empty()) return true;
 
-  Serial.printf("Draining queue: %u entries\n", (unsigned int)lines.size());
+  Serial.printf("Draining queue: %u entries\n", lines.size());
 
-  std::vector<String> remaining; // if some fails, keep them here
-  for (auto &ln : lines) {
-    int code;
-    String resp;
-    bool ok = postJSON(ln, code, resp);
-    Serial.printf("Queued POST -> %d response\n", code);
-    if (!ok) {
-      // stop further attempts (optional: you can choose to continue)
-      Serial.println("Failed to upload queued item, keeping remaining in queue");
-      // push current and all following to remaining
-      remaining.push_back(ln);
-      // find index to push the rest
-      size_t idx = &ln - &lines[0]; // not safe to compute this way; instead process differently
-      // simpler: push subsequent by iterating remaining lines after current
-      // but we can't get index easily here; so change approach: iterate with index
-      break;
-    } else {
-      Serial.println("Uploaded queued item: " + ln);
-    }
-  }
-
-  // Simpler second-pass: if any failed during the above naive loop, rebuild remaining properly
-  // We'll do robust approach: iterate with index
-  remaining.clear();
-  for (size_t i = 0; i < lines.size(); ++i) {
+  std::vector<String> remaining;
+  for (size_t i = 0; i < lines.size(); i++) {
     int code;
     String resp;
     bool ok = postJSON(lines[i], code, resp);
+    
     if (!ok) {
-      // push this and everything after it
-      for (size_t j = i; j < lines.size(); ++j) remaining.push_back(lines[j]);
+      // Keep this and all following
+      for (size_t j = i; j < lines.size(); j++) {
+        remaining.push_back(lines[j]);
+      }
       break;
     }
-    // otherwise continue
+    Serial.println("Uploaded queued: " + lines[i].substring(0, 50) + "...");
   }
 
   if (remaining.empty()) {
-    // all uploaded, delete queue file
     clearQueue();
     return true;
   } else {
-    // write remaining back
-    bool w = overwriteQueueWith(remaining);
-    if (!w) {
-      Serial.println("Failed to overwrite queue with remaining lines. Keeping original file.");
-    }
+    overwriteQueueWith(remaining);
     return false;
   }
 }
 
-// ---------- Main upload workflow ----------
-void tryUpload(float lat, float lng) {
-  // Build payload for this reading
-  // Use UTC timestamp (Z) — server stores timestamptz properly.
-  String ts = getISOUTCTimestamp();
-  if (ts.length() == 0) {
-    Serial.println("Time not available; using empty timestamp.");
-  }
-
-  String payload = "{\"lat\":" + String(lat, 6) + ",\"long\":" + String(lng, 6);
-  if (ts.length()) payload += ",\"timestamp\":\"" + ts + "\"";
-  payload += ",\"vehicle_id\":\"" + String(VEHICLE_ID) + "\"";
-  payload += "}";
-  
-  // Debug: print payload to verify vehicle_id is included
-  Serial.println("Payload: " + payload);
-
-  // If WiFi not connected -> queue and return
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("WiFi not connected. Queueing payload.");
-    appendToQueue(payload);
-    return;
-  }
-
-  // If queue file exists, drain it first before sending this reading
-  if (SPIFFS.exists(QUEUE_PATH)) {
-    Serial.println("Connectivity available - draining queue first...");
-    bool drainedAll = drainQueue();
-    if (!drainedAll) {
-      // If not all drained, queue the current payload too
-      appendToQueue(payload);
-      return;
-    }
-    // else continue to send the current payload below
-  }
-
-  // send current payload
-  int code;
-  String resp;
-  bool ok = postJSON(payload, code, resp);
-  if (ok) {
-    Serial.println("Posted live payload -> HTTP " + String(code));
-  } else {
-    Serial.println("Live POST failed (code " + String(code) + "). Queueing payload.");
-    appendToQueue(payload);
-  }
-}
-
+// ---------- Read GPS Function ----------
 void readGPS() {
-  // Read all available GPS data
+  // Read all available GPS data from Serial1
   while (Serial1.available() > 0) {
     gps.encode(Serial1.read());
   }
-  // If GPS received a new location fix
-  if (gps.location.isUpdated()) {
-    Serial.print("Latitude: ");
-    Serial.println(gps.location.lat(), 6);
-    lat = gps.location.lat();
-
-    Serial.print("Longitude: ");
-    Serial.println(gps.location.lng(), 6);
-    lng = gps.location.lng();
-  }
 }
 
-// ---------- Setup & Loop ----------
+// ========== MAIN UPLOAD LOGIC (IMPROVED) ==========
+void processGPSBuffer() {
+  if (gpsBuffer.empty()) return;
+
+  bool hasWiFi = (WiFi.status() == WL_CONNECTED);
+
+  if (hasWiFi) {
+    Serial.println("📡 WiFi connected - uploading buffer...");
+    
+    // Upload each reading in buffer
+    for (const auto& reading : gpsBuffer) {
+      String payload = buildPayload(reading.lat, reading.lng, reading.timestamp, false);
+      int code;
+      String resp;
+      bool ok = postJSON(payload, code, resp);
+      
+      if (ok) {
+        Serial.println("✓ Uploaded live: " + String(reading.lat, 6) + ", " + String(reading.lng, 6));
+      } else {
+        Serial.println("✗ Upload failed, queuing...");
+        String queuedPayload = buildPayload(reading.lat, reading.lng, reading.timestamp, true);
+        appendToQueue(queuedPayload);
+      }
+    }
+    
+    // After uploading current buffer, drain old queue
+    if (SPIFFS.exists(QUEUE_PATH)) {
+      Serial.println("📤 Draining old queue...");
+      drainQueue();
+    }
+    
+  } else {
+    Serial.println("📵 No WiFi - saving all to queue...");
+    
+    // No WiFi: save everything to SPIFFS
+    for (const auto& reading : gpsBuffer) {
+      String payload = buildPayload(reading.lat, reading.lng, reading.timestamp, true);
+      appendToQueue(payload);
+    }
+  }
+
+  // Clear buffer after processing
+  gpsBuffer.clear();
+}
+
+// ---------- Setup ----------
 void setup() {
   Serial.begin(115200);
-  Serial1.begin(GPS_BAUD, SERIAL_8N1, GPS_RX_PIN, GPS_TX_PIN); // Use Serial1 for GPS RX
-  Serial.println("Waiting for GPS signal...");
-  delay(100);
-
+  Serial1.begin(GPS_BAUD, SERIAL_8N1, GPS_RX_PIN, GPS_TX_PIN);
+  Serial.println("\n🚗 GPS Tracker with Continuous Logging");
+  Serial.println("========================================");
+  
   if (!initSPIFFS()) {
-    Serial.println("SPIFFS init failed - aborting.");
+    Serial.println("❌ SPIFFS init failed - aborting");
+    while(1) delay(1000);
   }
+  Serial.println("✓ SPIFFS initialized");
 
   // Connect WiFi
   WiFi.begin(WIFI_SSID, WIFI_PASS);
@@ -294,40 +248,66 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
+  
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\nWiFi connected: " + WiFi.localIP().toString());
+    Serial.println("\n✓ WiFi connected: " + WiFi.localIP().toString());
     initTime();
   } else {
-    Serial.println("\nWiFi NOT connected at boot. Will try periodically.");
+    Serial.println("\n⚠️  WiFi NOT connected - will queue data");
   }
 
+  Serial.println("📍 Waiting for GPS signal...");
+  lastGPSReadMillis = millis();
   lastUploadMillis = millis();
 }
 
+// ---------- Main Loop ----------
 void loop() {
   unsigned long now = millis();
+  
+  // ===== STEP 1: ALWAYS Read GPS (kahit walang WiFi) =====
+  readGPS();
+  
+  // ===== STEP 2: Every 10 seconds, check if we have valid GPS =====
+  if (now - lastGPSReadMillis >= GPS_READ_INTERVAL_MS) {
+    lastGPSReadMillis = now;
+    
+    if (gps.location.isUpdated() && gps.location.isValid()) {
+      float lat = gps.location.lat();
+      float lng = gps.location.lng();
+      String ts = getISOUTCTimestamp();
+      
+      // Add to buffer
+      GPSReading reading;
+      reading.lat = lat;
+      reading.lng = lng;
+      reading.timestamp = ts;
+      gpsBuffer.push_back(reading);
+      
+      Serial.printf("📍 GPS: %.6f, %.6f (Buffer: %d)\n", lat, lng, gpsBuffer.size());
+    } else {
+      Serial.println("⚠️  GPS signal weak or invalid");
+    }
+  }
+  
+  // ===== STEP 3: Every 30 seconds, upload/queue the buffer =====
   if (now - lastUploadMillis >= UPLOAD_INTERVAL_MS) {
     lastUploadMillis = now;
-
-    // === Replace this with your GPS reading logic ===
-    // Example static coordinates for testing:
-    readGPS();
-    // If you have TinyGPS++, read it here and set lat/lng from GPS
-    // e.g. lat = gps.location.lat(); lng = gps.location.lng();
-
-    tryUpload(lat, lng);
-
-    // Also attempt to reconnect WiFi if disconnected
+    
+    Serial.println("\n⏰ Upload interval reached");
+    processGPSBuffer();
+    
+    // Try to reconnect WiFi if disconnected
     if (WiFi.status() != WL_CONNECTED) {
-      Serial.println("Attempting WiFi reconnect...");
+      Serial.println("🔄 Attempting WiFi reconnect...");
       WiFi.reconnect();
-      // After reconnect, re-init time
+      delay(3000);
       if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("✓ WiFi reconnected!");
         initTime();
       }
     }
   }
-
-  // Small warm-down to yield CPU
-  delay(10);
+  
+  delay(100); // Small delay for stability
 }
