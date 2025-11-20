@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100">
+  <div class="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
     <Navbar 
       :sidebar-collapsed="sidebarCollapsed"
       :sidebar-open="sidebarOpen"
@@ -16,27 +16,27 @@
     ></div>
 
     <main class="flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
-      <!-- Header -->
-      <header class="sticky top-0 z-50 bg-gradient-to-br from-green-800 to-green-600 text-white shadow-lg">
-        <div class="px-4 sm:px-6 py-4">
-          <div class="flex items-center justify-between flex-wrap gap-4">
-            <div class="flex items-center gap-3">
-              <button
-                @click="openSidebar"
-                v-if="!sidebarOpen"
-                class="lg:hidden bg-green-800 text-white py-2.5 px-3 rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <i class="fas fa-bars"></i>
-              </button>
-              <div>
-                <h1 class="text-xl sm:text-2xl font-bold">Fleet Management</h1>
-                <p class="text-xs sm:text-sm text-green-100 mt-0.5">
-                  {{ getTabSubtitle() }}
-                </p>
-              </div>
+      <div class="sticky top-0 z-50">
+        <PageHeader
+          icon="fas fa-truck"
+          title="Fleet Management"
+          :subtitle="getTabSubtitle()"
+        >
+          <template #leading>
+            <button
+              @click="openSidebar"
+              v-if="!sidebarOpen"
+              class="lg:hidden btn btn-secondary"
+            >
+              <i class="fas fa-bars"></i>
+            </button>
+          </template>
+          <template #actions>
+            <div class="chip text-xs sm:text-sm hidden sm:inline-flex">
+              {{ tabs.length }} sections
             </div>
-          </div>
-        </div>
+          </template>
+        </PageHeader>
 
         <!-- Tabs -->
         <div class="border-t bg-[#155c1a]/60">
@@ -58,10 +58,10 @@
             </div> 
           </div>
         </div>
-      </header>
+      </div>
 
       <!-- Main Content Area -->
-      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-green-50/70 to-emerald-100/70">
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8  bg-green-100/80">
         <div class="max-w-7xl mx-auto">
           
           <!-- VEHICLES TAB -->
@@ -80,23 +80,6 @@
                 </div>
 
                 <div class="flex items-center gap-2 flex-wrap">
-                  <div class="flex bg-gray-100 rounded-lg p-1">
-                    <button
-                      @click="viewMode = 'grid'"
-                      class="p-2 rounded transition-colors"
-                      :class="viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'"
-                    >
-                      <i class="fas fa-th"></i>
-                    </button>
-                    <button
-                      @click="viewMode = 'list'"
-                      class="p-2 rounded transition-colors"
-                      :class="viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'"
-                    >
-                      <i class="fas fa-list"></i>
-                    </button>
-                  </div>
-
                   <button
                     @click="showFilters = !showFilters"
                     class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -116,8 +99,7 @@
                   <button 
                     v-if="activeTab === 'vehicles'"
                     @click="openAddModal"
-                    class="sm:flex-none bg-gradient bg-gradient-to-br from-green-800 to-green-700 text-white py-2 px-2 rounded-lg font-md\
-                    4  flex items-center justify-center gap-2 hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                    class="btn btn-primary sm:flex-none whitespace-nowrap"
                   >
                     <i class="fas fa-plus"></i>
                     <span class="hidden sm:inline">Add Vehicle</span>
@@ -150,36 +132,85 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-              <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <p class="text-sm text-gray-600 mb-1">Total</p>
-                <p class="text-3xl font-bold text-gray-900">{{ vehicles.length }}</p>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+              <div class="glass-card p-4 sm:p-5 hover:-translate-y-0.5 transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="stat-card-icon bg-emerald-100 text-emerald-600">
+                    <i class="fas fa-truck"></i>
+                  </div>
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold text-slate-900">{{ vehicles.length }}</div>
+                <p class="text-xs text-slate-500 mt-1 tracking-wide uppercase">Total Vehicles</p>
               </div>
-              <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <p class="text-sm text-gray-600 mb-1">Available</p>
-                <p class="text-3xl font-bold text-emerald-600">{{ vehiclesByStatus('available') }}</p>
+              <div class="glass-card p-4 sm:p-5 hover:-translate-y-0.5 transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="stat-card-icon bg-green-100 text-green-600">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold text-green-600">{{ vehiclesByStatus('available') }}</div>
+                <p class="text-xs text-slate-500 mt-1 tracking-wide uppercase">Available</p>
               </div>
-              <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <p class="text-sm text-gray-600 mb-1">In Use</p>
-                <p class="text-3xl font-bold text-blue-600">{{ vehiclesByStatus('in_use') }}</p>
+              <div class="glass-card p-4 sm:p-5 hover:-translate-y-0.5 transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="stat-card-icon bg-blue-100 text-blue-600">
+                    <i class="fas fa-route"></i>
+                  </div>
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold text-blue-600">{{ vehiclesByStatus('in_use') }}</div>
+                <p class="text-xs text-slate-500 mt-1 tracking-wide uppercase">On Trip</p>
               </div>
-              <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <p class="text-sm text-gray-600 mb-1">Maintenance</p>
-                <p class="text-3xl font-bold text-amber-600">{{ vehiclesByStatus('maintenance') }}</p>
+              <div class="glass-card p-4 sm:p-5 hover:-translate-y-0.5 transition-all duration-300">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="stat-card-icon bg-amber-100 text-amber-600">
+                    <i class="fas fa-tools"></i>
+                  </div>
+                </div>
+                <div class="text-2xl sm:text-3xl font-bold text-amber-600">{{ vehiclesByStatus('maintenance') }}</div>
+                <p class="text-xs text-slate-500 mt-1 tracking-wide uppercase">Maintenance</p>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-4">
+              <div class="text-sm text-gray-600">
+                Showing <span class="font-semibold text-gray-900">{{ filteredVehicles.length }}</span> of 
+                <span class="font-semibold text-gray-900">{{ vehicles.length }}</span> vehicles
+              </div>
+              <div class="view-toggle flex bg-white/90">
+                <button
+                  @click="viewMode = 'grid'"
+                  :class="viewMode === 'grid' ? 'bg-green-600 text-white' : 'text-slate-500 bg-transparent'"
+                >
+                  <i class="fas fa-th-large"></i>
+                </button>
+                <button
+                  @click="viewMode = 'list'"
+                  :class="viewMode === 'list' ? 'bg-green-600 text-white' : 'text-slate-500 bg-transparent'"
+                >
+                  <i class="fas fa-table"></i>
+                </button>
               </div>
             </div>
 
             <!-- Loading State -->
-            <div v-if="loading" class="text-center py-16 bg-white rounded-xl shadow-sm">
+            <div v-if="loading" class="glass-card text-center py-16">
               <i class="fas fa-spinner fa-spin text-5xl mb-5 text-[#0A400C]"></i>
-              <p class="text-gray-600">Loading vehicles...</p>
+              <p class="text-gray-600 font-medium">Loading vehicles...</p>
             </div>
 
             <!-- Empty State -->
-            <div v-else-if="filteredVehicles.length === 0" class="text-center py-16 bg-white rounded-xl shadow-sm">
-              <i class="fas fa-car text-7xl mb-5 text-gray-300"></i>
+            <div v-else-if="filteredVehicles.length === 0" class="glass-card text-center py-16">
+              <i class="fas fa-truck text-7xl mb-5 text-emerald-200"></i>
               <h3 class="text-2xl font-bold text-gray-900 mb-2">No vehicles found</h3>
-              <p class="text-gray-600">{{ hasActiveFilters ? 'Try adjusting your filters' : 'Start by adding your first vehicle' }}</p>
+              <p class="text-gray-600 mb-6">{{ hasActiveFilters ? 'Try adjusting your filters' : 'Start by adding your first vehicle' }}</p>
+              <button
+                v-if="!hasActiveFilters"
+                @click="openAddModal"
+                class="btn btn-primary"
+              >
+                <i class="fas fa-plus"></i>
+                Add Vehicle
+              </button>
             </div>
 
             <!-- Grid View -->
@@ -187,68 +218,80 @@
               <div
                 v-for="vehicle in filteredVehicles"
                 :key="vehicle.id"
-                class="bg-white rounded-xl border border-gray-200 hover:border-[#0A400C] transition-all duration-300 hover:shadow-xl overflow-hidden"
+                class="glass-card p-6 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
               >
-                <div class="h-1" :class="getStatusColor(vehicle.status, 'bg')"></div>
-                
-                <div class="p-6">
-                  <div class="flex items-start justify-between mb-4">
-                    <div class="flex-1">
-                      <div class="flex items-center gap-2 mb-1">
-                        <h3 class="text-lg font-bold text-gray-900">{{ vehicle.plate_number }}</h3>
-                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{{ vehicle.vehicle_id }}</span>
-                      </div>
-                      <p class="text-sm text-gray-600">{{ vehicle.year }} • {{ vehicle.vehicle_type.toUpperCase() }}</p>
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center shadow-inner">
+                      <i class="fas fa-truck-moving"></i>
                     </div>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
-                          :class="getStatusColor(vehicle.status, 'badge')">
-                      <i :class="getStatusIcon(vehicle.status)"></i>
-                      {{ formatStatus(vehicle.status) }}
-                    </span>
+                    <div>
+                      <div class="text-lg font-bold text-slate-900">{{ vehicle.plate_number }}</div>
+                      <div class="text-xs text-slate-500">{{ vehicle.vehicle_type?.toUpperCase() }} • {{ vehicle.year || 'N/A' }}</div>
+                    </div>
                   </div>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
+                        :class="getStatusColor(vehicle.status, 'badge')">
+                    <i :class="getStatusIcon(vehicle.status)"></i>
+                    {{ formatStatus(vehicle.status) }}
+                  </span>
+                </div>
 
-                  <div class="space-y-3 mb-4">
-                    <div v-if="vehicle.assigned_driver_code" class="flex items-center gap-2 text-sm">
-                      <i class="fas fa-user w-4 text-gray-400"></i>
-                      <span class="text-gray-700">{{ getDriverName(vehicle.assigned_driver_code) }}</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm">
-                      <i class="fas fa-building w-4 text-gray-400"></i>
-                      <span class="text-gray-700">{{ vehicle.assigned_department || 'Not assigned' }}</span>
-                    </div>
-                  </div>
+                <div class="flex flex-wrap gap-3 mb-4">
+                  <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600">{{ vehicle.vehicle_id }}</span>
+                  <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600">{{ vehicle.assigned_department || 'No Dept' }}</span>
+                </div>
 
-                  <div class="grid grid-cols-4 gap-2">
-                    <button @click="viewVehicle(vehicle)" class="flex items-center justify-center p-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View">
-                       <i class="fas fa-eye mr-1"></i> <span>view</span>               
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <div class="p-3 rounded-xl bg-slate-50">
+                    <div class="text-xs text-slate-500 mb-1 flex items-center gap-2">
+                      <i class="fas fa-user text-slate-400"></i>
+                      Driver
+                    </div>
+                    <div class="text-sm font-semibold text-slate-900 truncate">{{ getDriverName(vehicle.assigned_driver_code) || 'Unassigned' }}</div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-slate-50">
+                    <div class="text-xs text-slate-500 mb-1 flex items-center gap-2">
+                      <i class="fas fa-gauge text-slate-400"></i>
+                      Status Age
+                    </div>
+                    <div class="text-sm font-semibold text-slate-900">{{ formatTime(vehicle.device_timestamp) }}</div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <button @click="viewVehicle(vehicle)" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="View">
+                      <i class="fas fa-eye text-sm"></i>
                     </button>
-                    <button @click="viewHistory(vehicle)" class="flex items-center justify-center p-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="History">
-                      <i class="fas fa-history"></i>    
+                    <button @click="viewHistory(vehicle)" class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center hover:bg-purple-100 transition-colors" title="History">
+                      <i class="fas fa-history text-sm"></i>
                     </button>
-                    <button @click="viewLiveMap(vehicle)" class="flex items-center justify-center p-2 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors" title="Map">
-                      <i class="fas fa-map-marker-alt"></i>
-                    </button>
-                    <button @click="confirmDelete(vehicle)" class="flex items-center justify-center p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Delete">
-                      <i class="fas fa-trash"></i>
+                    <button @click="viewLiveMap(vehicle)" class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center hover:bg-teal-100 transition-colors" title="Map">
+                      <i class="fas fa-route text-sm"></i>
                     </button>
                   </div>
+                  <button @click="confirmDelete(vehicle)" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors" title="Delete">
+                    <i class="fas fa-trash mr-1"></i>
+                    Remove
+                  </button>
                 </div>
               </div>
             </div>
 
             <!-- Table View -->
-            <div v-else class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div v-else class="glass-card overflow-hidden">
               <div class="overflow-x-auto">
                 <table class="w-full">
-                  <thead class="bg-gray-50 border-b border-gray-200">
+                  <thead class="bg-gradient-to-br from-green-800 to-green-600 border-b border-gray-200">
                     <tr>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Vehicle</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Year</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Type</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Driver</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Department</th>
-                      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Vehicle</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Year</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Type</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Status</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Driver</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Department</th>
+                      <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -269,9 +312,9 @@
                       <td class="px-4 py-4 text-sm text-gray-700">{{ getDriverName(vehicle.assigned_driver_code) || '-' }}</td>
                       <td class="px-4 py-4 text-sm text-gray-700">{{ vehicle.assigned_department || '-' }}</td>
                       <td class="px-4 py-4">
-                        <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-4">
                           <button @click="viewVehicle(vehicle)" class="p-1.5 rounded hover:bg-blue-50 text-blue-600" title="View">
-                            <i class="fas fa-eye"></i> <span>view</span> 
+                            <i class="fas fa-eye"></i> 
                           </button>
                           <button @click="editVehicle(vehicle)" class="p-1.5 rounded hover:bg-amber-50 text-amber-600" title="Edit">
                             <i class="fas fa-edit"></i>
@@ -295,18 +338,22 @@
           </div>
 
           <!-- DRIVERS TAB -->
-          <div v-show="activeTab === 'drivers'">
-            <DriverManagement @driver-updated="loadDrivers" />
-          </div>
+          <KeepAlive>
+            <DriverManagement 
+              v-if="activeTab === 'drivers'"
+              @driver-updated="loadDrivers" 
+            />
+          </KeepAlive>
 
           <!-- TRIPS TAB -->
-          <div v-show="activeTab === 'trips'">
+          <KeepAlive>
             <TripManagement 
+              v-if="activeTab === 'trips'"
               :vehicles="vehicles" 
               :drivers="drivers"
               @trip-added="loadTrips"
             />
-          </div>
+          </KeepAlive>
 
         </div>
       </div>
@@ -610,6 +657,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import Navbar from './Navbar.vue'
+import PageHeader from '../components/PageHeader.vue'
 import DriverManagement from './DriverManagement.vue'
 import TripManagement from './TripManagement.vue'
 
@@ -617,6 +665,7 @@ export default {
   name: 'VehicleManagement',
   components: {
     Navbar,
+    PageHeader,
     DriverManagement,
     TripManagement
   },
@@ -802,6 +851,18 @@ export default {
       return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
 
+    const formatTime = (timestamp) => {
+      if (!timestamp) return 'N/A'
+      const date = new Date(timestamp)
+      if (Number.isNaN(date.getTime())) return 'N/A'
+      const diffMs = Date.now() - date.getTime()
+      const diffMinutes = Math.floor(diffMs / 60000)
+      if (diffMinutes < 1) return 'Just now'
+      if (diffMinutes < 60) return `${diffMinutes}m ago`
+      if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`
+      return date.toLocaleDateString()
+    }
+
     const getDriverName = (employeeId) => {
       if (!employeeId) return null
       const driver = drivers.value.find(d => d.employee_id === employeeId)
@@ -837,13 +898,15 @@ export default {
       try {
         const { data, error } = await supabase
           .from('drivers')
-          .select('id, employee_id, full_name, is_active')
+          .select('id, employee_id, full_name')
+          .eq('is_active', true)
           .order('full_name')
 
         if (error) throw error
         drivers.value = data || []
       } catch (error) {
         console.error('Error loading drivers:', error)
+        drivers.value = []
       }
     }
 
@@ -899,11 +962,7 @@ export default {
     }
 
     const viewLiveMap = (vehicle) => {
-      // Navigate to Live GPS Map and focus on this vehicle
-      router.push({
-        path: '/livemap',
-        query: { vehicle: vehicle.id }
-      })
+      router.push(`/tripmap/${vehicle.id}`)
     }
 
     const submitVehicleForm = async () => {
@@ -1039,6 +1098,7 @@ export default {
       getStatusIcon,
       formatStatus,
       formatDate,
+      formatTime,
       getDriverName,
       clearFilters,
       vehiclesByStatus,

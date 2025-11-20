@@ -17,47 +17,42 @@
         @click="closeSidebar"
       ></div>
 
-      <!-- Header -->
-      <header class="bg-gradient-to-br from-green-800 to-green-600 text-white shadow-xl">
-        <div class="px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <button
-                @click="openSidebar"
-                v-if="!sidebarOpen"
-                class="lg:hidden bg-green-700 text-white py-2 px-3 rounded-lg hover:bg-green-600 transition-colors flex-shrink-0"
-              >
-                <i class="fas fa-bars"></i>
-              </button>
-              <div class="flex-1 min-w-0">
-                <h1 class="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">🗺️ Live GPS Tracking</h1>
-                <p class="text-green-100 text-xs sm:text-sm mt-1 hidden sm:block">Real-time vehicle location monitoring</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 sm:gap-4">
-              <div class="text-right hidden xs:block">
-                <div class="text-xs text-green-200">Active</div>
-                <div class="text-lg sm:text-2xl font-bold">{{ activeVehicles }}</div>
-              </div>
-              <button 
-                @click="toggleVehicleList"
-                class="lg:hidden bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-all flex items-center gap-2"
-              >
-                <i class="fas fa-list"></i>
-                <span class="hidden xs:inline text-sm">Vehicles</span>
-              </button>
-              <button 
-                @click="refreshLocations"
-                class="bg-white/20 hover:bg-white/30 px-3 sm:px-4 py-2 rounded-lg transition-all flex items-center gap-2"
-                :disabled="loading"
-              >
-                <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
-                <span class="hidden sm:inline">Refresh</span>
-              </button>
-            </div>
+      <PageHeader
+        icon="fas fa-route"
+        title="Live GPS Tracking"
+        subtitle="Real-time vehicle location monitoring"
+      >
+        <template #leading>
+          <button
+            @click="openSidebar"
+            v-if="!sidebarOpen"
+            class="lg:hidden btn btn-secondary py-2 px-3"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+        </template>
+        <template #actions>
+          <div class="text-right hidden xs:block mr-2">
+            <div class="text-xs text-green-100 uppercase tracking-wide">Active</div>
+            <div class="text-lg sm:text-2xl font-bold">{{ activeVehicles }}</div>
           </div>
-        </div>
-      </header>
+          <button 
+            @click="toggleVehicleList"
+            class="lg:hidden btn btn-secondary text-sm"
+          >
+            <i class="fas fa-list"></i>
+            <span class="hidden xs:inline">Vehicles</span>
+          </button>
+          <button 
+            @click="refreshLocations"
+            class="btn btn-primary text-sm"
+            :disabled="loading"
+          >
+            <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </template>
+      </PageHeader>
 
       <!-- Main Content -->
       <div class="flex-1 flex overflow-hidden bg-gradient-to-br from-green-50/70 to-emerald-100/70 relative">
@@ -333,6 +328,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from './Navbar.vue'
+import PageHeader from '../components/PageHeader.vue'
 import { supabase } from '../lib/supabase'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -376,7 +372,9 @@ let markers = {}
 let trailPolylines = {}
 let trailCircles = {} // Store breadcrumb circles
 
-const TRAIL_POINT_LIMIT = 240  // 2 hours of GPS data (30 sec intervals = 240 points)
+const TRAIL_POINT_LIMIT = 720  // 2 hours of GPS data (10 sec intervals = 720 points)
+const TRAIL_24H_POINT_LIMIT = 8640  // 24 hours of GPS data (10 sec intervals = 8640 points)
+const SUPABASE_PAGE_SIZE = 1000 // Supabase PostgREST returns max 1k rows per request
 
 function normalizeRpcTrailData(points) {
   if (!Array.isArray(points)) return []
@@ -387,6 +385,45 @@ function normalizeRpcTrailData(points) {
       long: point.longitude,
       timestamp: point.gps_timestamp
     }))
+}
+
+function getTwentyFourHoursAgoIso() {
+  return new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+}
+
+async function fetch24HourGpsData(vehicleId, since = getTwentyFourHoursAgoIso()) {
+  const allData = []
+  let page = 0
+
+  while (true) {
+    const from = page * SUPABASE_PAGE_SIZE
+
+    if (from >= TRAIL_24H_POINT_LIMIT) {
+      break
+    }
+
+    const to = Math.min(from + SUPABASE_PAGE_SIZE - 1, TRAIL_24H_POINT_LIMIT - 1)
+    const { data, error } = await supabase
+      .from('gps_data')
+      .select('lat, long, timestamp')
+      .eq('vehicle_id', vehicleId)
+      .gte('timestamp', since)
+      .order('timestamp', { ascending: true })
+      .range(from, to)
+
+    if (error) throw error
+    if (!data || data.length === 0) break
+
+    allData.push(...data)
+
+    if (data.length < (to - from + 1)) {
+      break
+    }
+
+    page += 1
+  }
+
+  return allData
 }
 
 // Realtime subscription
@@ -995,31 +1032,28 @@ async function load24HTrails() {
 
 async function load24HTrailForVehicle(vehicle) {
   try {
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    const twentyFourHoursAgo = getTwentyFourHoursAgoIso()
     
-    const { data, error } = await supabase
-      .from('gps_data')
-      .select('lat, long, timestamp')
-      .eq('vehicle_id', vehicle.vehicle_id)
-      .gte('timestamp', twentyFourHoursAgo)
-      .order('timestamp', { ascending: true })
-      .limit(2880) // 24 hours max
+    console.log(`🟣 Loading 24H trail for ${vehicle.plate_number}`)
+    console.log(`  → Querying from: ${twentyFourHoursAgo}`)
     
-    if (error) throw error
+    const data = await fetch24HourGpsData(vehicle.vehicle_id, twentyFourHoursAgo)
     
     if (!data || data.length === 0) {
       console.warn(`No 24H data for ${vehicle.plate_number}`)
       return
     }
     
-    console.log(`✓ Loaded ${data.length} points for ${vehicle.plate_number} (24H)`)
+    console.log(`✓ Loaded ${data.length} GPS points for ${vehicle.plate_number} (24H trail)`)
+    console.log(`  → Expected: up to ${TRAIL_24H_POINT_LIMIT} points for 24h × 10s intervals`)
     
-    // Filter valid points
+    // Filter valid points (exclude NULL timestamps which are queued/unsent data)
     const validData = data.filter(point => 
       point.lat != null && 
       point.long != null && 
       !isNaN(point.lat) && 
-      !isNaN(point.long)
+      !isNaN(point.long) &&
+      point.timestamp != null // Only include timestamped data (uploaded to server)
     )
     
     if (validData.length === 0) return
@@ -1042,9 +1076,12 @@ async function load24HTrailForVehicle(vehicle) {
     // Add breadcrumb circles (smaller and more transparent for 24H)
     trail24HCircles[vehicle.vehicle_id] = []
     
-    // Only show circles for every 10th point to reduce clutter
+    // Calculate display frequency to reduce clutter
+    // For ~8640 points, show every ~30th point to get ~288 circles
+    const displayFrequency = Math.max(1, Math.floor(validData.length / 300)) // Target ~300 circles
+    
     validData.forEach((point, index) => {
-      if (index % 10 === 0) {
+      if (index % displayFrequency === 0) {
         const circle = L.circleMarker([point.lat, point.long], {
           radius: 2,
           fillColor: trail24HColor,
@@ -1064,7 +1101,8 @@ async function load24HTrailForVehicle(vehicle) {
       }
     })
     
-    console.log(`✓ Added 24H trail for ${vehicle.plate_number}: ${validData.length} points, ${Math.floor(validData.length / 10)} circles`)
+    const circleCount = Math.ceil(validData.length / displayFrequency)
+    console.log(`✓ Added 24H trail for ${vehicle.plate_number}: ${validData.length} points, ${circleCount} breadcrumb circles (display frequency: 1/${displayFrequency})`)
   } catch (error) {
     console.error(`Error loading 24H trail for ${vehicle.plate_number}:`, error)
   }
@@ -1097,27 +1135,22 @@ async function show24HourHistory() {
   history24H.value = []
   
   try {
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    const twentyFourHoursAgo = getTwentyFourHoursAgoIso()
     
     console.log(`📊 Loading 24-hour history for ${selectedVehicle.value.plate_number}`)
+    console.log(`  → Querying from: ${twentyFourHoursAgo}`)
     
-    const { data, error } = await supabase
-      .from('gps_data')
-      .select('lat, long, timestamp')
-      .eq('vehicle_id', selectedVehicle.value.vehicle_id)
-      .gte('timestamp', twentyFourHoursAgo)
-      .order('timestamp', { ascending: false })
-      .limit(2880) // 24 hours × 60 minutes × 2 points/minute
+    const rawData = await fetch24HourGpsData(selectedVehicle.value.vehicle_id, twentyFourHoursAgo)
     
-    if (error) throw error
-    
-    history24H.value = data || []
+    history24H.value = rawData.length ? [...rawData].reverse() : []
     
     // Calculate duration
     if (history24H.value.length > 1) {
       const first = new Date(history24H.value[history24H.value.length - 1].timestamp)
       const last = new Date(history24H.value[0].timestamp)
       history24HDuration.value = Math.floor((last - first) / 1000 / 60) // minutes
+    } else {
+      history24HDuration.value = 0
     }
     
     console.log(`✓ Loaded ${history24H.value.length} GPS points for last 24 hours`)

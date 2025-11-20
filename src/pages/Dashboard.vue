@@ -10,33 +10,35 @@
     />
 
     <main class="flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
-      <!-- Header -->
-      <header class="sticky top-0 z-50 bg-gradient-to-br from-green-800 to-green-600 flex items-center justify-between border-b border-green-200 p-4 md:p-5 shadow-md">
-        <div class="flex items-center gap-3 md:gap-4">
-          <button 
-            @click="openSidebar" 
-            class="text-white p-2 md:p-2.5 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg" 
-            v-if="!sidebarOpen"
-            style="background-color: #0A400C;"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
-          <div>
-            <h1 class="text-lg md:text-2xl font-bold tracking-tight text-white">{{ getViewTitle() }}</h1>
-            <p class="text-xs text-green-300 hidden md:block">{{ currentDate }}</p>
-          </div>
-        </div>
-        <div class="hidden sm:flex items-center gap-4">
-          <div class="flex items-center gap-2 px-3 py-2 bg-green-500/20 rounded-lg">
-            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span class="text-xs text-white font-medium">System Active</span>
-          </div>
-          <div class="flex items-center py-2 px-3 bg-gradient-to-br from-slate-50 to-slate-200 rounded-lg font-semibold shadow-md text-xs" style="color: #0A400C;">
-            <i class="fas fa-user-circle mr-2 text-sm " style="color: #4ade80;"></i>
-            {{ userProfile?.full_name || 'Admin' }}
-          </div>
-        </div>
-      </header>
+      <div class="sticky top-0 z-50">
+        <PageHeader
+          icon="fas fa-chart-line"
+          :title="getViewTitle()"
+          :subtitle="currentDate"
+        >
+          <template #leading>
+            <button 
+              @click="openSidebar" 
+              class="btn btn-secondary lg:hidden"
+              v-if="!sidebarOpen"
+            >
+              <i class="fas fa-bars"></i>
+            </button>
+          </template>
+          <template #actions>
+            <div class="hidden sm:flex items-center gap-3">
+              <div class="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-lg">
+                <div class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
+                <span class="text-xs text-green-100 font-medium">System Active</span>
+              </div>
+              <div class="flex items-center py-2 px-3 bg-white/15 rounded-lg font-semibold text-xs text-white">
+                <i class="fas fa-user-circle mr-2 text-sm text-emerald-300"></i>
+                {{ userProfile?.full_name || 'Admin' }}
+              </div>
+            </div>
+          </template>
+        </PageHeader>
+      </div>
       
       <!-- Content Body -->
       <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-green-100/80">
@@ -256,11 +258,13 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import Navbar from '../pages/Navbar.vue'
+import PageHeader from '../components/PageHeader.vue'
 
 export default {
   name: 'Dashboard',
   components: {
-    Navbar
+    Navbar,
+    PageHeader
   },
   setup() {
     const router = useRouter()

@@ -48,7 +48,7 @@
         :style="$route.name === 'Dashboard' ? 'background: linear-gradient(to right, rgba(10, 64, 12, 0.2), rgba(10, 64, 12, 0.05));' : ''"
         @click="handleMenuClick"
       >
-        <i class="fas fa-tachometer-alt w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'Dashboard', 'text-gray-600': $route.name !== 'Dashboard' }"></i>
+        <i class="fas fa-chart-line w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'Dashboard', 'text-gray-600': $route.name !== 'Dashboard' }"></i>
         <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Home</span>
       </router-link>
 
@@ -61,7 +61,7 @@
         :style="$route.name === 'Vehicles' ? 'background: linear-gradient(to right, rgba(10, 64, 12, 0.2), rgba(10, 64, 12, 0.05));' : ''"
         @click="handleMenuClick"
       >
-        <i class="fas fa-car w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'Vehicles', 'text-gray-600': $route.name !== 'Vehicles' }"></i>
+        <i class="fas fa-truck w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'Vehicles', 'text-gray-600': $route.name !== 'Vehicles' }"></i>
         <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Vehicles</span>
       </router-link>
 
@@ -87,7 +87,7 @@
         :style="$route.name === 'Maintenance' ? 'background: linear-gradient(to right, rgba(10, 64, 12, 0.2), rgba(10, 64, 12, 0.05));' : ''"
         @click="handleMenuClick"
       >
-        <i class="fas fa-wrench w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'Maintenance', 'text-gray-600': $route.name !== 'Maintenance' }"></i>
+        <i class="fas fa-tools w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'Maintenance', 'text-gray-600': $route.name !== 'Maintenance' }"></i>
         <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Maintenance</span>
       </router-link>
 
@@ -100,7 +100,7 @@
         :style="$route.name === 'LiveMap' ? 'background: linear-gradient(to right, rgba(10, 64, 12, 0.2), rgba(10, 64, 12, 0.05));' : ''"
         @click="handleMenuClick"
       >
-        <i class="fas fa-map-marked-alt w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'LiveMap', 'text-gray-600': $route.name !== 'LiveMap' }"></i>
+        <i class="fas fa-route w-5 text-center text-base" :class="{ 'text-green-900': $route.name === 'LiveMap', 'text-gray-600': $route.name !== 'LiveMap' }"></i>
         <span v-if="!sidebarCollapsed" class="ml-3 text-sm">Live GPS Map</span>
       </router-link>
 

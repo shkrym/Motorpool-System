@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Toolbar -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6 ">
+    <div class="glass-card p-4 sm:p-5 mb-6 ">
       <div class="flex flex-col sm:flex-row gap-4">
         <div class="flex-1 relative">
           <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -22,7 +22,7 @@
         </select>
         <button 
           @click="openAddModal"
-          class="flex items-center gap-2 bg-gradient-to-br from-green-800 to-green-700 text-white px-5 py-2.5 rounded-lg hover:bg-[#155c1a] transition-all shadow-md whitespace-nowrap"
+          class="btn btn-primary whitespace-nowrap"
         >
           <i class="fas fa-plus"></i>
           <span class="hidden sm:inline">Create Trip</span>
@@ -32,53 +32,103 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
-      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-        <p class="text-sm text-gray-600 mb-1">Total</p>
-        <p class="text-3xl font-bold text-gray-900">{{ trips.length }}</p>
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div class="glass-card p-4 sm:p-5">
+        <div class="stat-card-icon bg-emerald-100 text-emerald-600 mb-3">
+          <i class="fas fa-route"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-slate-900">{{ trips.length }}</div>
+        <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Total Trips</p>
       </div>
-      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-        <p class="text-sm text-gray-600 mb-1">Pending</p>
-        <p class="text-3xl font-bold text-amber-600">{{ tripsByStatus('pending') }}</p>
+      <div class="glass-card p-4 sm:p-5">
+        <div class="stat-card-icon bg-amber-100 text-amber-600 mb-3">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-amber-600">{{ tripsByStatus('pending') }}</div>
+        <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Pending</p>
       </div>
-      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-        <p class="text-sm text-gray-600 mb-1">In Progress</p>
-        <p class="text-3xl font-bold text-blue-600">{{ tripsByStatus('in_progress') }}</p>
+      <div class="glass-card p-4 sm:p-5">
+        <div class="stat-card-icon bg-blue-100 text-blue-600 mb-3">
+          <i class="fas fa-play"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-blue-600">{{ tripsByStatus('in_progress') }}</div>
+        <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">In Progress</p>
       </div>
-      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-        <p class="text-sm text-gray-600 mb-1">Completed</p>
-        <p class="text-3xl font-bold text-emerald-600">{{ tripsByStatus('completed') }}</p>
+      <div class="glass-card p-4 sm:p-5">
+        <div class="stat-card-icon bg-green-100 text-green-600 mb-3">
+          <i class="fas fa-flag-checkered"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-green-600">{{ tripsByStatus('completed') }}</div>
+        <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Completed</p>
       </div>
-      <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-        <p class="text-sm text-gray-600 mb-1">Cancelled</p>
-        <p class="text-3xl font-bold text-red-600">{{ tripsByStatus('cancelled') }}</p>
+      <div class="glass-card p-4 sm:p-5">
+        <div class="stat-card-icon bg-red-100 text-red-600 mb-3">
+          <i class="fas fa-ban"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-red-600">{{ tripsByStatus('cancelled') }}</div>
+        <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Cancelled</p>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-16 bg-white rounded-xl shadow-sm">
+    <div v-if="loading" class="glass-card text-center py-16">
       <i class="fas fa-spinner fa-spin text-5xl mb-5 text-[#0A400C]"></i>
       <p class="text-gray-600">Loading trips...</p>
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="filteredTrips.length === 0" class="text-center py-16 bg-white rounded-xl shadow-sm">
-      <i class="fas fa-route text-7xl mb-5 text-gray-300"></i>
+    <div v-else-if="filteredTrips.length === 0" class="glass-card text-center py-16">
+      <i class="fas fa-route text-7xl mb-5 text-emerald-100"></i>
       <h3 class="text-2xl font-bold text-gray-900 mb-2">No trips found</h3>
-      <p class="text-gray-600">{{ hasActiveFilters ? 'Try adjusting your filters' : 'Start by creating your first trip' }}</p>
+      <p class="text-gray-600 mb-6">{{ hasActiveFilters ? 'Try adjusting your filters' : 'Start by creating your first trip' }}</p>
+      <button
+        v-if="!hasActiveFilters"
+        @click="openAddModal"
+        class="btn btn-primary"
+      >
+        <i class="fas fa-plus"></i>
+        Create Trip
+      </button>
     </div>
 
     <!-- Trips Grid -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div v-else>
+      <div class="flex justify-between items-center mb-4">
+        <div class="text-sm text-gray-600">
+          Showing <span class="font-semibold text-gray-900">{{ filteredTrips.length }}</span> of 
+          <span class="font-semibold text-gray-900">{{ trips.length }}</span> trips
+        </div>
+        <div class="view-toggle flex bg-white/90">
+          <button
+            @click="viewMode = 'grid'"
+            :class="viewMode === 'grid' ? 'bg-emerald-600 text-white' : 'text-slate-500 bg-transparent'"
+          >
+            <i class="fas fa-th-large"></i>
+          </button>
+          <button
+            @click="viewMode = 'list'"
+            :class="viewMode === 'list' ? 'bg-emerald-600 text-white' : 'text-slate-500 bg-transparent'"
+          >
+            <i class="fas fa-table"></i>
+          </button>
+        </div>
+      </div>
+
+    <div v-if="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       <div
         v-for="trip in filteredTrips"
         :key="trip.id"
-        class="bg-white rounded-xl border border-gray-200 hover:shadow-lg transition-all p-5"
+        class="glass-card p-5 hover:-translate-y-1 transition-all duration-300"
       >
         <div class="flex items-start justify-between mb-4">
-          <div>
-            <h3 class="text-lg font-bold text-gray-900">{{ trip.trip_id }}</h3>
-            <p class="text-sm text-gray-600">{{ getVehicleDisplay(trip.vehicle_id) }}</p>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 text-white flex items-center justify-center shadow-inner">
+              <i class="fas fa-route"></i>
+            </div>
+            <div>
+              <div class="text-base font-bold text-slate-900">{{ trip.trip_id }}</div>
+              <div class="text-xs text-slate-500">{{ getVehicleDisplay(trip.vehicle_id) }}</div>
+            </div>
           </div>
           <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
                 :class="getTripStatusColor(trip.status)">
@@ -86,29 +136,49 @@
           </span>
         </div>
         
-        <div class="space-y-2 mb-4">
-          <div class="flex items-center gap-2 text-sm">
-            <i class="fas fa-user w-4 text-gray-400"></i>
-            <span class="text-gray-700">{{ getDriverDisplay(trip.driver_id) }}</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <div class="p-3 rounded-xl bg-slate-50 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+              <i class="fas fa-user"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 uppercase">Driver</p>
+              <p class="text-sm font-semibold text-slate-900 truncate">{{ getDriverDisplay(trip.driver_id) }}</p>
+            </div>
           </div>
-          <div class="flex items-center gap-2 text-sm">
-            <i class="fas fa-map-marker-alt w-4 text-gray-400"></i>
-            <span class="text-gray-700">{{ trip.destination }}</span>
+          <div class="p-3 rounded-xl bg-slate-50 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 uppercase">Destination</p>
+              <p class="text-sm font-semibold text-slate-900 truncate">{{ trip.destination }}</p>
+            </div>
           </div>
-          <div class="flex items-center gap-2 text-sm">
-            <i class="fas fa-calendar w-4 text-gray-400"></i>
-            <span class="text-gray-700">{{ formatDateTime(trip.start_time) }}</span>
+          <div class="p-3 rounded-xl bg-slate-50 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+              <i class="fas fa-calendar"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 uppercase">Schedule</p>
+              <p class="text-sm font-semibold text-slate-900">{{ formatDateTime(trip.start_time) || 'TBD' }}</p>
+            </div>
           </div>
-          <div v-if="trip.purpose" class="flex items-center gap-2 text-sm">
-            <i class="fas fa-info-circle w-4 text-gray-400"></i>
-            <span class="text-gray-700 truncate">{{ trip.purpose }}</span>
+          <div class="p-3 rounded-xl bg-slate-50 flex items-center gap-3" v-if="trip.purpose">
+            <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 uppercase">Purpose</p>
+              <p class="text-sm font-semibold text-slate-900 truncate">{{ trip.purpose }}</p>
+            </div>
           </div>
         </div>
 
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <button 
             @click="viewTrip(trip)"
-            class="flex-1 py-2 px-3 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm font-medium transition-colors"
+            class="flex-1 min-w-[110px] py-2 px-3 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm font-medium transition-colors"
           >
             <i class="fas fa-eye mr-1"></i>
             View
@@ -116,7 +186,7 @@
           <button 
             v-if="trip.status === 'pending'"
             @click="approveTrip(trip)"
-            class="flex-1 py-2 px-3 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-sm font-medium transition-colors"
+            class="flex-1 min-w-[110px] py-2 px-3 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-sm font-medium transition-colors"
           >
             <i class="fas fa-check mr-1"></i>
             Approve
@@ -124,7 +194,7 @@
           <button 
             v-if="trip.status === 'approved'"
             @click="startTrip(trip)"
-            class="flex-1 py-2 px-3 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 text-sm font-medium transition-colors"
+            class="flex-1 min-w-[110px] py-2 px-3 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 text-sm font-medium transition-colors"
           >
             <i class="fas fa-play mr-1"></i>
             Start
@@ -132,33 +202,87 @@
           <button 
             v-if="trip.status === 'in_progress'"
             @click="completeTrip(trip)"
-            class="py-2 px-3 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 text-sm font-medium transition-colors"
+            class="min-w-[90px] py-2 px-3 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 text-sm font-medium transition-colors"
           >
             <i class="fas fa-flag-checkered"></i>
           </button>
           <button 
             v-if="['pending', 'approved'].includes(trip.status)"
             @click="editTrip(trip)"
-            class="py-2 px-3 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-sm font-medium transition-colors"
+            class="min-w-[90px] py-2 px-3 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-sm font-medium transition-colors"
           >
             <i class="fas fa-edit"></i>
           </button>
           <button 
             v-if="['pending', 'approved', 'in_progress'].includes(trip.status)"
             @click="confirmCancel(trip)"
-            class="py-2 px-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm font-medium transition-colors"
+            class="min-w-[90px] py-2 px-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm font-medium transition-colors"
           >
             <i class="fas fa-times"></i>
           </button>
         </div>
       </div>
     </div>
+    <div v-else class="glass-card overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gradient-to-br from-green-800 to-green-600 border-b border-gray-200">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Trip</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Vehicle</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Driver</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Destination</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Status</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="text-sm text-slate-700 divide-y">
+          <tr v-for="trip in filteredTrips" :key="trip.id" class="hover:bg-slate-50/60 transition-colors">
+            <td class="py-3 px-4">
+              <div class="font-semibold text-slate-900">{{ trip.trip_id }}</div>
+              <div class="text-xs text-slate-500">{{ formatDateTime(trip.start_time) || 'No schedule' }}</div>
+            </td>
+            <td class="py-3 px-4">{{ getVehicleDisplay(trip.vehicle_id) }}</td>
+            <td class="py-3 px-4">{{ getDriverDisplay(trip.driver_id) }}</td>
+            <td class="py-3 px-4">{{ trip.destination }}</td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+                    :class="getTripStatusColor(trip.status)">
+                {{ formatTripStatus(trip.status) }}
+              </span>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex justify-end gap-2">
+                <button @click="viewTrip(trip)" class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button v-if="trip.status === 'pending'" @click="approveTrip(trip)" class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button v-if="trip.status === 'approved'" @click="startTrip(trip)" class="p-2 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors">
+                  <i class="fas fa-play"></i>
+                </button>
+                <button v-if="trip.status === 'in_progress'" @click="completeTrip(trip)" class="p-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors">
+                  <i class="fas fa-flag-checkered"></i>
+                </button>
+                <button v-if="['pending', 'approved'].includes(trip.status)" @click="editTrip(trip)" class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button v-if="['pending', 'approved', 'in_progress'].includes(trip.status)" @click="confirmCancel(trip)" class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </div>
 
    <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
         <!-- Modal Header -->
-        <div class="relative py-6 px-8 bg-gradient-to-r from-[#0A400C] via-[#0d4f0f] to-[#155c1a] text-white p-6 flex justify-between items-center">
+        <div class="relative py-6 px-8  bg-gradient-to-br from-green-800 to-green-600 text-white p-6 flex justify-between items-center">
           <div class="flex items-center gap-3">
             <div class="p-2 bg-white/20 rounded-lg">
               <i class="fas fa-route text-xl"></i>
@@ -168,6 +292,7 @@
           <button class="p-2 hover:bg-white/20 rounded-lg transition-colors" @click="closeModal">
             <i class="fas fa-times text-xl"></i>
           </button>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400"></div>
         </div>
 
         <!-- Modal Content -->
@@ -257,15 +382,17 @@
               Trip Details
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Assigned Driver</label>
+                        <div class="flex flex-col gap-2">
+                <label class="font-semibold text-gray-700 text-sm">
+                  <i class="fas fa-user mr-2"></i>Driver
+                </label>
                 <select 
                   v-model="form.driver_id" 
-                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                  class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all"
                 >
-                  <option value="">Select a driver (optional)</option>
-                  <option v-for="driver in activeDrivers" :key="driver.id" :value="driver.id">
-                    {{ driver.full_name }} ({{ driver.employee_id }})
+                  <option value="">Select Driver</option>
+                  <option v-for="driver in drivers" :key="driver.id" :value="driver.id">
+                    {{ driver.employee_id }} - {{ driver.full_name }}
                   </option>
                 </select>
               </div>
@@ -578,6 +705,7 @@ export default {
     const router = useRouter()
     
     const trips = ref([])
+    const viewMode = ref('grid')
     const loading = ref(true)
     const submitting = ref(false)
     const searchQuery = ref('')
@@ -707,6 +835,60 @@ export default {
       const driver = props.drivers.find(d => d.id === driverId)
       return driver ? driver.full_name : 'Unknown'
     }
+
+   // Add this method with the other methods
+    const loadDrivers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('drivers')
+          .select('id, employee_id, full_name')
+          .eq('is_active', true)
+          .order('full_name')
+
+        if (error) throw error
+        drivers.value = data || []
+      } catch (error) {
+        console.error('Error loading drivers:', error)
+        drivers.value = []
+      }
+    }
+
+    const loadData = async () => {
+      loading.value = true
+      try {
+        // Load all data in parallel for better performance
+        const [vehiclesData, tripsData, driversData, logsData] = await Promise.all([
+          supabase.from('vehicles').select('*').order('plate_number'),
+          supabase.from('trips').select('*').order('created_at', { ascending: false }).limit(50),
+          supabase.from('drivers').select('id, employee_id, full_name').eq('is_active', true).order('full_name'),
+          supabase.from('fuel_logs').select(`*, drivers:driver_id (full_name)`).order('created_at', { ascending: false })
+        ])
+
+        if (vehiclesData.error) throw vehiclesData.error
+        if (tripsData.error) throw tripsData.error
+        if (driversData.error) throw driversData.error
+        if (logsData.error) throw logsData.error
+
+        vehicles.value = vehiclesData.data || []
+        trips.value = tripsData.data || []
+        drivers.value = driversData.data || []
+        fuelLogs.value = (logsData.data || []).map(log => ({
+          ...log,
+          driver_name: log.drivers?.full_name || null
+        }))
+
+      } catch (error) {
+        console.error('Error loading data:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // Add this helper for driver display format
+    const formatDriverOption = (driver) => {
+      return `${driver.employee_id} - ${driver.full_name}`
+    }
+
 
     const onVehicleSelect = () => {
       if (form.vehicle_id) {
@@ -1007,6 +1189,7 @@ export default {
     })
 
     return {
+      viewMode,
       trips,
       loading,
       submitting,

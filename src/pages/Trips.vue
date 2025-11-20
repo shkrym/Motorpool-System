@@ -1,6 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 to-green-100 font-inter">
-    <!-- Include Navbar Component -->
+  <div class="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100 font-inter">
     <Navbar 
       :sidebar-collapsed="sidebarCollapsed"
       :sidebar-open="sidebarOpen"
@@ -10,214 +9,275 @@
       @menu-click="handleMenuClick"
     />
     
-    <!-- Sidebar overlay for mobile -->
     <div
       v-if="sidebarOpen && !sidebarCollapsed"
       class="fixed inset-0 bg-black/50 z-40 lg:hidden"
       @click="closeSidebar"
     ></div>
 
-       <main class="main-content flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
-
+    <main class="main-content flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
       
-      <!-- Header -->
-      <header class="bg-white/95 backdrop-blur-xl py-5 px-8 border-b border-white/20 flex flex-col sm:flex-row justify-between items-start sm:items-center shadow-sm sticky top-0 z-10 gap-4 sm:gap-0">
-        <div class="flex items-center gap-4 w-full sm:w-auto">
-          <button
-            @click="openSidebar"
-            class="bg-green-800 border-none text-white py-2.5 px-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-green-700 hover:scale-105 lg:hidden"
-            v-if="!sidebarOpen"
-            style="background-color: #0A400C;"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
-          <div class="flex-1">
-            <h1 class="m-0 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" 
-                style="color: #0A400C;">Trip History</h1>
-            <div v-if="vehicleInfo" class="flex items-center gap-2 mt-2">
-              <span class="text-sm text-slate-600">Vehicle:</span>
-              <span class="font-semibold text-sm" style="color: #0A400C;">
-                {{ vehicleInfo.plate_number }} - {{ vehicleInfo.year }} {{ vehicleInfo.make }} {{ vehicleInfo.model }}
-              </span>
+      <div class="sticky top-0 z-10">
+        <PageHeader
+          icon="fas fa-route"
+          title="Trip History"
+          subtitle="Monitor every journey taken by your fleet"
+        >
+          <template #leading>
+            <button
+              @click="openSidebar"
+              class="lg:hidden btn btn-secondary p-2.5"
+              v-if="!sidebarOpen"
+            >
+              <i class="fas fa-bars"></i>
+            </button>
+          </template>
+          <template #actions>
+            <button
+              @click="openAddModal"
+              class="btn btn-primary"
+            >
+              <i class="fas fa-plus"></i>
+              <span>New Trip</span>
+            </button>
+          </template>
+          <template #default>
+            <div class="flex items-center gap-2 text-xs sm:text-sm text-green-100">
+              <i class="fas fa-home"></i>
+              <i class="fas fa-chevron-right text-[10px]"></i>
+              <span class="hover:text-white/80 cursor-pointer" @click="$router.push('/vehicles')">Vehicles</span>
+              <i class="fas fa-chevron-right text-[10px]"></i>
+              <span class="font-semibold">Trip History</span>
             </div>
-          </div>
-        </div>
-        <div class="flex items-center gap-4 w-full sm:w-auto">
-          <button
-            @click="$router.go(-1)"
-            class="bg-slate-500/10 text-slate-600 border border-slate-500/20 py-2 px-3 sm:py-3 sm:px-5 rounded-xl cursor-pointer font-semibold flex items-center gap-2 transition-all duration-300 text-xs sm:text-sm hover:bg-slate-500/20"
-          >
-            <i class="fas fa-arrow-left"></i>
-            <span class="hidden sm:inline">Back</span>
-          </button>
-          <button
-            @click="openAddModal"
-            class="bg-gradient-to-br text-white border-none py-2 px-3 sm:py-3 sm:px-5 rounded-xl cursor-pointer font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg text-xs sm:text-sm hover:-translate-y-0.5 hover:shadow-xl"
-            style="background: linear-gradient(135deg, #0A400C, #155c1a); box-shadow: 0 10px 25px rgba(10, 64, 12, 0.3);"
-          >
-            <i class="fas fa-plus"></i>
-            <span class="hidden sm:inline">Add Trip</span>
-          </button>
-        </div>
-      </header>
+          </template>
+        </PageHeader>
+      </div>
 
       <!-- Main Content -->
-      <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-        <div class="max-w-7xl mx-auto">
-          <!-- Filters Section -->
-          <div class="bg-white/90 backdrop-blur-xl p-4 sm:p-5 rounded-xl mb-6 sm:mb-8 shadow-lg"
-               style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-            <div class="flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-center">
-              <div class="relative flex-1 min-w-0">
-                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500"></i>
-                <input
-                  type="text"
-                  v-model="searchQuery"
-                  placeholder="Search by origin, destination, driver..."
-                  class="w-full py-3 pl-11 pr-4 border border-slate-300 rounded-lg text-sm bg-white transition-colors duration-200 focus:outline-none focus:ring-4"
-                  style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
-                  :style="{ 'border-color': searchQuery ? '#0A400C' : '' }"
-                >
+      <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto  bg-green-100/80">
+        <div class="max-w-7xl mx-auto space-y-6">
+          
+          <!-- Statistics Overview -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between mb-3">
+                <div class="p-2.5 bg-blue-100 rounded-lg">
+                  <i class="fas fa-route text-blue-600 text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Total</span>
               </div>
+              <div class="text-3xl font-bold text-slate-800">{{ tripStats.total }}</div>
+              <div class="text-sm text-slate-600 mt-1">All Trips</div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between mb-3">
+                <div class="p-2.5 bg-green-100 rounded-lg">
+                  <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Done</span>
+              </div>
+              <div class="text-3xl font-bold text-green-600">{{ tripStats.completed }}</div>
+              <div class="text-sm text-slate-600 mt-1">Completed</div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between mb-3">
+                <div class="p-2.5 bg-amber-100 rounded-lg">
+                  <i class="fas fa-spinner text-amber-600 text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Active</span>
+              </div>
+              <div class="text-3xl font-bold text-amber-600">{{ tripStats.ongoing }}</div>
+              <div class="text-sm text-slate-600 mt-1">In Progress</div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between mb-3">
+                <div class="p-2.5 bg-purple-100 rounded-lg">
+                  <i class="fas fa-road text-purple-600 text-lg"></i>
+                </div>
+                <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Distance</span>
+              </div>
+              <div class="text-3xl font-bold text-slate-800">{{ tripStats.totalDistance }}</div>
+              <div class="text-sm text-slate-600 mt-1">Kilometers</div>
+            </div>
+          </div>
 
-              <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-                <select v-model="statusFilter" class="py-2.5 px-3 border border-slate-300 rounded-lg bg-white text-sm text-gray-700 min-w-0 sm:min-w-36 focus:outline-none focus:ring-4"
-                        style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-                  <option value="">All Status</option>
-                  <option value="completed">Completed</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
+          <!-- Filters and Search -->
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div class="p-5">
+              <div class="flex flex-col lg:flex-row gap-4">
+                <!-- Search -->
+                <div class="relative flex-1">
+                  <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                  <input
+                    type="text"
+                    v-model="searchQuery"
+                    placeholder="Search trips by location or driver name..."
+                    class="w-full py-3 pl-11 pr-4 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  >
+                </div>
 
-                <input 
-                  type="date" 
-                  v-model="dateFilter"
-                  class="py-2.5 px-3 border border-slate-300 rounded-lg bg-white text-sm text-gray-700 min-w-0 sm:min-w-36 focus:outline-none focus:ring-4"
-                  style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
-                >
+                <!-- Filters -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <select v-model="statusFilter" class="px-4 py-3 border border-slate-300 rounded-lg text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 min-w-[140px]">
+                    <option value="">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
 
-                <button @click="clearFilters" class="bg-slate-500/10 text-slate-600 border border-slate-500/20 py-2.5 px-4 rounded-lg cursor-pointer font-medium flex items-center justify-center gap-1.5 transition-all duration-200 text-sm hover:bg-slate-500/20 hover:text-slate-700 whitespace-nowrap">
-                  <i class="fas fa-times"></i>
-                  <span class="hidden sm:inline">Clear</span>
-                </button>
+                  <input 
+                    type="date" 
+                    v-model="dateFilter"
+                    class="px-4 py-3 border border-slate-300 rounded-lg text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+
+                  <button 
+                    v-if="hasActiveFilters"
+                    @click="clearFilters" 
+                    class="px-4 py-3 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors flex items-center gap-2"
+                  >
+                    <i class="fas fa-times"></i>
+                    <span class="hidden sm:inline">Clear</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Trip Statistics Cards -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <div class="bg-white/90 backdrop-blur-xl p-4 sm:p-6 rounded-xl shadow-lg text-center"
-                 style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-              <div class="text-2xl sm:text-3xl font-bold mb-2" style="color: #0A400C;">{{ tripStats.total }}</div>
-              <div class="text-xs sm:text-sm text-slate-600 font-medium">Total Trips</div>
+          <!-- Trips List -->
+          <div v-if="loading" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 text-center">
+            <div class="inline-block p-4 bg-green-50 rounded-full mb-4">
+              <i class="fas fa-spinner fa-spin text-4xl text-green-600"></i>
             </div>
-            
-            <div class="bg-white/90 backdrop-blur-xl p-4 sm:p-6 rounded-xl shadow-lg text-center"
-                 style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-              <div class="text-2xl sm:text-3xl font-bold mb-2 text-green-600">{{ tripStats.completed }}</div>
-              <div class="text-xs sm:text-sm text-slate-600 font-medium">Completed</div>
-            </div>
-            
-            <div class="bg-white/90 backdrop-blur-xl p-4 sm:p-6 rounded-xl shadow-lg text-center"
-                 style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-              <div class="text-2xl sm:text-3xl font-bold mb-2 text-blue-600">{{ tripStats.ongoing }}</div>
-              <div class="text-xs sm:text-sm text-slate-600 font-medium">Ongoing</div>
-            </div>
-            
-            <div class="bg-white/90 backdrop-blur-xl p-4 sm:p-6 rounded-xl shadow-lg text-center"
-                 style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-              <div class="text-2xl sm:text-3xl font-bold mb-2 text-gray-600">{{ tripStats.totalDistance }} km</div>
-              <div class="text-xs sm:text-sm text-slate-600 font-medium">Total Distance</div>
-            </div>
+            <p class="text-slate-600 font-medium">Loading trips...</p>
           </div>
 
-          <!-- Trips Content -->
-          <div v-if="loading" class="text-center py-16 bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg"
-               style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-            <i class="fas fa-spinner fa-spin text-5xl mb-5" style="color: #0A400C;"></i>
-            <span class="text-slate-600 text-base font-medium">Loading trip history...</span>
-          </div>
-
-          <div v-else-if="filteredTrips.length === 0" class="text-center py-16 bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg"
-               style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-            <i class="fas fa-route text-7xl mb-5" style="color: rgba(10, 64, 12, 0.3);"></i>
-            <h3 class="text-2xl mb-2.5" style="color: #0A400C;">No trips found</h3>
-            <p class="text-slate-600 mb-6">{{ hasActiveFilters ? 'Try adjusting your search criteria' : 'No trips recorded for this vehicle yet.' }}</p>
+          <div v-else-if="filteredTrips.length === 0" class="bg-white rounded-xl border border-slate-200 shadow-sm p-16 text-center">
+            <div class="inline-block p-5 bg-slate-100 rounded-full mb-4">
+              <i class="fas fa-route text-5xl text-slate-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-800 mb-2">No trips found</h3>
+            <p class="text-slate-600 mb-6">
+              {{ hasActiveFilters ? 'Try adjusting your filters or search terms' : 'Start by adding your first trip for this vehicle' }}
+            </p>
+            <button
+              v-if="!hasActiveFilters"
+              @click="openAddModal"
+              class="btn btn-primary"
+            >
+              <i class="fas fa-plus"></i>
+              Add First Trip
+            </button>
           </div>
 
           <!-- Trip Cards -->
           <div v-else class="space-y-4">
             <div v-for="trip in filteredTrips" :key="trip.id" 
-                 class="bg-white/95 backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-lg border border-white/30 transition-all duration-300 hover:shadow-xl"
-                 style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
+                 class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden group">
               
               <!-- Trip Header -->
-              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                <div class="flex items-center gap-4">
-                  <div class="p-3 rounded-full" :class="{
-                    'bg-green-500/10': trip.status === 'completed',
-                    'bg-blue-500/10': trip.status === 'ongoing',
-                    'bg-red-500/10': trip.status === 'cancelled'
-                  }">
-                    <i class="text-xl" :class="{
-                      'fas fa-check-circle text-green-600': trip.status === 'completed',
-                      'fas fa-play-circle text-blue-600': trip.status === 'ongoing',
-                      'fas fa-times-circle text-red-600': trip.status === 'cancelled'
-                    }"></i>
+              <div class="p-3 border-b border-slate-100 bg-gradient-to-br from-green-800/90 to-green-700/80">
+                <div class="flex flex-col sm:flex-row jus tify-between items-start gap-3">
+                  <div class="flex items-start gap-4 flex-1">
+                    <!-- Status Icon -->
+                    <div class="p-3 rounded-xl shrink-0" :class="{
+                      'bg-green-100': trip.status === 'completed',
+                      'bg-amber-100': trip.status === 'ongoing',
+                      'bg-red-100': trip.status === 'cancelled'
+                    }">
+                      <i class="text-xl" :class="{
+                        'fas fa-check-circle text-green-600': trip.status === 'completed',
+                        'fas fa-spinner text-amber-600': trip.status === 'ongoing',
+                        'fas fa-ban text-red-600': trip.status === 'cancelled'
+                      }"></i>
+                    </div>
+                    
+                    <!-- Trip Info -->
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-2">
+                        <h3 class="text-lg font-semibold text-white truncate">{{ trip.origin }}</h3>
+                        <i class="fas fa-arrow-right text-slate-400 text-sm shrink-0"></i>
+                        <h3 class="text-lg font-semibold text-green-400 truncate">{{ trip.destination }}</h3>
+                      </div>
+                      <div class="flex flex-wrap items-center gap-3 text-sm text-white">
+                        <span class="flex items-center gap-1.5">
+                          <i class="far fa-calendar"></i>
+                          {{ formatDate(trip.start_time) }}
+                        </span>
+                        <span v-if="trip.driver_name" class="flex items-center gap-1.5">
+                          <i class="far fa-user"></i>
+                          {{ trip.driver_name }}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 class="text-lg font-semibold text-gray-800 m-0">{{ trip.origin }} → {{ trip.destination }}</h3>
-                    <p class="text-sm text-slate-600 m-0 mt-1">{{ formatDate(trip.start_time) }}</p>
-                  </div>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                  <span class="py-1.5 px-3 rounded-2xl text-xs font-semibold uppercase" :class="{
-                    'bg-green-500/10 text-green-600': trip.status === 'completed',
-                    'bg-blue-500/10 text-blue-600': trip.status === 'ongoing',
-                    'bg-red-500/10 text-red-600': trip.status === 'cancelled'
+                  
+                  <!-- Status Badge -->
+                  <span class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide shrink-0" :class="{
+                    'bg-green-100 text-green-700': trip.status === 'completed',
+                    'bg-amber-100 text-amber-700': trip.status === 'ongoing',
+                    'bg-red-100 text-red-700': trip.status === 'cancelled'
                   }">
                     {{ trip.status }}
                   </span>
                 </div>
               </div>
 
-              <!-- Trip Details Grid -->
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-                <div class="text-center p-3 bg-gray-50 rounded-lg">
-                  <div class="text-xs text-gray-600 font-medium mb-1">Driver</div>
-                  <div class="font-semibold text-sm">{{ trip.driver_name || 'N/A' }}</div>
+              <!-- Trip Details -->
+              <div class="p-3">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                  <div class="space-y-1">
+                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Distance</div>
+                    <div class="text-md font-bold text-slate-800">{{ trip.distance || 0 }} km</div>
+                  </div>
+                  <div class="space-y-1">
+                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Duration</div>
+                    <div class="text-md font-bold text-slate-800">{{ formatDuration(trip.start_time, trip.end_time) }}</div>
+                  </div>
+                  <div class="space-y-1">
+                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Purpose</div>
+                    <div class="text-sm font-semibold text-slate-700 capitalize">{{ trip.purpose || 'General' }}</div>
+                  </div>
+                  <div class="space-y-1">
+                    <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Driver</div>
+                    <div class="text-sm font-semibold text-slate-700 truncate">{{ trip.driver_name || 'Unassigned' }}</div>
+                  </div>
                 </div>
-                <div class="text-center p-3 bg-gray-50 rounded-lg">
-                  <div class="text-xs text-gray-600 font-medium mb-1">Distance</div>
-                  <div class="font-semibold text-sm">{{ trip.distance || 0 }} km</div>
-                </div>
-                <div class="text-center p-3 bg-gray-50 rounded-lg">
-                  <div class="text-xs text-gray-600 font-medium mb-1">Duration</div>
-                  <div class="font-semibold text-sm">{{ formatDuration(trip.start_time, trip.end_time) }}</div>
-                </div>
-                <div class="text-center p-3 bg-gray-50 rounded-lg">
-                  <div class="text-xs text-gray-600 font-medium mb-1">Purpose</div>
-                  <div class="font-semibold text-sm">{{ trip.purpose || 'General' }}</div>
-                </div>
-              </div>
 
-              <!-- Trip Notes -->
-              <div v-if="trip.notes" class="mb-4 p-3 bg-gray-50 rounded-lg border-l-4" style="border-left-color: #0A400C;">
-                <div class="text-xs text-gray-600 font-medium mb-1">Notes</div>
-                <p class="text-sm text-gray-700 m-0">{{ trip.notes }}</p>
-              </div>
+                <!-- Notes -->
+                <div v-if="trip.notes" class="p-4 bg-slate-50 rounded-lg border-l-4 border-green-600 mb-4">
+                  <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">Trip Notes</div>
+                  <p class="text-sm text-slate-700 leading-relaxed">{{ trip.notes }}</p>
+                </div>
 
-              <!-- Action Buttons -->
-              <div class="flex gap-2 justify-end pt-4 border-t border-gray-200">
-                <button @click="viewTripDetails(trip)" class="bg-blue-500/10 text-blue-600 border border-blue-500/20 py-2 px-4 rounded-lg cursor-pointer font-medium flex items-center gap-2 transition-all duration-200 text-sm hover:bg-blue-500/20 hover:scale-105">
-                  <i class="fas fa-eye"></i>
-                  View
-                </button>
-                <button @click="editTrip(trip)" class="bg-amber-500/10 text-amber-600 border border-amber-500/20 py-2 px-4 rounded-lg cursor-pointer font-medium flex items-center gap-2 transition-all duration-200 text-sm hover:bg-amber-500/20 hover:scale-105">
-                  <i class="fas fa-edit"></i>
-                  Edit
-                </button>
+                <!-- Actions -->
+                <div class="flex gap-2 pt-4 border-t justify-end  border-slate-100">
+                  <button 
+                    @click="viewTripDetails(trip)" 
+                    class="flex-1 sm:flex-none px-4 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg font-medium hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-eye"></i>
+                    <span class="hidden sm:inline">View Details</span>
+                    <span class="sm:hidden">View</span>
+                  </button>
+                  <button   
+                    @click="editTrip(trip)" 
+                    class="flex-1 sm:flex-none px-4 py-2.5 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-100 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-edit"></i>
+                    <span class="hidden sm:inline">Edit</span>
+                    <span class="sm:hidden">Edit</span>
+                  </button>
+                  <button 
+                    @click="deleteTrip(trip)" 
+                    class="px-4 py-2.5 bg-red-50 text-red-700 border border-red-200 rounded-lg font-medium hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -225,87 +285,173 @@
       </div>
     </main>
 
-    <!-- Add/Edit Trip Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div class="bg-white rounded-2xl p-0 w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div class="py-6 px-8 border-b border-gray-200 flex justify-between items-center bg-gradient-to-br text-white rounded-t-2xl"
-             style="background: linear-gradient(135deg, #0A400C, #155c1a);">
-          <h3 class="m-0 text-xl font-semibold">{{ editingTrip ? 'Edit Trip' : 'Add New Trip' }}</h3>
-          <button class="bg-white/10 border-none text-white w-8 h-8 rounded-lg cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-white/20" @click="closeModal">
-            <i class="fas fa-times"></i>
+    <!-- Add/Edit Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
+        <!-- Modal Header -->
+        <div class="relative py-6 px-8 bg-gradient-to-br from-green-800 to-green-600 text-white p-6 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-white/20 rounded-lg">
+              <i class="fas fa-route text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold">{{ editingTrip ? 'Edit Trip' : 'Add New Trip' }}</h3>
+          </div>
+          <button class="p-2 hover:bg-white/20 rounded-lg transition-colors" @click="closeModal">
+            <i class="fas fa-times text-xl"></i>
           </button>
         </div>
 
-        <form @submit.prevent="submitForm" class="p-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-            <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">Origin *</label>
-              <input type="text" v-model="tripForm.origin" required class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-            </div>
-            <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">Destination *</label>
-              <input type="text" v-model="tripForm.destination" required class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-            <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">Start Time *</label>
-              <input type="datetime-local" v-model="tripForm.start_time" required class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-            </div>
-            <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">End Time</label>
-              <input type="datetime-local" v-model="tripForm.end_time" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-            <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">Driver</label>
-              <select v-model="tripForm.driver_id" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-                <option value="">Select Driver</option>
-                <option v-for="driver in drivers" :key="driver.id" :value="driver.id">{{ driver.full_name }}</option>
-              </select>
-            </div>
-            <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">Distance (km)</label>
-              <input type="number" v-model.number="tripForm.distance" step="0.1" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
+        <!-- Modal Content -->
+        <form @submit.prevent="submitForm" class="p-6 overflow-y-auto max-h-[calc(90vh-88px)]">
+          <!-- Route Information -->
+          <div class="mb-6">
+            <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+              <i class="fas fa-map-marked-alt text-green-600"></i>
+              Route Information
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Origin Location *</label>
+                <input 
+                  type="text" 
+                  v-model="tripForm.origin" 
+                  required 
+                  placeholder="Starting point"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Destination *</label>
+                <input 
+                  type="text" 
+                  v-model="tripForm.destination" 
+                  required 
+                  placeholder="End point"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+              </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-            <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">Purpose</label>
-              <select v-model="tripForm.purpose" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-                <option value="">Select Purpose</option>
-                <option value="official">Official Business</option>
-                <option value="transport">Transport</option>
-                <option value="delivery">Delivery</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="emergency">Emergency</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">Status</label>
-              <select v-model="tripForm.status" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+          <!-- Time Information -->
+          <div class="mb-6">
+            <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+              <i class="fas fa-clock text-green-600"></i>
+              Schedule
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Start Date & Time *</label>
+                <input 
+                  type="datetime-local" 
+                  v-model="tripForm.start_time" 
+                  required 
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">End Date & Time</label>
+                <input 
+                  type="datetime-local" 
+                  v-model="tripForm.end_time" 
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+              </div>
             </div>
           </div>
 
-          <div class="flex flex-col gap-2 mb-5">
-            <label class="font-semibold text-gray-700 text-sm">Notes</label>
-            <textarea v-model="tripForm.notes" rows="3" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white resize-y min-h-20 focus:outline-none focus:ring-4" style="--tw-ring-color: rgba(10, 64, 12, 0.1);"></textarea>
+          <!-- Trip Details -->
+          <div class="mb-6">
+            <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+              <i class="fas fa-info-circle text-green-600"></i>
+              Trip Details
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Assigned Driver</label>
+                <select 
+                  v-model="tripForm.driver_id" 
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Select a driver</option>
+                  <option v-for="driver in drivers" :key="driver.id" :value="driver.id">
+                    {{ driver.full_name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Distance (kilometers)</label>
+                <input 
+                  type="number" 
+                  v-model.number="tripForm.distance" 
+                  step="0.1" 
+                  min="0"
+                  placeholder="0.0"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+              </div>
+              
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Trip Purpose</label>
+                <select 
+                  v-model="tripForm.purpose" 
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Select purpose</option>
+                  <option value="official">Official Business</option>
+                  <option value="transport">Personnel Transport</option>
+                  <option value="delivery">Delivery</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="emergency">Emergency</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Trip Status</label>
+                <select 
+                  v-model="tripForm.status" 
+                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                >
+                  <option value="ongoing">Ongoing</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+
+          <!-- Notes -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Additional Notes</label>
+            <textarea 
+              v-model="tripForm.notes" 
+              rows="4" 
+              placeholder="Add any relevant information about this trip..."
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+            ></textarea>
           </div>
 
-          <div class="flex gap-4 justify-end mt-8 pt-5 border-t border-gray-200">
-            <button type="button" @click="closeModal" class="bg-slate-500/10 text-slate-600 border border-slate-500/20 py-2.5 px-4 rounded-lg cursor-pointer font-medium flex items-center gap-1.5 transition-all duration-200 text-sm hover:bg-slate-500/20 hover:text-slate-700">Cancel</button>
-            <button type="submit" class="bg-gradient-to-br text-white border-none py-3 px-5 rounded-xl cursor-pointer font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg text-sm hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" style="background: linear-gradient(135deg, #0A400C, #155c1a); box-shadow: 0 10px 25px rgba(10, 64, 12, 0.3);" :disabled="submitting">
+          <!-- Form Actions -->
+          <div class="flex gap-3 pt-6 border-t border-slate-200">
+            <button 
+              type="button" 
+              @click="closeModal" 
+              class="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg font-semibold hover:bg-slate-200 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" 
+              :disabled="submitting"
+            >
               <i v-if="submitting" class="fas fa-spinner fa-spin"></i>
-              {{ editingTrip ? 'Update Trip' : 'Add Trip' }}
+              <i v-else class="fas fa-save"></i>
+              {{ editingTrip ? 'Update Trip' : 'Create Trip' }}
             </button>
           </div>
         </form>
@@ -319,31 +465,25 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import Navbar from './Navbar.vue'
+import PageHeader from '../components/PageHeader.vue'
 
 export default {
   name: 'Trips',
-  components: { Navbar },
+  components: { Navbar, PageHeader },
   setup() {
     const router = useRouter()
     const route = useRoute()
     const vehicleId = route.params.id
 
-    // Sidebar state
     const sidebarCollapsed = ref(false)
     const sidebarOpen = ref(true)
-
-    // Data
     const trips = ref([])
     const vehicleInfo = ref(null)
     const drivers = ref([])
     const loading = ref(true)
-
-    // Filters
     const searchQuery = ref('')
     const statusFilter = ref('')
     const dateFilter = ref('')
-
-    // Modal state
     const showModal = ref(false)
     const editingTrip = ref(null)
     const submitting = ref(false)
@@ -360,7 +500,6 @@ export default {
       notes: ''
     })
 
-    // Computed
     const filteredTrips = computed(() => {
       let filtered = trips.value
 
@@ -399,7 +538,6 @@ export default {
       return { total, completed, ongoing, totalDistance }
     })
 
-    // Methods
     const toggleSidebar = () => {
       sidebarCollapsed.value = !sidebarCollapsed.value
     }
@@ -427,7 +565,14 @@ export default {
 
     const formatDate = (dateString) => {
       if (!dateString) return 'N/A'
-      return new Date(dateString).toLocaleString()
+      const date = new Date(dateString)
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
     }
 
     const formatDuration = (start, end) => {
@@ -450,12 +595,6 @@ export default {
         vehicleInfo.value = data
       } catch (error) {
         console.error('Error loading vehicle info:', error)
-        vehicleInfo.value = {
-          plate_number: 'ABC-1234',
-          year: 2022,
-          make: 'Toyota',
-          model: 'Camry'
-        }
       }
     }
 
@@ -479,33 +618,6 @@ export default {
         }))
       } catch (error) {
         console.error('Error loading trips:', error)
-        // Sample data
-        trips.value = [
-          {
-            id: 1,
-            origin: 'Main Office',
-            destination: 'Branch Office',
-            start_time: '2024-01-15T09:00:00',
-            end_time: '2024-01-15T11:30:00',
-            driver_name: 'John Doe',
-            distance: 25,
-            purpose: 'official',
-            status: 'completed',
-            notes: 'Regular delivery run'
-          },
-          {
-            id: 2,
-            origin: 'Branch Office',
-            destination: 'Client Site',
-            start_time: '2024-01-16T14:00:00',
-            end_time: null,
-            driver_name: 'Jane Smith',
-            distance: null,
-            purpose: 'delivery',
-            status: 'ongoing',
-            notes: 'Client meeting and equipment delivery'
-          }
-        ]
       } finally {
         loading.value = false
       }
@@ -515,18 +627,15 @@ export default {
       try {
         const { data, error } = await supabase
           .from('drivers')
-          .select('id, full_name, employee_id')
+          .select('id, employee_id, full_name')
           .eq('is_active', true)
           .order('full_name')
-        
+
         if (error) throw error
-        drivers.value = data
+        drivers.value = data || []
       } catch (error) {
         console.error('Error loading drivers:', error)
-        drivers.value = [
-          { id: 'driver1', full_name: 'John Doe' },
-          { id: 'driver2', full_name: 'Jane Smith' }
-        ]
+        drivers.value = []
       }
     }
 
@@ -573,8 +682,25 @@ export default {
     }
 
     const viewTripDetails = (trip) => {
-      // Could open a detailed modal or navigate to trip details page
       console.log('View trip details:', trip)
+    }
+
+    const deleteTrip = async (trip) => {
+      if (!confirm('Are you sure you want to delete this trip?')) return
+
+      try {
+        const { error } = await supabase
+          .from('trips')
+          .delete()
+          .eq('id', trip.id)
+        
+        if (error) throw error
+        
+        trips.value = trips.value.filter(t => t.id !== trip.id)
+      } catch (error) {
+        console.error('Error deleting trip:', error)
+        alert('Error deleting trip: ' + error.message)
+      }
     }
 
     const submitForm = async () => {
@@ -601,7 +727,6 @@ export default {
           
           if (error) throw error
           
-          // Update local data
           const index = trips.value.findIndex(t => t.id === editingTrip.value.id)
           if (index !== -1) {
             const driver = drivers.value.find(d => d.id === tripForm.driver_id)
@@ -677,6 +802,7 @@ export default {
       closeModal,
       editTrip,
       viewTripDetails,
+      deleteTrip,
       submitForm,
       clearFilters
     }
@@ -690,26 +816,16 @@ export default {
 }
 
 .overflow-y-auto::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f1f5f9;
   border-radius: 4px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: rgba(10, 64, 12, 0.4);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(10, 64, 12, 0.6);
-}
-
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-}
-
-.fas, .far, .fal, .fab {
-  font-family: "Font Awesome 6 Free";
+  background: #94a3b8;
 }
 </style>

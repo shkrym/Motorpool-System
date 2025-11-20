@@ -25,25 +25,28 @@
         'lg:ml-20': sidebarCollapsed || !sidebarOpen 
       }"
     >
-      <!-- Header -->
-      <header class="bg-white/95 backdrop-blur-xl py-5 px-4 sm:px-8 border-b border-white/20 flex flex-col sm:flex-row justify-between items-start sm:items-center shadow-sm sticky top-0 z-30 gap-4 sm:gap-0">
-        <div class="flex items-center gap-4 w-full sm:w-auto">
-          <button
-            @click="openSidebar"
-            class="bg-green-800 border-none text-white py-2.5 px-3 rounded-lg cursor-pointer transition-all duration-200 hover:bg-green-700 hover:scale-105 lg:hidden flex-shrink-0"
-            v-if="!sidebarOpen"
-            style="background-color: #0A400C;"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
-          <div class="flex-1 min-w-0">
-            <h1 class="m-0 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" style="color: #0A400C;">
-              <i class="fas fa-cog mr-2"></i>Settings
-            </h1>
-            <p class="text-sm text-gray-600 mt-1">Manage your account preferences</p>
-          </div>
-        </div>
-        
+      <div class="sticky top-0 z-30">
+        <PageHeader
+          icon="fas fa-cog"
+          title="Settings"
+          subtitle="Manage your account preferences"
+        >
+          <template #leading>
+            <button
+              @click="openSidebar"
+              class="btn btn-secondary lg:hidden flex-shrink-0"
+              v-if="!sidebarOpen"
+            >
+              <i class="fas fa-bars"></i>
+            </button>
+          </template>
+          <template #actions>
+            <div class="chip text-xs sm:text-sm">
+              Currently viewing: <span class="font-semibold ml-1 capitalize">{{ activeTab }}</span>
+            </div>
+          </template>
+        </PageHeader>
+
         <!-- Tab Navigation (Desktop) -->
         <div class="hidden sm:flex items-center bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <button
@@ -52,7 +55,6 @@
               'px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 border-r border-gray-200',
               activeTab === 'profile' ? 'bg-green-800 text-white' : 'text-gray-600 hover:bg-gray-50'
             ]"
-            :style="activeTab === 'profile' ? 'background-color: #0A400C;' : ''"
           >
             <i class="fas fa-user-circle text-lg"></i>
             Profile
@@ -63,7 +65,6 @@
               'px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 border-r border-gray-200',
               activeTab === 'security' ? 'bg-green-800 text-white' : 'text-gray-600 hover:bg-gray-50'
             ]"
-            :style="activeTab === 'security' ? 'background-color: #0A400C;' : ''"
           >
             <i class="fas fa-shield-alt text-lg"></i>
             Security
@@ -74,13 +75,12 @@
               'px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2',
               activeTab === 'theme' ? 'bg-green-800 text-white' : 'text-gray-600 hover:bg-gray-50'
             ]"
-            :style="activeTab === 'theme' ? 'background-color: #0A400C;' : ''"
           >
             <i class="fas fa-palette text-lg"></i>
             Theme
           </button>
         </div>
-      </header>
+      </div>
 
       <!-- Mobile Tab Navigation -->
       <div class="sm:hidden bg-white border-b border-gray-200 px-4 py-2">
@@ -172,6 +172,7 @@
 <script>
 import { ref, reactive, onMounted, provide } from 'vue'
 import Navbar from './Navbar.vue'
+import PageHeader from '../components/PageHeader.vue'
 import ProfileSettings from './settings/Profile.vue'
 import SecuritySettings from './settings/Security.vue'
 import ThemeSettings from './settings/Theme.vue'
@@ -180,6 +181,7 @@ export default {
   name: 'Settings',
   components: {
     Navbar,
+    PageHeader,
     ProfileSettings,
     SecuritySettings,
     ThemeSettings

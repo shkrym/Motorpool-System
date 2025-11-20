@@ -11,50 +11,60 @@
     />
 
      <main class="main-content flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }"> 
-      <!-- Header -->
-      <header class="sticky top-0 z-50 bg-gradient-to-br from-green-800 to-green-600 text-white shadow-lg">
-        <div class="px-4 sm:px-6 py-4">
-          <div class="flex items-center justify-between flex-wrap gap-4">
-            <div class="flex items-center gap-3">
-              <button
-                @click="openSidebar"
-                v-if="!sidebarOpen"
-                class="lg:hidden bg-green-800 text-white py-2.5 px-3 rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <i class="fas fa-bars"></i>
-              </button>
-              <div>
-                <h1 class="text-xl sm:text-2xl font-bold">Maintenance Schedule</h1>
-                <p class="text-xs sm:text-sm text-green-100 mt-0.5">
-                  Schedule and track vehicle maintenance
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <div class="sticky top-0 z-50">
+        <PageHeader
+          icon="fas fa-tools"
+          title="Maintenance Schedule"
+          subtitle="Schedule and track vehicle maintenance"
+        >
+          <template #leading>
+            <button
+              @click="openSidebar"
+              v-if="!sidebarOpen"
+              class="lg:hidden btn btn-secondary"
+            >
+              <i class="fas fa-bars"></i>
+            </button>
+          </template>
+        </PageHeader>
+      </div>
 
       <!-- Main Content -->
       <div class="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto bg-gradient-to-br from-green-50/70 to-emerald-100/70">
         <div class="max-w-7xl mx-auto">
           <!-- Stats Cards -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <div class="bg-white/90 backdrop-blur-xl p-4 rounded-lg shadow-lg border-l-4" style="border-left-color: #0A400C; box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-              <div class="text-gray-600 text-xs sm:text-sm font-medium mb-1">Total Vehicles</div>
-              <div class="text-2xl sm:text-3xl font-bold" style="color: #0A400C;">{{ vehicles.length }}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
+            <div class="glass-card p-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="stat-card-icon bg-emerald-100 text-emerald-600">
+                  <i class="fas fa-warehouse"></i>
+                </div>
+              </div>
+              <div class="text-2xl sm:text-3xl font-bold text-slate-900">{{ vehicles.length }}</div>
+              <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Total Vehicles</p>
             </div>
-            <div class="bg-white/90 backdrop-blur-xl p-4 rounded-lg shadow-lg border-l-4 border-amber-500" style="box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);">
-              <div class="text-gray-600 text-xs sm:text-sm font-medium mb-1">Due Soon (7 days)</div>
+            <div class="glass-card p-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="stat-card-icon bg-amber-100 text-amber-600">
+                  <i class="fas fa-hourglass-half"></i>
+                </div>
+              </div>
               <div class="text-2xl sm:text-3xl font-bold text-amber-600">{{ dueSoon }}</div>
+              <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Due (7 days)</p>
             </div>
-            <div class="bg-white/90 backdrop-blur-xl p-4 rounded-lg shadow-lg border-l-4 border-red-500" style="box-shadow: 0 10px 25px rgba(239, 68, 68, 0.1);">
-              <div class="text-gray-600 text-xs sm:text-sm font-medium mb-1">Overdue</div>
+            <div class="glass-card p-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="stat-card-icon bg-red-100 text-red-600">
+                  <i class="fas fa-triangle-exclamation"></i>
+                </div>
+              </div>
               <div class="text-2xl sm:text-3xl font-bold text-red-600">{{ overdue }}</div>
+              <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Overdue</p>
             </div>
           </div>
 
           <!-- Filters Section -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+          <div class="glass-card p-4 sm:p-5 mb-6">
             <div class="flex flex-col lg:flex-row gap-4">
               <div class="flex-1 relative">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -91,13 +101,13 @@
                   <i class="fas fa-times mr-2"></i>
                   <span class="hidden sm:inline">Clear</span>
                 </button>
-
                 <button 
                   @click="showAddModal = true"
-                  class="bg-gradient-to-br from-green-800 to-green-700 text-white py-2 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                  class="btn btn-primary whitespace-nowrap"
                 >
                   <i class="fas fa-plus"></i>
                   <span class="hidden sm:inline">Add Schedule</span>
+                  <span class="sm:hidden">New</span>
                 </button>
               </div>
             </div>
@@ -106,15 +116,13 @@
           <!-- Maintenance Cards Grid -->
           <div class="maintenance-content">
             <!-- Empty State -->
-            <div v-if="filteredMaintenanceData.length === 0" class="text-center py-12 sm:py-16 bg-white/90 backdrop-blur-xl rounded-lg shadow-lg"
-                 style="box-shadow: 0 10px 25px rgba(10, 64, 12, 0.1);">
-              <i class="fas fa-wrench text-4xl sm:text-6xl mb-4" style="color: rgba(10, 64, 12, 0.3);"></i>
-              <h3 class="text-lg sm:text-xl mb-2" style="color: #0A400C;">No maintenance schedules found</h3>
+            <div v-if="filteredMaintenanceData.length === 0" class="glass-card text-center py-12 sm:py-16">
+              <i class="fas fa-wrench text-4xl sm:text-6xl mb-4 text-emerald-100"></i>
+              <h3 class="text-lg sm:text-xl mb-2 text-slate-900">No maintenance schedules found</h3>
               <p class="text-slate-600 mb-4 text-sm sm:text-base">Start by creating your first maintenance schedule</p>
               <button
                 @click="showAddModal = true"
-                class="bg-gradient-to-br text-white border-none py-2.5 px-4 rounded-lg cursor-pointer font-semibold flex items-center gap-2 transition-all duration-300 shadow-lg text-sm hover:-translate-y-0.5 hover:shadow-xl mx-auto"
-                style="background: linear-gradient(135deg, #0A400C, #155c1a); box-shadow: 0 10px 25px rgba(10, 64, 12, 0.3);"
+                class="btn btn-primary mx-auto text-sm"
               >
                 <i class="fas fa-plus"></i>
                 Create First Schedule
@@ -126,75 +134,85 @@
               <div
                 v-for="maintenance in filteredMaintenanceData"
                 :key="maintenance.id"
-                class="bg-white/95 backdrop-blur-xl rounded-lg shadow-lg border-t-4 transition-all duration-300 overflow-hidden hover:shadow-xl hover:-translate-y-1"
-                :style="{ 'border-top-color': getStatusColor(maintenance.status), 'box-shadow': '0 10px 25px rgba(10, 64, 12, 0.1)' }"
+                class="glass-card p-6 hover:-translate-y-1 transition-all duration-300"
               >
-                <!-- Vehicle Info Header -->
-                <div class="p-4 sm:p-5 pb-3" style="background: linear-gradient(to right, rgba(10, 64, 12, 0.05), rgba(10, 64, 12, 0.02));">
-                  <div class="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 class="text-base sm:text-lg font-bold" style="color: #0A400C;">{{ maintenance.vehicle_plate }}</h3>
-                      <p class="text-xs sm:text-sm text-gray-600">{{ maintenance.vehicle_type }}</p>
+                <div class="flex justify-between items-start mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center">
+                      <i class="fas fa-car-side"></i>
                     </div>
-                    <span
-                      class="px-2 sm:px-3 py-1 text-xs font-semibold text-white rounded-full"
-                      :style="{ 'background-color': getStatusColor(maintenance.status) }"
-                    >
-                      {{ formatStatus(maintenance.status) }}
+                    <div>
+                      <h3 class="text-base sm:text-lg font-bold text-slate-900">{{ maintenance.vehicle_plate }}</h3>
+                      <p class="text-xs sm:text-sm text-slate-500">{{ maintenance.vehicle_type }}</p>
+                    </div>
+                  </div>
+                  <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
+                        :class="getScheduleBadge(maintenance.status)">
+                    <span class="w-2 h-2 rounded-full" :class="getScheduleDot(maintenance.status)"></span>
+                    {{ formatScheduleStatus(maintenance.status) }}
+                  </span>
+                </div>
+
+                <div class="my-4 p-3 rounded-xl bg-slate-50 border border-white/50">
+                  <div class="flex items-center justify-between text-sm text-slate-600 mb-2">
+                    <span>Next Service Due</span>
+                    <span class="font-semibold text-slate-900">{{ formatDate(maintenance.next_due_date || maintenance.next_service_due) }}</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-sm">
+                    <div class="flex items-center gap-1 text-emerald-600 font-semibold">
+                      <i class="fas fa-calendar-check"></i>
+                      {{ calculateDaysUntil(maintenance.next_due_date || maintenance.next_service_due) }} days left
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full" :class="getUrgencyPill(maintenance.next_due_date || maintenance.next_service_due)">
+                      {{ getUrgencyLabel(maintenance.next_due_date || maintenance.next_service_due) }}
                     </span>
                   </div>
                 </div>
 
-                <!-- Maintenance Details -->
-                <div class="px-4 sm:px-5 py-3 sm:py-4 border-t border-gray-200">
-                  <div class="space-y-2 sm:space-y-2.5">
-                    <div class="flex items-start text-xs sm:text-sm">
-                      <span class="font-medium text-gray-600 w-20 sm:w-24 flex-shrink-0">Service:</span>
-                      <span class="font-semibold" style="color: #0A400C;">{{ maintenance.service_type }}</span>
-                    </div>
-                    <div class="flex items-start text-xs sm:text-sm">
-                      <span class="font-medium text-gray-600 w-20 sm:w-24 flex-shrink-0">Last Done:</span>
-                      <span>{{ formatDate(maintenance.last_service_date) }}</span>
-                    </div>
-                    <div class="flex items-start text-xs sm:text-sm">
-                      <span class="font-medium text-gray-600 w-20 sm:w-24 flex-shrink-0">Due Date:</span>
-                      <span class="font-semibold">{{ formatDate(maintenance.next_due_date) }}</span>
-                    </div>
-                    <div class="flex items-start text-xs sm:text-sm">
-                      <span class="font-medium text-gray-600 w-20 sm:w-24 flex-shrink-0">Interval:</span>
-                      <span>Every {{ maintenance.interval_days }} days</span>
-                    </div>
-                    <div class="flex items-start text-xs sm:text-sm">
-                      <span class="font-medium text-gray-600 w-20 sm:w-24 flex-shrink-0">Cost:</span>
-                      <span class="font-semibold" style="color: #0A400C;">₱{{ maintenance.estimated_cost }}</span>
-                    </div>
-                    <div v-if="maintenance.notes" class="flex items-start text-xs sm:text-sm">
-                      <span class="font-medium text-gray-600 w-20 sm:w-24 flex-shrink-0">Notes:</span>
-                      <span class="text-gray-700">{{ maintenance.notes }}</span>
-                    </div>
+                <div class="grid grid-cols-2 gap-3 text-sm text-slate-600 mb-3">
+                  <div>
+                    <p class="text-xs uppercase text-slate-400">Service Type</p>
+                    <p class="font-semibold text-slate-900">{{ maintenance.service_type }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase text-slate-400">Interval</p>
+                    <p class="font-semibold text-slate-900">{{ maintenance.interval_days }} days</p>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase text-slate-400">Estimated Cost</p>
+                    <p class="font-semibold text-slate-900">₱{{ maintenance.estimated_cost?.toLocaleString() || '0' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs uppercase text-slate-400">Last Service</p>
+                    <p class="font-semibold text-slate-900">{{ formatDate(maintenance.last_service_date) }}</p>
                   </div>
                 </div>
 
-                <!-- Actions -->
-                <div class="px-4 sm:px-5 py-3 bg-gray-50 flex gap-2">
+                <div v-if="maintenance.notes" class="mb-4 p-3 rounded-xl bg-amber-50/80 text-amber-900 text-sm border border-amber-100">
+                  <i class="fas fa-sticky-note mr-2"></i>
+                  {{ maintenance.notes }}
+                </div>
+
+                <div class="flex flex-wrap gap-2">
                   <button
                     @click="editMaintenance(maintenance)"
-                    class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white rounded-lg transition-all hover:scale-105"
-                    style="background-color: #0A400C;"
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
                   >
+                    <i class="fas fa-edit mr-1"></i>
                     Edit
                   </button>
                   <button
                     @click="markAsCompleted(maintenance.id)"
-                    class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg border-2 transition-all hover:scale-105"
-                    style="color: #0A400C; border-color: #0A400C; background-color: white;"
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
                   >
-                    Done
+                    <i class="fas fa-check-circle mr-1"></i>
+                    Mark Done
                   </button>
                   <button
                     @click="deleteMaintenance(maintenance.id)"
-                    class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white rounded-lg bg-red-600 hover:bg-red-700 transition-all hover:scale-105"
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                   >
+                    <i class="fas fa-trash mr-1"></i>
                     Delete
                   </button>
                 </div>
@@ -342,11 +360,13 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabase'
 import Navbar from './Navbar.vue'
+import PageHeader from '../components/PageHeader.vue'
 
 export default {
   name: 'Maintenance',
   components: {
-    Navbar
+    Navbar,
+    PageHeader
   },
   setup() {
     // Sidebar state
@@ -543,6 +563,44 @@ export default {
       return status
     }
 
+    const formatScheduleStatus = (status) => formatStatus(status)
+
+    const getScheduleBadge = (status) => {
+      if (status === 'overdue') return 'bg-red-50 text-red-600 border border-red-100'
+      if (status === 'due-soon') return 'bg-amber-50 text-amber-600 border border-amber-100'
+      if (status === 'completed') return 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+      return 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+    }
+
+    const getScheduleDot = (status) => {
+      if (status === 'overdue') return 'bg-red-500'
+      if (status === 'due-soon') return 'bg-amber-500'
+      if (status === 'completed') return 'bg-emerald-500'
+      return 'bg-emerald-500'
+    }
+
+    const calculateDaysUntil = (dateString) => {
+      if (!dateString) return 0
+      const today = new Date()
+      const due = new Date(dateString)
+      const diff = Math.ceil((due - today) / (1000 * 60 * 60 * 24))
+      return diff < 0 ? 0 : diff
+    }
+
+    const getUrgencyPill = (dateString) => {
+      const status = calculateStatus(dateString)
+      if (status === 'overdue') return 'bg-red-100 text-red-700'
+      if (status === 'due-soon') return 'bg-amber-100 text-amber-700'
+      return 'bg-emerald-100 text-emerald-700'
+    }
+
+    const getUrgencyLabel = (dateString) => {
+      const status = calculateStatus(dateString)
+      if (status === 'overdue') return 'Overdue'
+      if (status === 'due-soon') return 'Due soon'
+      return 'Scheduled'
+    }
+
     const formatDate = (dateString) => {
       if (!dateString) return ''
       return new Date(dateString).toLocaleDateString('en-US', {
@@ -732,6 +790,12 @@ return {
       // Methods
       getStatusColor,
       formatStatus,
+      formatScheduleStatus,
+      getScheduleBadge,
+      getScheduleDot,
+      calculateDaysUntil,
+      getUrgencyPill,
+      getUrgencyLabel,
       formatDate,
       saveMaintenance,
       editMaintenance,
