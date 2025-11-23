@@ -183,6 +183,7 @@ export default {
 
     const handleMenuClick = () => {
       // Close the sidebar on mobile after clicking a menu item
+      // Do NOT expand the sidebar on desktop - keep it in its current state
       if (window.innerWidth < 768) {
         closeSidebar();
       }

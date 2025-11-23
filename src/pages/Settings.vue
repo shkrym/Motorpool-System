@@ -171,6 +171,7 @@
 
 <script>
 import { ref, reactive, onMounted, provide } from 'vue'
+import { useSidebar } from '../composables/useSidebar'
 import Navbar from './Navbar.vue'
 import PageHeader from '../components/PageHeader.vue'
 import ProfileSettings from './settings/Profile.vue'
@@ -187,8 +188,7 @@ export default {
     ThemeSettings
   },
   setup() {
-    const sidebarCollapsed = ref(false)
-    const sidebarOpen = ref(true)
+    const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
     const activeTab = ref('profile')
 
     const notification = reactive({
@@ -209,26 +209,7 @@ export default {
 
     provide('showNotification', showNotification)
 
-    // Sidebar methods
-    const toggleSidebar = () => {
-      sidebarCollapsed.value = !sidebarCollapsed.value
-    }
-
-    const closeSidebar = () => {
-      if (window.innerWidth < 1024) {
-        sidebarOpen.value = false
-      }
-    }
-
-    const openSidebar = () => {
-      sidebarOpen.value = true
-    }
-
-    const handleMenuClick = () => {
-      if (window.innerWidth < 1024) {
-        sidebarOpen.value = false
-      }
-    }
+    // Sidebar methods are now from useSidebar composable
 
     const handleResize = () => {
       if (window.innerWidth >= 1024) {

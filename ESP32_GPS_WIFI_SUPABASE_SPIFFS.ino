@@ -10,10 +10,10 @@
 #define GPS_BAUD   9600
 
 // ---------- CONFIG ----------
-const char* WIFI_SSID = "realme C67";
-const char* WIFI_PASS = "87654321";
-const char* SUPABASE_URL = "https://ggpjhaagszuoacafuihq.supabase.co/rest/v1/gps_data";
-const char* ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdncGpoYWFnc3p1b2FjYWZ1aWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxMDIwNTQsImV4cCI6MjA3NTY3ODA1NH0.Ujoz5Lal_iWyrale7aJh2aABt-yr5fc9pBG-AKPzXqQ";
+const char* WIFI_SSID = "YOUR_WIFI_SSID";
+const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";
+const char* SUPABASE_URL = "YOUR_SUPABASE_URL";
+const char* ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 
 // === KEY CHANGE: Read GPS more frequently ===
 const unsigned long GPS_READ_INTERVAL_MS = 10000UL;  // Read GPS every 10 seconds

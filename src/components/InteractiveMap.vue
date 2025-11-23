@@ -56,6 +56,7 @@
 
 <script>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useToast } from '../composables/useToast'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -89,6 +90,7 @@ export default {
   },
   emits: ['vehicle-selected', 'location-updated'],
   setup(props, { emit }) {
+    const { warning } = useToast()
     const mapContainer = ref(null)
     const map = ref(null)
     const vehicleMarkers = ref(new Map())
@@ -308,11 +310,11 @@ export default {
           },
           (error) => {
             console.error('Error getting location:', error)
-            alert('Unable to get your location. Please check location permissions.')
+            warning('Unable to get your location. Please check location permissions.')
           }
         )
       } else {
-        alert('Geolocation is not supported by this browser.')
+        warning('Geolocation is not supported by this browser.')
       }
     }
 

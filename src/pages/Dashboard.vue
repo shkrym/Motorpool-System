@@ -257,6 +257,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { useSidebar } from '../composables/useSidebar'
 import Navbar from '../pages/Navbar.vue'
 import PageHeader from '../components/PageHeader.vue'
 
@@ -269,8 +270,7 @@ export default {
   setup() {
     const router = useRouter()
     const route = useRoute()
-    const sidebarCollapsed = ref(false)
-    const sidebarOpen = ref(true)
+    const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
     
     const userProfile = ref(null)
     const userRole = ref('staff')
@@ -336,30 +336,7 @@ export default {
       handleMenuClick()
     }
 
-    const toggleSidebar = () => {
-      sidebarCollapsed.value = !sidebarCollapsed.value
-    }
-
-    const closeSidebar = () => {
-      if (window.innerWidth <= 768) {
-        sidebarOpen.value = false
-      } else {
-        sidebarCollapsed.value = true
-      }
-    }
-
-    const openSidebar = () => {
-      sidebarOpen.value = true
-      if (window.innerWidth > 768) {
-        sidebarCollapsed.value = false
-      }
-    }
-
-    const handleMenuClick = () => {
-      if (window.innerWidth <= 768) {
-        sidebarOpen.value = false
-      }
-    }
+    // Sidebar methods are now from useSidebar composable
 
     const getViewTitle = () => {
       const titles = {
@@ -723,8 +700,10 @@ export default {
           }
         }
 
-      } catch (error) {
-        console.error('Error loading dashboard data:', error)
+      } catch (err) {
+        console.error('Error loading dashboard data:', err)
+        // Note: Could add error toast here, but dashboard errors are often non-critical
+        // and showing multiple toasts on page load would be annoying
       }
     }
 

@@ -111,62 +111,64 @@
         >
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center text-lg font-bold shadow-inner">
-              {{ driver.full_name.charAt(0) }}
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center shadow-inner">
+              <i class="fas fa-user-tie"></i>
             </div>
             <div>
-              <h3 class="text-lg font-bold text-gray-900">{{ driver.full_name }}</h3>
-              <p class="text-sm text-gray-600">{{ driver.employee_id }}</p>
+              <div class="text-lg font-bold text-slate-900">{{ driver.full_name }}</div>
+              <div class="text-xs text-slate-500">{{ driver.employee_id }}</div>
             </div>
           </div>
           <span 
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
-            :class="driver.is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-600'"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border"
+            :class="driver.is_active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200'"
           >
             <i :class="driver.is_active ? 'fas fa-check-circle' : 'fas fa-pause-circle'"></i>
             {{ driver.is_active ? 'Active' : 'Inactive' }}
           </span>
         </div>
 
-        <div class="space-y-3 mb-4">
-          <div class="flex items-center gap-2 text-sm">
-            <i class="fas fa-building w-4 text-gray-400"></i>
-            <span class="text-gray-700">{{ driver.department || 'No department' }}</span>
+        <div class="flex flex-wrap gap-3 mb-4">
+          <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600">{{ driver.department || 'No Dept' }}</span>
+          <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600">{{ driver.position || 'No Position' }}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="p-3 rounded-xl bg-slate-50">
+            <div class="text-xs text-slate-500 mb-1 flex items-center gap-2">
+              <i class="fas fa-phone text-slate-400"></i>
+              Phone
+            </div>
+            <div class="text-sm font-semibold text-slate-900 truncate">{{ driver.phone || 'N/A' }}</div>
           </div>
-          <div class="flex items-center gap-2 text-sm">
-            <i class="fas fa-phone w-4 text-gray-400"></i>
-            <span class="text-gray-700">{{ driver.phone || 'No phone' }}</span>
+          <div class="p-3 rounded-xl bg-slate-50">
+            <div class="text-xs text-slate-500 mb-1 flex items-center gap-2">
+              <i class="fas fa-id-card text-slate-400"></i>
+              License
+            </div>
+            <div class="text-sm font-semibold text-slate-900 truncate">{{ driver.license_number || 'N/A' }}</div>
           </div>
-          <div class="flex items-center gap-2 text-sm">
-            <i class="fas fa-id-card w-4 text-gray-400"></i>
-            <span class="text-gray-700">{{ driver.license_number || 'No license on file' }}</span>
-          </div>
-          <div v-if="getAssignedVehicle(driver.id)" class="flex items-center gap-2 text-sm">
-            <i class="fas fa-car w-4 text-blue-500"></i>
-            <span class="text-blue-700 font-medium">{{ getAssignedVehicle(driver.id) }}</span>
+          <div v-if="getAssignedVehicle(driver.id)" class="p-3 rounded-xl bg-slate-50 col-span-2">
+            <div class="text-xs text-slate-500 mb-1 flex items-center gap-2">
+              <i class="fas fa-car text-slate-400"></i>
+              Assigned Vehicle
+            </div>
+            <div class="text-sm font-semibold text-slate-900 truncate">{{ getAssignedVehicle(driver.id) }}</div>
           </div>
         </div>
 
-        <div class="flex gap-2">
-          <button 
-            @click="viewDriver(driver)"
-            class="flex-1 py-2 px-3 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm font-medium transition-colors"
-          >
-            <i class="fas fa-eye mr-1"></i>
-            View
-          </button>
-          <button 
-            @click="editDriver(driver)"
-            class="flex-1 py-2 px-3 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-sm font-medium transition-colors"
-          >
-            <i class="fas fa-edit mr-1"></i>
-            Edit
-          </button>
-          <button 
-            @click="confirmDelete(driver)"
-            class="py-2 px-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm font-medium transition-colors"
-          >
-            <i class="fas fa-trash"></i>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button @click="viewDriver(driver)" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="View">
+              <i class="fas fa-eye text-sm"></i>
+            </button>
+            <button @click="editDriver(driver)" class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 transition-colors" title="Edit">
+              <i class="fas fa-edit text-sm"></i>
+            </button>
+          </div>
+          <button @click="confirmDelete(driver)" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors" title="Delete">
+            <i class="fas fa-trash mr-1"></i>
+            Delete
           </button>
         </div>
       </div>
@@ -316,13 +318,39 @@
                   />
                 </div>
                 <div class="flex flex-col gap-2">
-                  <label class="font-semibold text-gray-700 text-sm">Email</label>
+                  <label class="font-semibold text-gray-700 text-sm">Email <span class="text-red-500" v-if="!editingDriver">*</span></label>
                   <input
                     type="email"
                     v-model="form.email"
                     placeholder="e.g., driver@example.com"
+                    :required="!editingDriver"
                     class="py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all"
                   />
+                </div>
+              </div>
+              <!-- Password field (only for new drivers) -->
+              <div v-if="!editingDriver" class="mt-4">
+                <div class="flex flex-col gap-2">
+                  <label class="font-semibold text-gray-700 text-sm">Password <span class="text-red-500">*</span></label>
+                  <div class="relative">
+                    <input
+                      :type="showPassword ? 'text' : 'password'"
+                      v-model="form.password"
+                      placeholder="Enter password for driver account"
+                      required
+                      class="w-full py-3 px-4 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent transition-all"
+                    />
+                    <button
+                      type="button"
+                      @click="showPassword = !showPassword"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#0A400C] transition-colors"
+                    >
+                      <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                    </button>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Password must be at least 8 characters with 1 uppercase letter and 1 special character
+                  </p>
                 </div>
               </div>
             </div>
@@ -500,11 +528,13 @@
 <script>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { supabase } from '../lib/supabase'
+import { useToast } from '../composables/useToast'
 
 export default {
   name: 'DriverManagement',
   emits: ['driver-updated'],
   setup(props, { emit }) {
+    const { success, error, warning } = useToast()
     const drivers = ref([])
     const viewMode = ref('grid')
     const vehicles = ref([])
@@ -518,6 +548,7 @@ export default {
     const editingDriver = ref(null)
     const selectedDriver = ref(null)
     const driverToDelete = ref(null)
+    const showPassword = ref(false)
     
     const form = reactive({
       employee_id: '',
@@ -580,9 +611,9 @@ export default {
 
         if (error) throw error
         drivers.value = data || []
-      } catch (error) {
-        console.error('Error loading drivers:', error)
-        alert('Failed to load drivers: ' + error.message)
+      } catch (err) {
+        console.error('Error loading drivers:', err)
+        error('Failed to load drivers: ' + err.message)
       } finally {
         loading.value = false
       }
@@ -677,6 +708,35 @@ export default {
     const submitForm = async () => {
       submitting.value = true
       try {
+        // Validate password for new drivers
+        if (!editingDriver.value) {
+          if (!form.password || form.password.trim() === '') {
+            warning('Password is required for new drivers')
+            submitting.value = false
+            return
+          }
+          
+          if (form.password.length < 8) {
+            warning('Password must be at least 8 characters long')
+            submitting.value = false
+            return
+          }
+          
+          // Password validation: at least 1 uppercase and 1 special character
+          const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/
+          if (!passwordRegex.test(form.password)) {
+            warning('Password must contain at least 8 characters, 1 uppercase letter, and 1 special character')
+            submitting.value = false
+            return
+          }
+          
+          if (!form.email || form.email.trim() === '') {
+            warning('Email is required for new drivers')
+            submitting.value = false
+            return
+          }
+        }
+        
         if (editingDriver.value) {
           // Update existing driver
           const updateData = {
@@ -705,13 +765,23 @@ export default {
             }
           }
 
-          alert('Driver updated successfully!')
+          success('Driver updated successfully!')
         } else {
           // Create new driver with auth account
           console.log('Creating auth user...')
           const { data: authData, error: authError } = await supabase.auth.signUp({
             email: form.email,
-            password: form.password
+            password: form.password,
+            options: {
+              data: {
+                employee_id: form.employee_id,
+                full_name: form.full_name,
+                position: form.position,
+                department: form.department,
+                phone: form.phone,
+                role: 'driver' // Drivers have 'driver' role
+              }
+            }
           })
 
           if (authError) {
@@ -754,14 +824,14 @@ export default {
 
           console.log('Driver created successfully:', driverData)
           drivers.value.unshift(driverData)
-          alert('Driver registered successfully!')
+          success('Driver registered successfully!')
         }
 
         emit('driver-updated')
         closeModal()
-      } catch (error) {
-        console.error('Error saving driver:', error)
-        alert('Error: ' + (error.message || 'Failed to save driver'))
+      } catch (err) {
+        console.error('Error saving driver:', err)
+        error('Error: ' + (err.message || 'Failed to save driver'))
       } finally {
         submitting.value = false
       }
@@ -778,25 +848,25 @@ export default {
         // Check if driver is assigned to a vehicle
         const assignedVehicle = vehicles.value.find(v => v.assigned_driver_code === driverToDelete.value.employee_id)
         if (assignedVehicle) {
-          alert(`Cannot delete driver. They are currently assigned to vehicle ${assignedVehicle.plate_number}. Please reassign the vehicle first.`)
+          warning(`Cannot delete driver. They are currently assigned to vehicle ${assignedVehicle.plate_number}. Please reassign the vehicle first.`)
           driverToDelete.value = null
           return
         }
 
-        const { error } = await supabase
+        const { error: deleteError } = await supabase
           .from('drivers')
           .delete()
           .eq('id', driverToDelete.value.id)
         
-        if (error) throw error
+        if (deleteError) throw deleteError
 
         drivers.value = drivers.value.filter(d => d.id !== driverToDelete.value.id)
         emit('driver-updated')
-        alert('Driver deleted successfully')
+        success('Driver deleted successfully')
         driverToDelete.value = null
-      } catch (error) {
-        console.error('Error deleting driver:', error)
-        alert('Error deleting driver: ' + error.message)
+      } catch (err) {
+        console.error('Error deleting driver:', err)
+        error('Error deleting driver: ' + err.message)
       }
     }
 
@@ -821,6 +891,7 @@ export default {
       editingDriver,
       selectedDriver,
       driverToDelete,
+      showPassword,
       form,
       getAssignedVehicle,
       formatDate,

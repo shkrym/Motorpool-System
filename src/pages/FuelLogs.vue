@@ -737,6 +737,8 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { useToast } from '../composables/useToast'
+import { useSidebar } from '../composables/useSidebar'
 import Navbar from './Navbar.vue'
 import PageHeader from '../components/PageHeader.vue'
 
@@ -746,10 +748,8 @@ export default {
   setup() {
     const router = useRouter()
     const route = useRoute()
-
-    // Sidebar state
-    const sidebarCollapsed = ref(false)
-    const sidebarOpen = ref(true)
+    const { success, error } = useToast()
+    const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
 
     // Data
     const fuelLogs = ref([])
@@ -886,30 +886,7 @@ export default {
     })
 
     // Methods
-    const toggleSidebar = () => {
-      sidebarCollapsed.value = !sidebarCollapsed.value
-    }
-
-    const closeSidebar = () => {
-      if (window.innerWidth <= 1024) {
-        sidebarOpen.value = false
-      } else {
-        sidebarCollapsed.value = true
-      }
-    }
-
-    const openSidebar = () => {
-      sidebarOpen.value = true
-      if (window.innerWidth > 1024) {
-        sidebarCollapsed.value = false
-      }
-    }
-
-    const handleMenuClick = () => {
-      if (window.innerWidth <= 1024) {
-        sidebarOpen.value = false
-      }
-    }
+    // Sidebar methods are now from useSidebar composable
 
     const formatDate = (dateString) => {
       if (!dateString) return 'N/A'
@@ -1025,8 +1002,9 @@ export default {
           driver_name: log.drivers?.full_name || null
         }))
 
-      } catch (error) {
-        console.error('Error loading data:', error)
+      } catch (err) {
+        console.error('Error loading data:', err)
+        error('Failed to load fuel logs. Please refresh the page.')
       } finally {
         loading.value = false
       }
@@ -1134,10 +1112,12 @@ export default {
           })
         }
 
+        // Show success message BEFORE closing modal (so editingLog is still set)
+        success(editingLog.value ? 'Fuel log updated successfully!' : 'Fuel log created successfully!')
         closeModal()
-      } catch (error) {
-        console.error('Error submitting fuel log:', error)
-        alert('Error: ' + error.message)
+      } catch (err) {
+        console.error('Error submitting fuel log:', err)
+        error('Error: ' + err.message)
       } finally {
         submitting.value = false
       }
@@ -1160,9 +1140,10 @@ export default {
 
         fuelLogs.value = fuelLogs.value.filter(log => log.id !== logToDelete.value.id)
         logToDelete.value = null
-      } catch (error) {
-        console.error('Error deleting fuel log:', error)
-        alert('Error deleting fuel log: ' + error.message)
+        success('Fuel log deleted successfully!')
+      } catch (err) {
+        console.error('Error deleting fuel log:', err)
+        error('Error deleting fuel log: ' + err.message)
       }
     }
 

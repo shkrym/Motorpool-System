@@ -359,6 +359,8 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { supabase } from '../lib/supabase'
+import { useToast } from '../composables/useToast'
+import { useSidebar } from '../composables/useSidebar'
 import Navbar from './Navbar.vue'
 import PageHeader from '../components/PageHeader.vue'
 
@@ -369,9 +371,9 @@ export default {
     PageHeader
   },
   setup() {
+    const { success, error, warning } = useToast()
     // Sidebar state
-    const sidebarCollapsed = ref(false)
-    const sidebarOpen = ref(true)
+    const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
     const userProfile = ref(null)
 
     // Data state
@@ -393,31 +395,7 @@ export default {
       notes: ''
     })
 
-    // Sidebar methods
-    const toggleSidebar = () => {
-      sidebarCollapsed.value = !sidebarCollapsed.value
-    }
-
-    const closeSidebar = () => {
-      if (window.innerWidth <= 768) {
-        sidebarOpen.value = false
-      } else {
-        sidebarCollapsed.value = true
-      }
-    }
-
-    const openSidebar = () => {
-      sidebarOpen.value = true
-      if (window.innerWidth > 768) {
-        sidebarCollapsed.value = false
-      }
-    }
-
-    const handleMenuClick = () => {
-      if (window.innerWidth <= 768) {
-        sidebarOpen.value = false
-      }
-    }
+    // Sidebar methods are now from useSidebar composable
 
     const handleResize = () => {
       const width = window.innerWidth
@@ -660,11 +638,13 @@ export default {
           if (error) throw error
         }
 
+        // Show success message BEFORE closing modal (so editingId is still set)
+        success(editingId.value ? 'Maintenance schedule updated successfully!' : 'Maintenance schedule created successfully!')
         closeModal()
         await loadMaintenance()
-      } catch (error) {
-        console.error('Error saving maintenance:', error)
-        alert('Error saving maintenance schedule: ' + error.message)
+      } catch (err) {
+        console.error('Error saving maintenance:', err)
+        error('Error saving maintenance schedule: ' + err.message)
       } finally {
         submitting.value = false
       }
@@ -688,7 +668,7 @@ const markAsCompleted = async (id) => {
     // Get the maintenance record first to know the interval
     const maintenanceRecord = maintenance.value.find(m => m.id === id)
     if (!maintenanceRecord) {
-      alert('Maintenance record not found')
+      warning('Maintenance record not found')
       return
     }
 
@@ -711,10 +691,10 @@ const markAsCompleted = async (id) => {
     
     if (error) throw error
     await loadMaintenance()
-    alert('Maintenance marked as completed! Next service scheduled.')
+    success('Maintenance marked as completed! Next service scheduled.')
   } catch (error) {
     console.error('Error updating maintenance:', error)
-    alert('Error marking as completed: ' + error.message)
+    error('Error marking as completed: ' + error.message)
   }
 }
 
@@ -729,8 +709,10 @@ const deleteMaintenance = async (id) => {
     
     if (error) throw error
     await loadMaintenance()
-  } catch (error) {
-    console.error('Error deleting maintenance:', error)
+    success('Maintenance schedule deleted successfully!')
+  } catch (err) {
+    console.error('Error deleting maintenance:', err)
+    error('Error deleting maintenance: ' + err.message)
   }
 }
 

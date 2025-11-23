@@ -292,6 +292,8 @@ import { useRoute } from 'vue-router'
 import Navbar from './Navbar.vue'
 import PageHeader from '../components/PageHeader.vue'
 import { supabase } from '../lib/supabase'
+import { useToast } from '../composables/useToast'
+import { useSidebar } from '../composables/useSidebar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -306,9 +308,11 @@ L.Icon.Default.mergeOptions({
 // Router
 const route = useRoute()
 
+// Toast notifications
+const { error } = useToast()
+
 // State
-const sidebarCollapsed = ref(false)
-const sidebarOpen = ref(false)
+const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
 const vehicles = ref([])
 const selectedVehicle = ref(null)
 const searchQuery = ref('')
@@ -368,13 +372,7 @@ const filteredVehicles = computed(() => {
 })
 
 // Methods
-function toggleSidebar() {
-  sidebarCollapsed.value = !sidebarCollapsed.value
-}
-
-function closeSidebar() {
-  sidebarOpen.value = false
-}
+// Sidebar methods are now from useSidebar composable
 
 function getStatusColor(secondsSinceUpdate) {
   if (!secondsSinceUpdate) return 'text-gray-500'
@@ -402,7 +400,7 @@ async function loadVehicleLocations() {
     }
   } catch (error) {
     console.error('Error loading vehicle locations:', error)
-    alert('Failed to load vehicle locations: ' + error.message)
+    error('Failed to load vehicle locations: ' + error.message)
   } finally {
     loading.value = false
   }
@@ -959,7 +957,7 @@ async function show24HourHistory() {
     console.log(`✓ Loaded ${history24H.value.length} GPS points for last 24 hours`)
   } catch (error) {
     console.error('Error loading 24-hour history:', error)
-    alert('Failed to load 24-hour history: ' + error.message)
+    error('Failed to load 24-hour history: ' + error.message)
   } finally {
     loading24H.value = false
   }

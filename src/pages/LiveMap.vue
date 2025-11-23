@@ -17,42 +17,47 @@
         @click="closeSidebar"
       ></div>
 
-      <PageHeader
-        icon="fas fa-route"
-        title="Live GPS Tracking"
-        subtitle="Real-time vehicle location monitoring"
-      >
-        <template #leading>
-          <button
-            @click="openSidebar"
-            v-if="!sidebarOpen"
-            class="lg:hidden btn btn-secondary py-2 px-3"
-          >
-            <i class="fas fa-bars"></i>
-          </button>
-        </template>
-        <template #actions>
-          <div class="text-right hidden xs:block mr-2">
-            <div class="text-xs text-green-100 uppercase tracking-wide">Active</div>
-            <div class="text-lg sm:text-2xl font-bold">{{ activeVehicles }}</div>
+      <!-- Header -->
+      <header class="bg-gradient-to-br from-green-800 to-green-600 text-white shadow-xl">
+        <div class="px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <button
+                @click="openSidebar"
+                v-if="!sidebarOpen"
+                class="lg:hidden bg-green-700 text-white py-2 px-3 rounded-lg hover:bg-green-600 transition-colors flex-shrink-0"
+              >
+                <i class="fas fa-bars"></i>
+              </button>
+              <div class="flex-1 min-w-0">
+                <h1 class="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">🗺️ Live GPS Tracking</h1>
+                <p class="text-green-100 text-xs sm:text-sm mt-1 hidden sm:block">Real-time vehicle location monitoring</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4">
+              <div class="text-right hidden xs:block">
+                <div class="text-xs text-green-200">Active</div>
+                <div class="text-lg sm:text-2xl font-bold">{{ activeVehicles }}</div>
+              </div>
+              <button 
+                @click="toggleVehicleList"
+                class="lg:hidden bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-all flex items-center gap-2"
+              >
+                <i class="fas fa-list"></i>
+                <span class="hidden xs:inline text-sm">Vehicles</span>
+              </button>
+              <button 
+                @click="refreshLocations"
+                class="bg-white/20 hover:bg-white/30 px-3 sm:px-4 py-2 rounded-lg transition-all flex items-center gap-2"
+                :disabled="loading"
+              >
+                <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+                <span class="hidden sm:inline">Refresh</span>
+              </button>
+            </div>
           </div>
-          <button 
-            @click="toggleVehicleList"
-            class="lg:hidden btn btn-secondary text-sm"
-          >
-            <i class="fas fa-list"></i>
-            <span class="hidden xs:inline">Vehicles</span>
-          </button>
-          <button 
-            @click="refreshLocations"
-            class="btn btn-primary text-sm"
-            :disabled="loading"
-          >
-            <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
-            <span class="hidden sm:inline">Refresh</span>
-          </button>
-        </template>
-      </PageHeader>
+        </div>
+      </header>
 
       <!-- Main Content -->
       <div class="flex-1 flex overflow-hidden bg-gradient-to-br from-green-50/70 to-emerald-100/70 relative">
@@ -328,8 +333,8 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from './Navbar.vue'
-import PageHeader from '../components/PageHeader.vue'
 import { supabase } from '../lib/supabase'
+import { useToast } from '../composables/useToast'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -343,6 +348,9 @@ L.Icon.Default.mergeOptions({
 
 // Router
 const route = useRoute()
+
+// Toast notifications
+const { error: showError } = useToast()
 
 // State
 const sidebarCollapsed = ref(false)
@@ -498,7 +506,7 @@ async function loadVehicleLocations() {
     }
   } catch (error) {
     console.error('Error loading vehicle locations:', error)
-    alert('Failed to load vehicle locations: ' + error.message)
+    showError('Failed to load vehicle locations', error.message)
   } finally {
     loading.value = false
   }
@@ -1156,7 +1164,7 @@ async function show24HourHistory() {
     console.log(`✓ Loaded ${history24H.value.length} GPS points for last 24 hours`)
   } catch (error) {
     console.error('Error loading 24-hour history:', error)
-    alert('Failed to load 24-hour history: ' + error.message)
+    showError('Failed to load 24-hour history', error.message)
   } finally {
     loading24H.value = false
   }

@@ -122,7 +122,7 @@
       >
         <div class="flex items-start justify-between mb-4">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-emerald-500 text-white flex items-center justify-center shadow-inner">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center shadow-inner">
               <i class="fas fa-route"></i>
             </div>
             <div>
@@ -160,8 +160,8 @@
               <i class="fas fa-calendar"></i>
             </div>
             <div>
-              <p class="text-xs text-slate-500 uppercase">Schedule</p>
-              <p class="text-sm font-semibold text-slate-900">{{ formatDateTime(trip.start_time) || 'TBD' }}</p>
+              <p class="text-xs text-slate-500 uppercase">Start Time</p>
+              <p class="text-sm font-semibold text-slate-900">{{ trip.actual_start_time ? formatActualTime(trip.actual_start_time) : 'Not Started' }}</p>
             </div>
           </div>
           <div class="p-3 rounded-xl bg-slate-50 flex items-center gap-3" v-if="trip.purpose">
@@ -175,50 +175,60 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-2">
+        <div class="flex items-center gap-1.5 flex-nowrap overflow-x-auto pb-1">
           <button 
             @click="viewTrip(trip)"
-            class="flex-1 min-w-[110px] py-2 px-3 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-sm font-medium transition-colors"
+            class="shrink-0 p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+            title="View Details"
           >
-            <i class="fas fa-eye mr-1"></i>
-            View
+            <i class="fas fa-eye text-sm"></i>
           </button>
           <button 
             v-if="trip.status === 'pending'"
-            @click="approveTrip(trip)"
-            class="flex-1 min-w-[110px] py-2 px-3 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-sm font-medium transition-colors"
+            @click="confirmApprove(trip)"
+            class="shrink-0 p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+            title="Approve Trip"
           >
-            <i class="fas fa-check mr-1"></i>
-            Approve
+            <i class="fas fa-check text-sm"></i>
           </button>
           <button 
             v-if="trip.status === 'approved'"
             @click="startTrip(trip)"
-            class="flex-1 min-w-[110px] py-2 px-3 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 text-sm font-medium transition-colors"
+            class="shrink-0 p-2 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors"
+            title="Start Trip"
           >
-            <i class="fas fa-play mr-1"></i>
-            Start
+            <i class="fas fa-play text-sm"></i>
           </button>
           <button 
             v-if="trip.status === 'in_progress'"
             @click="completeTrip(trip)"
-            class="min-w-[90px] py-2 px-3 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 text-sm font-medium transition-colors"
+            class="shrink-0 p-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors"
+            title="Complete Trip"
           >
-            <i class="fas fa-flag-checkered"></i>
+            <i class="fas fa-flag-checkered text-sm"></i>
           </button>
           <button 
-            v-if="['pending', 'approved'].includes(trip.status)"
             @click="editTrip(trip)"
-            class="min-w-[90px] py-2 px-3 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-sm font-medium transition-colors"
+            class="shrink-0 p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors"
+            title="Edit Trip"
           >
-            <i class="fas fa-edit"></i>
+            <i class="fas fa-edit text-sm"></i>
           </button>
           <button 
             v-if="['pending', 'approved', 'in_progress'].includes(trip.status)"
             @click="confirmCancel(trip)"
-            class="min-w-[90px] py-2 px-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 text-sm font-medium transition-colors"
+            class="shrink-0 p-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
+            title="Cancel Trip"
           >
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times text-sm"></i>
+          </button>
+          <button 
+            v-if="['pending', 'approved', 'cancelled', 'completed'].includes(trip.status)"
+            @click="deleteTrip(trip)"
+            class="shrink-0 p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+            title="Delete Trip"
+          >
+            <i class="fas fa-trash text-sm"></i>
           </button>
         </div>
       </div>
@@ -239,7 +249,7 @@
           <tr v-for="trip in filteredTrips" :key="trip.id" class="hover:bg-slate-50/60 transition-colors">
             <td class="py-3 px-4">
               <div class="font-semibold text-slate-900">{{ trip.trip_id }}</div>
-              <div class="text-xs text-slate-500">{{ formatDateTime(trip.start_time) || 'No schedule' }}</div>
+              <div class="text-xs text-slate-500">{{ trip.actual_start_time ? formatActualTime(trip.actual_start_time) : 'Not Started' }}</div>
             </td>
             <td class="py-3 px-4">{{ getVehicleDisplay(trip.vehicle_id) }}</td>
             <td class="py-3 px-4">{{ getDriverDisplay(trip.driver_id) }}</td>
@@ -255,7 +265,7 @@
                 <button @click="viewTrip(trip)" class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button v-if="trip.status === 'pending'" @click="approveTrip(trip)" class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
+                <button v-if="trip.status === 'pending'" @click="confirmApprove(trip)" class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
                   <i class="fas fa-check"></i>
                 </button>
                 <button v-if="trip.status === 'approved'" @click="startTrip(trip)" class="p-2 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors">
@@ -264,10 +274,13 @@
                 <button v-if="trip.status === 'in_progress'" @click="completeTrip(trip)" class="p-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors">
                   <i class="fas fa-flag-checkered"></i>
                 </button>
-                <button v-if="['pending', 'approved'].includes(trip.status)" @click="editTrip(trip)" class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">
+                <button @click="editTrip(trip)" class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Trip">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button v-if="['pending', 'approved', 'in_progress'].includes(trip.status)" @click="confirmCancel(trip)" class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
+                <button v-if="['pending', 'approved', 'cancelled', 'completed'].includes(trip.status)" @click="deleteTrip(trip)" class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Delete Trip">
+                  <i class="fas fa-trash"></i>
+                </button>
+                <button v-if="['pending', 'approved', 'in_progress'].includes(trip.status)" @click="confirmCancel(trip)" class="p-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Cancel Trip">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
@@ -342,33 +355,6 @@
                   v-model="form.destination" 
                   required 
                   placeholder="End point"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-              </div>
-            </div>
-          </div>
-
-          <!-- Time Information -->
-          <div class="mb-6">
-            <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-              <i class="fas fa-clock text-green-600"></i>
-              Schedule
-            </h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Start Date & Time *</label>
-                <input 
-                  type="datetime-local" 
-                  v-model="form.start_time" 
-                  required 
-                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Expected End Date & Time</label>
-                <input 
-                  type="datetime-local" 
-                  v-model="form.expected_end_time" 
                   class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
               </div>
@@ -534,21 +520,21 @@
             <div>
               <h4 class="text-sm font-semibold text-gray-500 uppercase mb-3">Schedule</h4>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-gray-600">Start Time</span>
-                  <span class="font-medium">{{ formatDateTime(selectedTrip.start_time) }}</span>
-                </div>
-                <div v-if="selectedTrip.expected_end_time" class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-gray-600">Expected End</span>
-                  <span class="font-medium">{{ formatDateTime(selectedTrip.expected_end_time) }}</span>
-                </div>
                 <div v-if="selectedTrip.actual_start_time" class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-gray-600">Actual Start</span>
-                  <span class="font-medium">{{ formatDateTime(selectedTrip.actual_start_time) }}</span>
+                  <span class="text-gray-600">Start Time</span>
+                  <span class="font-medium">{{ formatActualTime(selectedTrip.actual_start_time) }}</span>
+                </div>
+                <div v-else class="flex justify-between py-2 border-b border-gray-100">
+                  <span class="text-gray-600">Start Time</span>
+                  <span class="font-medium text-gray-400">Not Started</span>
                 </div>
                 <div v-if="selectedTrip.actual_end_time" class="flex justify-between py-2 border-b border-gray-100">
-                  <span class="text-gray-600">Actual End</span>
-                  <span class="font-medium">{{ formatDateTime(selectedTrip.actual_end_time) }}</span>
+                  <span class="text-gray-600">End Time</span>
+                  <span class="font-medium">{{ formatActualTime(selectedTrip.actual_end_time) }}</span>
+                </div>
+                <div v-else class="flex justify-between py-2 border-b border-gray-100">
+                  <span class="text-gray-600">End Time</span>
+                  <span class="font-medium text-gray-400">Not Completed</span>
                 </div>
               </div>
             </div>
@@ -648,6 +634,30 @@
       </div>
     </div>
 
+    <!-- Approve Confirmation Modal -->
+    <div v-if="tripToApprove" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm p-4">
+      <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+        <div class="py-6 px-8 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white flex justify-between items-center rounded-t-2xl">
+          <h3 class="text-xl font-semibold">Approve Trip</h3>
+          <button @click="closeApproveModal" class="bg-white/10 hover:bg-white/20 w-8 h-8 rounded-lg flex items-center justify-center transition-colors">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="p-8">
+          <p class="text-lg text-gray-700 mb-6">Approve trip <strong>{{ tripToApprove?.trip_id }}</strong>?</p>
+          <div class="flex gap-4 justify-end">
+            <button @click="closeApproveModal" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              Cancel
+            </button>
+            <button @click="approveTrip" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:scale-105 transition-all shadow-lg">
+              <i class="fas fa-check-circle"></i>
+              Yes, Approve Trip
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Cancel Confirmation Modal -->
     <div v-if="tripToCancel" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm p-4">
       <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
@@ -687,6 +697,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { useToast } from '../composables/useToast'
 
 export default {
   name: 'TripManagement',
@@ -703,6 +714,7 @@ export default {
   emits: ['trip-added'],
   setup(props, { emit }) {
     const router = useRouter()
+    const { success, error, warning } = useToast()
     
     const trips = ref([])
     const viewMode = ref('grid')
@@ -714,6 +726,7 @@ export default {
     const showModal = ref(false)
     const editingTrip = ref(null)
     const selectedTrip = ref(null)
+    const tripToApprove = ref(null)
     const tripToCancel = ref(null)
     const tripToComplete = ref(null)
     const selectedVehicle = ref(null)
@@ -815,8 +828,39 @@ export default {
 
     const formatDateTime = (dateString) => {
       if (!dateString) return ''
-      const date = new Date(dateString)
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      
+      try {
+        // Database stores all timestamps in UTC
+        // JavaScript automatically converts UTC to local time when creating a Date object
+        // So we just format it as local time
+        let date = new Date(dateString)
+        if (isNaN(date.getTime())) return ''
+        
+        // Format directly as local time (JavaScript handles UTC to local conversion)
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      } catch (error) {
+        console.error('Error formatting date:', dateString, error)
+        return ''
+      }
+    }
+
+    // Format function for actual_start_time and actual_end_time
+    // These are correctly saved as UTC (using toISOString()), so use normal JavaScript conversion
+    const formatActualTime = (dateString) => {
+      if (!dateString) return ''
+      
+      try {
+        // These timestamps are correctly stored in UTC
+        // JavaScript automatically converts UTC to local time when creating a Date object
+        let date = new Date(dateString)
+        if (isNaN(date.getTime())) return ''
+        
+        // Format directly as local time (JavaScript handles UTC to local conversion)
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      } catch (error) {
+        console.error('Error formatting actual time:', dateString, error)
+        return ''
+      }
     }
 
     const getVehicleDisplay = (vehicleId) => {
@@ -928,8 +972,6 @@ export default {
         origin: '',
         destination: '',
         purpose: '',
-        start_time: '',
-        expected_end_time: '',
         passenger_name: '',
         passenger_count: null,
         passenger_department: '',
@@ -959,8 +1001,6 @@ export default {
         origin: trip.origin || '',
         destination: trip.destination,
         purpose: trip.purpose,
-        start_time: trip.start_time ? new Date(trip.start_time).toISOString().slice(0, 16) : '',
-        expected_end_time: trip.expected_end_time ? new Date(trip.expected_end_time).toISOString().slice(0, 16) : '',
         passenger_name: trip.passenger_name || '',
         passenger_count: trip.passenger_count || null,
         passenger_department: trip.passenger_department || '',
@@ -975,6 +1015,25 @@ export default {
       selectedTrip.value = trip
     }
 
+    const deleteTrip = async (trip) => {
+      if (!confirm('Are you sure you want to delete this trip? This action cannot be undone.')) return
+
+      try {
+        const { error } = await supabase
+          .from('trips')
+          .delete()
+          .eq('id', trip.id)
+        
+        if (error) throw error
+        
+        trips.value = trips.value.filter(t => t.id !== trip.id)
+        success('Trip deleted successfully!')
+      } catch (error) {
+        console.error('Error deleting trip:', error)
+        error('Error deleting trip: ' + error.message)
+      }
+    }
+
     const submitForm = async () => {
       submitting.value = true
       try {
@@ -985,8 +1044,6 @@ export default {
           origin: form.origin || null,
           destination: form.destination,
           purpose: form.purpose || null,
-          start_time: form.start_time,
-          expected_end_time: form.expected_end_time || null,
           passenger_name: form.passenger_name || null,
           passenger_count: form.passenger_count || null,
           passenger_department: form.passenger_department || null,
@@ -1012,7 +1069,7 @@ export default {
             }
           }
 
-          alert('Trip updated successfully!')
+          success('Trip updated successfully!')
         } else {
           const { data, error } = await supabase
             .from('trips')
@@ -1023,38 +1080,47 @@ export default {
           if (error) throw error
           trips.value.unshift(data)
           emit('trip-added')
-          alert('Trip created successfully!')
+          success('Trip created successfully!')
         }
 
         closeModal()
-      } catch (error) {
-        console.error('Error submitting trip:', error)
-        alert('Error: ' + error.message)
+      } catch (err) {
+        console.error('Error submitting trip:', err)
+        error('Error: ' + err.message)
       } finally {
         submitting.value = false
       }
     }
 
-    const approveTrip = async (trip) => {
-      if (!confirm(`Approve trip ${trip.trip_id}?`)) return
+    const confirmApprove = (trip) => {
+      tripToApprove.value = trip
+    }
+
+    const closeApproveModal = () => {
+      tripToApprove.value = null
+    }
+
+    const approveTrip = async () => {
+      if (!tripToApprove.value) return
 
       try {
         const { error } = await supabase
           .from('trips')
           .update({ status: 'approved' })
-          .eq('id', trip.id)
+          .eq('id', tripToApprove.value.id)
         
         if (error) throw error
 
-        const index = trips.value.findIndex(t => t.id === trip.id)
+        const index = trips.value.findIndex(t => t.id === tripToApprove.value.id)
         if (index !== -1) {
           trips.value[index].status = 'approved'
         }
 
-        alert('Trip approved!')
-      } catch (error) {
-        console.error('Error approving trip:', error)
-        alert('Error: ' + error.message)
+        success('Trip approved!')
+        closeApproveModal()
+      } catch (err) {
+        console.error('Error approving trip:', err)
+        error('Error: ' + err.message)
       }
     }
 
@@ -1082,10 +1148,10 @@ export default {
           .update({ status: 'in_use' })
           .eq('id', trip.vehicle_id)
 
-        alert('Trip started!')
-      } catch (error) {
-        console.error('Error starting trip:', error)
-        alert('Error: ' + error.message)
+        success('Trip started!')
+      } catch (err) {
+        console.error('Error starting trip:', err)
+        error('Error: ' + err.message)
       }
     }
 
@@ -1097,7 +1163,7 @@ export default {
     const submitCompleteTrip = async () => {
       if (!tripToComplete.value) return
       if (!completeForm.end_odometer) {
-        alert('Please enter end odometer reading')
+        warning('Please enter end odometer reading')
         return
       }
 
@@ -1135,11 +1201,11 @@ export default {
           })
           .eq('id', tripToComplete.value.vehicle_id)
 
-        alert('Trip completed!')
+        success('Trip completed!')
         tripToComplete.value = null
-      } catch (error) {
-        console.error('Error completing trip:', error)
-        alert('Error: ' + error.message)
+      } catch (err) {
+        console.error('Error completing trip:', err)
+        error('Error: ' + err.message)
       }
     }
 
@@ -1168,19 +1234,23 @@ export default {
           trips.value[index].cancellation_reason = cancelForm.reason || 'No reason provided'
         }
 
-        // If trip was in progress, update vehicle status
-        if (tripToCancel.value.status === 'in_progress') {
-          await supabase
+        // Always update vehicle status to available when trip is cancelled
+        if (tripToCancel.value.vehicle_id) {
+          const { error: vehicleError } = await supabase
             .from('vehicles')
             .update({ status: 'available' })
             .eq('id', tripToCancel.value.vehicle_id)
+          
+          if (vehicleError) {
+            console.error('Error updating vehicle status:', vehicleError)
+          }
         }
         
-        alert('Trip cancelled')
+        success('Trip cancelled')
         tripToCancel.value = null
-      } catch (error) {
-        console.error('Error cancelling trip:', error)
-        alert('Error: ' + error.message)
+      } catch (err) {
+        console.error('Error cancelling trip:', err)
+        error('Error: ' + err.message)
       }
     }
 
@@ -1202,6 +1272,7 @@ export default {
       showModal,
       editingTrip,
       selectedTrip,
+      tripToApprove,
       tripToCancel,
       tripToComplete,
       selectedVehicle,
@@ -1213,6 +1284,7 @@ export default {
       formatTripStatus,
       formatStatus,
       formatDateTime,
+      formatActualTime,
       getVehicleDisplay,
       getDriverDisplay,
       getDriverNameById,
@@ -1221,7 +1293,10 @@ export default {
       closeModal,
       editTrip,
       viewTrip,
+      deleteTrip,
       submitForm, 
+      confirmApprove,
+      closeApproveModal,
       approveTrip,
       startTrip,
       completeTrip,

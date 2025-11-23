@@ -86,10 +86,10 @@ const router = createRouter({
 // Global navigation guard
 router.beforeEach(async (to, from, next) => {
   try {
-    const { data: { session }, error } = await supabase.auth.getSession()
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
     
-    if (error) {
-      console.error('Error checking session:', error)
+    if (sessionError) {
+      console.error('Error checking session:', sessionError)
     }
     
     const isAuthenticated = !!session?.user
@@ -106,7 +106,9 @@ router.beforeEach(async (to, from, next) => {
         .single()
       
       if (profile?.role !== 'admin') {
-        alert('Access denied. Admin privileges required.')
+        // Note: Can't use toast in router guard, using console for now
+        // Toast will be shown by the component that handles the redirect
+        console.warn('Access denied. Admin privileges required.')
         next('/dashboard')
         return
       }

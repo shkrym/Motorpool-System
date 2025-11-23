@@ -656,6 +656,8 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { useToast } from '../composables/useToast'
+import { useSidebar } from '../composables/useSidebar'
 import Navbar from './Navbar.vue'
 import PageHeader from '../components/PageHeader.vue'
 import DriverManagement from './DriverManagement.vue'
@@ -672,11 +674,11 @@ export default {
   setup() {
     const router = useRouter()
     const route = useRoute()
+    const { success, error } = useToast()
+    const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
     
     // State
     const activeTab = computed(() => route.query.tab || 'vehicles')
-    const sidebarCollapsed = ref(false)
-    const sidebarOpen = ref(true)
     const viewMode = ref('grid')
     const showFilters = ref(false)
     
@@ -778,30 +780,7 @@ export default {
       switchTab('drivers')
     }
 
-    const toggleSidebar = () => {
-      sidebarCollapsed.value = !sidebarCollapsed.value
-    }
-
-    const closeSidebar = () => {
-      if (window.innerWidth <= 1024) {
-        sidebarOpen.value = false
-      } else {
-        sidebarCollapsed.value = true
-      }
-    }
-
-    const openSidebar = () => {
-      sidebarOpen.value = true
-      if (window.innerWidth > 1024) {
-        sidebarCollapsed.value = false
-      }
-    }
-
-    const handleMenuClick = () => {
-      if (window.innerWidth <= 1024) {
-        sidebarOpen.value = false
-      }
-    }
+    // Sidebar methods are now from useSidebar composable
 
     const getStatusColor = (status, type) => {
       const colors = {
@@ -980,12 +959,12 @@ export default {
         }
 
         if (editingVehicle.value) {
-          const { error } = await supabase
+          const { error: updateError } = await supabase
             .from('vehicles')
             .update(vehicleData)
             .eq('id', editingVehicle.value.id)
           
-          if (error) throw error
+          if (updateError) throw updateError
           
           const index = vehicles.value.findIndex(v => v.id === editingVehicle.value.id)
           if (index !== -1) {
@@ -996,20 +975,22 @@ export default {
             }
           }
         } else {
-          const { data, error } = await supabase
+          const { data, error: insertError } = await supabase
             .from('vehicles')
             .insert(vehicleData)
             .select()
             .single()
           
-          if (error) throw error
+          if (insertError) throw insertError
           vehicles.value.unshift(data)
         }
 
+        // Show success message BEFORE closing modal (so editingVehicle is still set)
+        success(editingVehicle.value ? 'Vehicle updated successfully!' : 'Vehicle created successfully!')
         closeModal()
-      } catch (error) {
-        console.error('Error submitting form:', error)
-        alert('Error: ' + error.message)
+      } catch (err) {
+        console.error('Error submitting form:', err)
+        error('Error: ' + err.message)
       } finally {
         submitting.value = false
       }
@@ -1023,18 +1004,19 @@ export default {
       if (!vehicleToDelete.value) return
       
       try {
-        const { error } = await supabase
+        const { error: deleteError } = await supabase
           .from('vehicles')
           .delete()
           .eq('id', vehicleToDelete.value.id)
         
-        if (error) throw error
+        if (deleteError) throw deleteError
 
         vehicles.value = vehicles.value.filter(v => v.id !== vehicleToDelete.value.id)
         vehicleToDelete.value = null
-      } catch (error) {
-        console.error('Error deleting vehicle:', error)
-        alert('Error deleting vehicle: ' + error.message)
+        success('Vehicle deleted successfully!')
+      } catch (err) {
+        console.error('Error deleting vehicle:', err)
+        error('Error deleting vehicle: ' + err.message)
       }
     }
 
