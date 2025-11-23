@@ -259,21 +259,22 @@
                   </div>
                 </div>
 
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <button @click="viewVehicle(vehicle)" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="View">
-                      <i class="fas fa-eye text-sm"></i>
-                    </button>
-                    <button @click="viewHistory(vehicle)" class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center hover:bg-purple-100 transition-colors" title="History">
-                      <i class="fas fa-history text-sm"></i>
-                    </button>
-                    <button @click="viewLiveMap(vehicle)" class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center hover:bg-teal-100 transition-colors" title="Map">
-                      <i class="fas fa-route text-sm"></i>
-                    </button>
-                  </div>
-                  <button @click="confirmDelete(vehicle)" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors" title="Delete">
-                    <i class="fas fa-trash mr-1"></i>
-                    Remove
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto">
+                  <button @click="viewVehicle(vehicle)" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="View Details">
+                    <i class="fas fa-eye text-xs sm:text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-medium">View</span>
+                  </button>
+                  <button @click="viewHistory(vehicle)" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Trip History">
+                    <i class="fas fa-history text-xs sm:text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-medium">History</span>
+                  </button>
+                  <button @click="viewLiveMap(vehicle)" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-all hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex-shrink-0" title="Live GPS Tracking">
+                    <i class="fas fa-map-marked-alt text-xs sm:text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-medium">Live Map</span>
+                  </button>
+                  <button @click="confirmDelete(vehicle)" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Delete Vehicle">
+                    <i class="fas fa-trash text-xs sm:text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-medium">Remove</span>
                   </button>
                 </div>
               </div>
@@ -311,22 +312,27 @@
                       </td>
                       <td class="px-4 py-4 text-sm text-gray-700">{{ getDriverName(vehicle.assigned_driver_code) || '-' }}</td>
                       <td class="px-4 py-4 text-sm text-gray-700">{{ vehicle.assigned_department || '-' }}</td>
-                      <td class="px-4 py-4">
-                        <div class="flex items-center gap-4">
-                          <button @click="viewVehicle(vehicle)" class="p-1.5 rounded hover:bg-blue-50 text-blue-600" title="View">
-                            <i class="fas fa-eye"></i> 
+                      <td class="px-3 sm:px-4 py-3 sm:py-4">
+                        <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto">
+                          <button @click="viewVehicle(vehicle)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="View Details">
+                            <i class="fas fa-eye text-xs sm:text-sm"></i>
+                            <span class="hidden lg:inline text-xs font-medium ml-0.5">View</span>
                           </button>
-                          <button @click="editVehicle(vehicle)" class="p-1.5 rounded hover:bg-amber-50 text-amber-600" title="Edit">
-                            <i class="fas fa-edit"></i>
+                          <button @click="editVehicle(vehicle)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg hover:bg-amber-50 text-amber-600 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Edit Vehicle">
+                            <i class="fas fa-edit text-xs sm:text-sm"></i>
+                            <span class="hidden lg:inline text-xs font-medium ml-0.5">Edit</span>
                           </button>
-                          <button @click="viewHistory(vehicle)" class="p-1.5 rounded hover:bg-purple-50 text-purple-600" title="History">
-                            <i class="fas fa-history"></i>
+                          <button @click="viewHistory(vehicle)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg hover:bg-purple-50 text-purple-600 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Trip History">
+                            <i class="fas fa-history text-xs sm:text-sm"></i>
+                            <span class="hidden lg:inline text-xs font-medium ml-0.5">History</span>
                           </button>
-                          <button @click="viewLiveMap(vehicle)" class="p-1.5 rounded hover:bg-teal-50 text-teal-600" title="Map">
-                            <i class="fas fa-map-marker-alt"></i>
+                          <button @click="viewLiveMap(vehicle)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg hover:bg-teal-50 text-teal-600 transition-all hover:scale-105 active:scale-95 shadow-sm hover:shadow-md flex-shrink-0" title="Live GPS Tracking">
+                            <i class="fas fa-map-marked-alt text-xs sm:text-sm"></i>
+                            <span class="hidden lg:inline text-xs font-medium ml-0.5">Live Map</span>
                           </button>
-                          <button @click="confirmDelete(vehicle)" class="p-1.5 rounded hover:bg-red-50 text-red-600" title="Delete">
-                            <i class="fas fa-trash"></i>
+                          <button @click="confirmDelete(vehicle)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg hover:bg-red-50 text-red-600 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Delete Vehicle">
+                            <i class="fas fa-trash text-xs sm:text-sm"></i>
+                            <span class="hidden lg:inline text-xs font-medium ml-0.5">Delete</span>
                           </button>
                         </div>
                       </td>
@@ -941,7 +947,10 @@ export default {
     }
 
     const viewLiveMap = (vehicle) => {
-      router.push(`/tripmap/${vehicle.id}`)
+      router.push({ 
+        name: 'LiveMap', 
+        query: { vehicle: vehicle.vehicle_id || vehicle.id } 
+      })
     }
 
     const submitVehicleForm = async () => {

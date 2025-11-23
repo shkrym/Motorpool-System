@@ -193,27 +193,27 @@
                   {{ maintenance.notes }}
                 </div>
 
-                <div class="flex flex-wrap gap-2">
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto">
                   <button
                     @click="editMaintenance(maintenance)"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
                   >
-                    <i class="fas fa-edit mr-1"></i>
-                    Edit
+                    <i class="fas fa-edit text-xs sm:text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-medium">Edit</span>
                   </button>
                   <button
                     @click="markAsCompleted(maintenance.id)"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-green-50 text-green-600 hover:bg-green-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
                   >
-                    <i class="fas fa-check-circle mr-1"></i>
-                    Mark Done
+                    <i class="fas fa-check-circle text-xs sm:text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-medium">Mark Done</span>
                   </button>
                   <button
                     @click="deleteMaintenance(maintenance.id)"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
                   >
-                    <i class="fas fa-trash mr-1"></i>
-                    Delete
+                    <i class="fas fa-trash text-xs sm:text-sm"></i>
+                    <span class="hidden sm:inline text-xs font-medium">Delete</span>
                   </button>
                 </div>
               </div>

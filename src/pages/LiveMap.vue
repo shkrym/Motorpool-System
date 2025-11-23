@@ -6,151 +6,68 @@
       @toggle-sidebar="toggleSidebar"
       @close-sidebar="closeSidebar"
       @open-sidebar="openSidebar"
+      @menu-click="handleMenuClick"
     />
 
-    <div class="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
-      
-      <!-- Backdrop overlay for mobile sidebar -->
-      <div
-        v-if="sidebarOpen && !sidebarCollapsed"
-        class="fixed inset-0 bg-black/50 z-40 lg:hidden"
-        @click="closeSidebar"
-      ></div>
+    <!-- Sidebar overlay for mobile -->
+    <div
+      v-if="sidebarOpen && !sidebarCollapsed"
+      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+      @click="closeSidebar"
+    ></div>
 
-      <!-- Header -->
-      <header class="bg-gradient-to-br from-green-800 to-green-600 text-white shadow-xl">
-        <div class="px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <button
-                @click="openSidebar"
-                v-if="!sidebarOpen"
-                class="lg:hidden bg-green-700 text-white py-2 px-3 rounded-lg hover:bg-green-600 transition-colors flex-shrink-0"
-              >
-                <i class="fas fa-bars"></i>
-              </button>
-              <div class="flex-1 min-w-0">
-                <h1 class="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">🗺️ Live GPS Tracking</h1>
-                <p class="text-green-100 text-xs sm:text-sm mt-1 hidden sm:block">Real-time vehicle location monitoring</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 sm:gap-4">
-              <div class="text-right hidden xs:block">
-                <div class="text-xs text-green-200">Active</div>
-                <div class="text-lg sm:text-2xl font-bold">{{ activeVehicles }}</div>
-              </div>
-              <button 
-                @click="toggleVehicleList"
-                class="lg:hidden bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition-all flex items-center gap-2"
-              >
-                <i class="fas fa-list"></i>
-                <span class="hidden xs:inline text-sm">Vehicles</span>
-              </button>
-              <button 
-                @click="refreshLocations"
-                class="bg-white/20 hover:bg-white/30 px-3 sm:px-4 py-2 rounded-lg transition-all flex items-center gap-2"
-                :disabled="loading"
-              >
-                <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
-                <span class="hidden sm:inline">Refresh</span>
-              </button>
-            </div>
+    <main class="flex flex-1 flex-col overflow-hidden transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
+      <div class="sticky top-0 z-10">
+        <PageHeader
+        icon="fas fa-route"
+        title="Live GPS Tracking"
+        subtitle="Real-time vehicle location monitoring"
+      >
+        <template #leading>
+          <button
+            @click="openSidebar"
+            v-if="!sidebarOpen"
+            class="lg:hidden btn btn-secondary py-2 px-3"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+        </template>
+        <template #actions>
+          <div class="text-right hidden sm:block mr-2">
+            <div class="text-xs text-green-100 uppercase tracking-wide">Active</div>
+            <div class="text-lg sm:text-2xl font-bold">{{ activeVehicles }}</div>
           </div>
-        </div>
-      </header>
+          <div class="flex flex-col sm:flex-row items-end gap-2">
+            <button 
+              @click="refreshLocations"
+              class="btn btn-primary text-sm py-2 px-3 order-2 sm:order-1"
+              :disabled="loading"
+            >
+              <i :class="loading ? 'fas fa-spinner fa-spin' : 'fas fa-sync-alt'"></i>
+              <span class="hidden sm:inline ml-1">Refresh</span>
+            </button>
+            <button 
+              @click="toggleVehicleList"
+              class="btn btn-secondary text-sm py-2 px-3 order-1 sm:order-2"
+              :class="vehicleListOpen ? 'bg-green-600 text-white hover:bg-green-700' : ''"
+            >
+              <i :class="vehicleListOpen ? 'fas fa-times' : 'fas fa-bars'"></i>
+              <span class="hidden sm:inline ml-1">{{ vehicleListOpen ? 'Close' : 'Vehicles' }}</span>
+            </button>
+          </div>
+        </template>
+      </PageHeader>
+      </div>
 
       <!-- Main Content -->
       <div class="flex-1 flex overflow-hidden bg-gradient-to-br from-green-50/70 to-emerald-100/70 relative">
         
-        <!-- Sidebar - Vehicle List (Desktop: sidebar, Mobile: slide-out overlay) -->
-        <div 
-          class="w-80 bg-white/90 backdrop-blur-xl shadow-xl overflow-y-auto transition-transform duration-300 z-20"
-          :class="{
-            'hidden lg:block': !vehicleListOpen,
-            'fixed inset-y-0 left-0 lg:relative': vehicleListOpen,
-            'translate-x-0': vehicleListOpen,
-            '-translate-x-full lg:translate-x-0': !vehicleListOpen
-          }"
-        >
-          <div class="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
-            <input 
-              v-model="searchQuery"
-              type="text" 
-              placeholder="🔍 Search vehicles..."
-              class="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-            />
-            <button 
-              @click="toggleVehicleList"
-              class="lg:hidden ml-2 text-gray-500 hover:text-gray-700 p-2"
-            >
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-
-          <div class="p-3 sm:p-4 space-y-3">
-            <div 
-              v-for="vehicle in filteredVehicles" 
-              :key="vehicle.vehicle_id"
-              @click="selectVehicleAndClose(vehicle)"
-              class="bg-white rounded-lg p-3 sm:p-4 border-2 cursor-pointer transition-all hover:shadow-lg"
-              :class="selectedVehicle?.vehicle_id === vehicle.vehicle_id ? 'border-green-500 shadow-lg' : 'border-gray-200'"
-            >
-              <div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
-                  <div class="font-semibold text-gray-900 truncate">{{ vehicle.plate_number }}</div>
-                  <div class="text-sm text-gray-600 truncate">{{ vehicle.vehicle_code }}</div>
-                  <div class="text-xs text-gray-500 mt-1 truncate">{{ vehicle.make }} {{ vehicle.model }}</div>
-                </div>
-                <div class="text-right flex-shrink-0 ml-2">
-                  <div :class="getStatusColor(vehicle.seconds_since_update)" class="text-xs font-semibold">
-                    {{ formatTime(vehicle.device_timestamp) }}
-                  </div>
-                </div>
-              </div>
-
-              <!-- Driver Info -->
-              <div v-if="vehicle.driver_code" class="mt-2 pt-2 border-t border-gray-100">
-                <div class="text-xs text-gray-600 flex items-center gap-1">
-                  <i class="fas fa-user"></i>
-                  <span class="truncate">{{ vehicle.driver_code }}</span>
-                </div>
-              </div>
-
-              <!-- GPS Update Time -->
-              <div class="mt-2 pt-2 border-t border-gray-100">
-                <div class="text-xs text-gray-500 flex items-center gap-1">
-                  <i class="fas fa-clock"></i>
-                  <span>Updated {{ formatTime(vehicle.device_timestamp) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="filteredVehicles.length === 0 && !loading" class="text-center py-8 text-gray-500">
-              <div class="text-4xl mb-2">🚗</div>
-              <div class="font-semibold">No vehicles found</div>
-              <div class="text-sm mt-1">{{ vehicles.length === 0 ? 'No GPS-enabled vehicles' : 'Try a different search' }}</div>
-            </div>
-
-            <div v-if="loading" class="text-center py-8 text-gray-500">
-              <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-              <div class="text-sm">Loading vehicles...</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Overlay for mobile when vehicle list is open -->
-        <div 
-          v-if="vehicleListOpen"
-          @click="toggleVehicleList"
-          class="lg:hidden fixed inset-0 bg-black/50 z-10"
-        ></div>
-
         <!-- Map Container -->
         <div class="flex-1 relative">
           <div id="map" class="w-full h-full"></div>
           
           <!-- Map Controls -->
-          <div class="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-2 sm:p-4 space-y-1.5 sm:space-y-2">
+          <div class="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-2 sm:p-4 space-y-1.5 sm:space-y-2 z-10">
             <button 
               @click="centerMap"
               class="w-full px-2 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2"
@@ -181,7 +98,7 @@
           <!-- Selected Vehicle Info Panel -->
           <div 
             v-if="selectedVehicle"
-            class="absolute bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-auto bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-3 sm:p-6 sm:max-w-md"
+            class="absolute bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-auto bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-3 sm:p-6 sm:max-w-md z-10"
           >
             <div class="flex justify-between items-start mb-3 sm:mb-4">
               <div class="flex-1 min-w-0">
@@ -240,8 +157,112 @@
             </div>
           </div>
         </div>
+
+        <!-- Sidebar - Vehicle List (Desktop: sidebar, Mobile: slide-out overlay from right) -->
+        <div 
+          class="w-80 bg-white shadow-2xl overflow-y-auto z-30 fixed inset-y-0 right-0"
+          :class="{
+            'translate-x-0': vehicleListOpen,
+            'translate-x-full': !vehicleListOpen
+          }"
+          style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform;"
+        >
+          <!-- Sidebar Header - Matching System Design -->
+          <div class="p-4 border-b border-green-200 bg-gradient-to-br from-green-800 to-green-600 text-white sticky top-0 z-10 shadow-md">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shadow-inner">
+                  <i class="fas fa-route text-white text-lg"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg">Vehicle List</h3>
+                  <p class="text-green-100 text-xs">{{ filteredVehicles.length }} vehicles</p>
+                </div>
+              </div>
+              <button 
+                @click="toggleVehicleList"
+                class="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all active:scale-95"
+              >
+                <i class="fas fa-times text-lg"></i>
+              </button>
+            </div>
+            <input 
+              v-model="searchQuery"
+              type="text" 
+              placeholder="🔍 Search vehicles..."
+              class="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg focus:ring-2 focus:ring-white/50 focus:border-white/50 text-white placeholder-white/60 text-sm transition-all backdrop-blur-sm"
+            />
+          </div>
+
+          <div class="p-3 sm:p-4 space-y-3 bg-gradient-to-b from-white to-green-50/30 min-h-full">
+            <div 
+              v-for="vehicle in filteredVehicles" 
+              :key="vehicle.vehicle_id"
+              @click="selectVehicleAndClose(vehicle)"
+              class="bg-white rounded-lg p-3 sm:p-4 border-2 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transform"
+              :class="selectedVehicle?.vehicle_id === vehicle.vehicle_id ? 'border-green-500 shadow-lg bg-green-50 scale-[1.01] ring-2 ring-green-200' : 'border-gray-200 hover:border-green-300'"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1 min-w-0">
+                  <div class="font-semibold text-gray-900 truncate">{{ vehicle.plate_number }}</div>
+                  <div class="text-sm text-gray-600 truncate">{{ vehicle.vehicle_code }}</div>
+                  <div class="text-xs text-gray-500 mt-1 truncate">{{ vehicle.make }} {{ vehicle.model }}</div>
+                </div>
+                <div class="text-right flex-shrink-0 ml-2">
+                  <div :class="getStatusColor(vehicle.seconds_since_update)" class="text-xs font-semibold">
+                    {{ formatTime(vehicle.device_timestamp) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Driver Info -->
+              <div v-if="vehicle.driver_code" class="mt-2 pt-2 border-t border-gray-100">
+                <div class="text-xs text-gray-600 flex items-center gap-1">
+                  <i class="fas fa-user"></i>
+                  <span class="truncate">{{ vehicle.driver_code }}</span>
+                </div>
+              </div>
+
+              <!-- GPS Update Time -->
+              <div class="mt-2 pt-2 border-t border-gray-100">
+                <div class="text-xs text-gray-500 flex items-center gap-1">
+                  <i class="fas fa-clock"></i>
+                  <span>Updated {{ formatTime(vehicle.device_timestamp) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="filteredVehicles.length === 0 && !loading" class="text-center py-8 text-gray-500">
+              <div class="text-4xl mb-2">🚗</div>
+              <div class="font-semibold">No vehicles found</div>
+              <div class="text-sm mt-1">{{ vehicles.length === 0 ? 'No GPS-enabled vehicles' : 'Try a different search' }}</div>
+            </div>
+
+            <div v-if="loading" class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-2xl mb-2 text-green-600"></i>
+              <div class="text-sm">Loading vehicles...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overlay when vehicle list is open -->
+        <Transition
+          enter-active-class="transition-opacity duration-300 ease-out"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+          leave-active-class="transition-opacity duration-300 ease-in"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+        >
+          <div 
+            v-if="vehicleListOpen"
+            @click="toggleVehicleList"
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 lg:bg-black/30"
+            style="transition: opacity 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out;"
+          ></div>
+        </Transition>
       </div>
-    </div>
+    </main>
 
     <!-- 24-Hour Route History Modal -->
     <div v-if="show24HModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] backdrop-blur-sm p-2 sm:p-4" @click.self="close24HModal">
@@ -333,8 +354,10 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from './Navbar.vue'
+import PageHeader from '../components/PageHeader.vue'
 import { supabase } from '../lib/supabase'
 import { useToast } from '../composables/useToast'
+import { useSidebar } from '../composables/useSidebar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -352,9 +375,10 @@ const route = useRoute()
 // Toast notifications
 const { error: showError } = useToast()
 
+// Sidebar state management
+const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
+
 // State
-const sidebarCollapsed = ref(false)
-const sidebarOpen = ref(true) // Sidebar open by default (like other pages)
 const vehicleListOpen = ref(false) // Mobile vehicle list toggle
 const vehicles = ref([])
 const selectedVehicle = ref(null)
@@ -456,18 +480,6 @@ const filteredVehicles = computed(() => {
 })
 
 // Methods
-function toggleSidebar() {
-  sidebarCollapsed.value = !sidebarCollapsed.value
-}
-
-function openSidebar() {
-  sidebarOpen.value = true
-}
-
-function closeSidebar() {
-  sidebarOpen.value = false
-}
-
 function toggleVehicleList() {
   vehicleListOpen.value = !vehicleListOpen.value
 }
@@ -1229,13 +1241,26 @@ onMounted(async () => {
   // Check if we should focus on a specific vehicle (from Vehicles page)
   const vehicleId = route.query.vehicle
   if (vehicleId) {
-    // Find the vehicle with this ID
-    const targetVehicle = vehicles.value.find(v => v.vehicle_id === vehicleId)
+    // Find the vehicle with this ID (handle both string and number comparison)
+    const targetVehicle = vehicles.value.find(v => 
+      String(v.vehicle_id) === String(vehicleId) || 
+      String(v.id) === String(vehicleId)
+    )
     if (targetVehicle) {
-      // Select and center on this vehicle
+      // Select and center on this vehicle after map is fully initialized
       setTimeout(() => {
         selectVehicle(targetVehicle)
-      }, 500) // Small delay to ensure map is ready
+        // Optionally open vehicle list to show selected vehicle
+        if (window.innerWidth >= 1024) {
+          vehicleListOpen.value = true
+        }
+      }, 800) // Increased delay to ensure map and markers are ready
+    } else {
+      console.warn(`Vehicle with ID ${vehicleId} not found in loaded vehicles`)
+      // Center map on all vehicles if target not found
+      if (vehicles.value.length > 0) {
+        centerMap()
+      }
     }
   } else {
     // Center map on all vehicles
@@ -1256,9 +1281,17 @@ onMounted(async () => {
 // Watch for vehicle query parameter changes
 watch(() => route.query.vehicle, (newVehicleId) => {
   if (newVehicleId && vehicles.value.length > 0) {
-    const targetVehicle = vehicles.value.find(v => v.vehicle_id === newVehicleId)
+    // Find the vehicle with this ID (handle both string and number comparison)
+    const targetVehicle = vehicles.value.find(v => 
+      String(v.vehicle_id) === String(newVehicleId) || 
+      String(v.id) === String(newVehicleId)
+    )
     if (targetVehicle) {
       selectVehicle(targetVehicle)
+      // Optionally open vehicle list to show selected vehicle
+      if (window.innerWidth >= 1024) {
+        vehicleListOpen.value = true
+      }
     }
   }
 })

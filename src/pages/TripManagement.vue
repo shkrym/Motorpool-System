@@ -261,27 +261,34 @@
               </span>
             </td>
             <td class="py-3 px-4">
-              <div class="flex justify-end gap-2">
-                <button @click="viewTrip(trip)" class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
-                  <i class="fas fa-eye"></i>
+              <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto justify-end">
+                <button @click="viewTrip(trip)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="View">
+                  <i class="fas fa-eye text-xs sm:text-sm"></i>
+                  <span class="hidden lg:inline text-xs font-medium ml-0.5">View</span>
                 </button>
-                <button v-if="trip.status === 'pending'" @click="confirmApprove(trip)" class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
-                  <i class="fas fa-check"></i>
+                <button v-if="trip.status === 'pending'" @click="confirmApprove(trip)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Approve">
+                  <i class="fas fa-check text-xs sm:text-sm"></i>
+                  <span class="hidden lg:inline text-xs font-medium ml-0.5">Approve</span>
                 </button>
-                <button v-if="trip.status === 'approved'" @click="startTrip(trip)" class="p-2 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors">
-                  <i class="fas fa-play"></i>
+                <button v-if="trip.status === 'approved'" @click="startTrip(trip)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Start">
+                  <i class="fas fa-play text-xs sm:text-sm"></i>
+                  <span class="hidden lg:inline text-xs font-medium ml-0.5">Start</span>
                 </button>
-                <button v-if="trip.status === 'in_progress'" @click="completeTrip(trip)" class="p-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors">
-                  <i class="fas fa-flag-checkered"></i>
+                <button v-if="trip.status === 'in_progress'" @click="completeTrip(trip)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Complete">
+                  <i class="fas fa-flag-checkered text-xs sm:text-sm"></i>
+                  <span class="hidden lg:inline text-xs font-medium ml-0.5">Complete</span>
                 </button>
-                <button @click="editTrip(trip)" class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Trip">
-                  <i class="fas fa-edit"></i>
+                <button @click="editTrip(trip)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Edit Trip">
+                  <i class="fas fa-edit text-xs sm:text-sm"></i>
+                  <span class="hidden lg:inline text-xs font-medium ml-0.5">Edit</span>
                 </button>
-                <button v-if="['pending', 'approved', 'cancelled', 'completed'].includes(trip.status)" @click="deleteTrip(trip)" class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Delete Trip">
-                  <i class="fas fa-trash"></i>
+                <button v-if="['pending', 'approved', 'cancelled', 'completed'].includes(trip.status)" @click="deleteTrip(trip)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Delete Trip">
+                  <i class="fas fa-trash text-xs sm:text-sm"></i>
+                  <span class="hidden lg:inline text-xs font-medium ml-0.5">Delete</span>
                 </button>
-                <button v-if="['pending', 'approved', 'in_progress'].includes(trip.status)" @click="confirmCancel(trip)" class="p-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Cancel Trip">
-                  <i class="fas fa-times"></i>
+                <button v-if="['pending', 'approved', 'in_progress'].includes(trip.status)" @click="confirmCancel(trip)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Cancel Trip">
+                  <i class="fas fa-times text-xs sm:text-sm"></i>
+                  <span class="hidden lg:inline text-xs font-medium ml-0.5">Cancel</span>
                 </button>
               </div>
             </td>

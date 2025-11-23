@@ -1,11 +1,11 @@
 <template>
   <header class="page-hero bg-gradient-to-br from-green-800 to-green-600 text-white shadow-xl">
     <div class="px-3 sm:px-6 lg:px-8 py-3 sm:py-5 space-y-3">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-3 min-w-0">
+      <div class="flex flex-row items-center justify-between gap-2 sm:gap-3">
+        <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <slot name="leading"></slot>
           
-          <div class="flex items-center gap-3 min-w-0">
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0">
             <div v-if="$slots.icon || icon" class="shrink-0">
               <slot name="icon">
                 <div class="w-12 h-12 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-inner">
@@ -27,7 +27,7 @@
           </div>
         </div>
 
-        <div v-if="$slots.actions" class="flex flex-wrap items-center gap-2 sm:justify-end">
+        <div v-if="$slots.actions" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <slot name="actions"></slot>
         </div>
       </div>

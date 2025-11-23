@@ -266,56 +266,60 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex flex-wrap gap-2 pt-4 border-t justify-end border-slate-100">
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto pt-4 border-t border-slate-100">
                   <!-- Status-based action buttons -->
                   <button 
                     v-if="trip.status === 'pending'"
                     @click="confirmApprove(trip)" 
-                    class="px-4 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-medium hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                    title="Approve Trip"
                   >
-                    <i class="fas fa-check-circle"></i>
-                    <span class="hidden sm:inline">Approve</span>
+                    <i class="fas fa-check-circle text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">Approve</span>
                   </button>
                   <button 
                     v-if="trip.status === 'approved'"
                     @click="startTrip(trip)" 
-                    class="px-4 py-2.5 bg-teal-50 text-teal-700 border border-teal-200 rounded-lg font-medium hover:bg-teal-100 transition-colors flex items-center justify-center gap-2"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                    title="Start Trip"
                   >
-                    <i class="fas fa-play-circle"></i>
-                    <span class="hidden sm:inline">Start Trip</span>
-                    <span class="sm:hidden">Start</span>
+                    <i class="fas fa-play-circle text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">Start</span>
                   </button>
                   <button 
                     v-if="trip.status === 'in_progress'"
                     @click="completeTrip(trip)" 
-                    class="px-4 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg font-medium hover:bg-purple-100 transition-colors flex items-center justify-center gap-2"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                    title="Complete Trip"
                   >
-                    <i class="fas fa-flag-checkered"></i>
-                    <span class="hidden sm:inline">Complete</span>
+                    <i class="fas fa-flag-checkered text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">Complete</span>
                   </button>
                   
                   <!-- Standard action buttons -->
                   <button 
                     @click="viewTripDetails(trip)" 
-                    class="flex-1 sm:flex-none px-4 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg font-medium hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                    title="View Details"
                   >
-                    <i class="fas fa-eye"></i>
-                    <span class="hidden sm:inline">View Details</span>
-                    <span class="sm:hidden">View</span>
+                    <i class="fas fa-eye text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">View</span>
                   </button>
                   <button   
                     @click="editTrip(trip)" 
-                    class="flex-1 sm:flex-none px-4 py-2.5 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg font-medium hover:bg-slate-100 transition-colors flex items-center justify-center gap-2"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                    title="Edit Trip"
                   >
-                    <i class="fas fa-edit"></i>
-                    <span class="hidden sm:inline">Edit</span>
-                    <span class="sm:hidden">Edit</span>
+                    <i class="fas fa-edit text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">Edit</span>
                   </button>
                   <button 
                     @click="deleteTrip(trip)" 
-                    class="px-4 py-2.5 bg-red-50 text-red-700 border border-red-200 rounded-lg font-medium hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                    class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
+                    title="Delete Trip"
                   >
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">Delete</span>
                   </button>
                 </div>
               </div>

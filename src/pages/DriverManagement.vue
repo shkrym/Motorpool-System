@@ -157,18 +157,18 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <button @click="viewDriver(driver)" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="View">
-              <i class="fas fa-eye text-sm"></i>
-            </button>
-            <button @click="editDriver(driver)" class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 transition-colors" title="Edit">
-              <i class="fas fa-edit text-sm"></i>
-            </button>
-          </div>
-          <button @click="confirmDelete(driver)" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors" title="Delete">
-            <i class="fas fa-trash mr-1"></i>
-            Delete
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto">
+          <button @click="viewDriver(driver)" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="View">
+            <i class="fas fa-eye text-xs sm:text-sm"></i>
+            <span class="hidden sm:inline text-xs font-medium">View</span>
+          </button>
+          <button @click="editDriver(driver)" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Edit">
+            <i class="fas fa-edit text-xs sm:text-sm"></i>
+            <span class="hidden sm:inline text-xs font-medium">Edit</span>
+          </button>
+          <button @click="confirmDelete(driver)" class="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Delete">
+            <i class="fas fa-trash text-xs sm:text-sm"></i>
+            <span class="hidden sm:inline text-xs font-medium">Delete</span>
           </button>
         </div>
       </div>
@@ -195,15 +195,18 @@
               <td class="py-3 px-4">{{ driver.phone || 'No phone' }}</td>
               <td class="py-3 px-4">{{ driver.license_number || 'N/A' }}</td>
               <td class="py-3 px-4">
-                <div class="flex justify-end gap-2">
-                  <button @click="viewDriver(driver)" class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
-                    <i class="fas fa-eye"></i>
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto justify-end">
+                  <button @click="viewDriver(driver)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="View">
+                    <i class="fas fa-eye text-xs sm:text-sm"></i>
+                    <span class="hidden lg:inline text-xs font-medium ml-0.5">View</span>
                   </button>
-                  <button @click="editDriver(driver)" class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors">
-                    <i class="fas fa-edit"></i>
+                  <button @click="editDriver(driver)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Edit">
+                    <i class="fas fa-edit text-xs sm:text-sm"></i>
+                    <span class="hidden lg:inline text-xs font-medium ml-0.5">Edit</span>
                   </button>
-                  <button @click="confirmDelete(driver)" class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
-                    <i class="fas fa-trash"></i>
+                  <button @click="confirmDelete(driver)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Delete">
+                    <i class="fas fa-trash text-xs sm:text-sm"></i>
+                    <span class="hidden lg:inline text-xs font-medium ml-0.5">Delete</span>
                   </button>
                 </div>
               </td>

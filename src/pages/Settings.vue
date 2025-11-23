@@ -18,14 +18,8 @@
     ></div>
 
     <!-- Main Content -->
-    <main 
-      class="flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0 relative"
-      :class="{ 
-        'lg:ml-64': sidebarOpen && !sidebarCollapsed,
-        'lg:ml-20': sidebarCollapsed || !sidebarOpen 
-      }"
-    >
-      <div class="sticky top-0 z-30">
+    <main class="flex flex-1 flex-col overflow-hidden transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
+      <div class="sticky top-0 z-10">
         <PageHeader
           icon="fas fa-cog"
           title="Settings"
@@ -34,7 +28,7 @@
           <template #leading>
             <button
               @click="openSidebar"
-              class="btn btn-secondary lg:hidden flex-shrink-0"
+              class="lg:hidden btn btn-secondary py-2 px-3"
               v-if="!sidebarOpen"
             >
               <i class="fas fa-bars"></i>
@@ -48,7 +42,7 @@
         </PageHeader>
 
         <!-- Tab Navigation (Desktop) -->
-        <div class="hidden sm:flex items-center bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="hidden sm:flex items-center bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mx-4 mt-2 mb-0">
           <button
             @click="activeTab = 'profile'"
             :class="[
@@ -83,7 +77,7 @@
       </div>
 
       <!-- Mobile Tab Navigation -->
-      <div class="sm:hidden bg-white border-b border-gray-200 px-4 py-2">
+      <div class="sm:hidden bg-white border-b border-gray-200 px-4 py-2 mx-4 mt-2 mb-0 rounded-xl">
         <div class="flex gap-2">
           <button
             @click="activeTab = 'profile'"

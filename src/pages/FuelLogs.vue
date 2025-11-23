@@ -312,15 +312,18 @@
                       </div>
                     </td>
                     <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center">
-                      <div class="flex items-center justify-center gap-1 sm:gap-2">
-                        <button @click="viewLog(log)" class="w-7 h-7 sm:w-8 sm:h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-100 transition-colors" title="View Details">
-                          <i class="fas fa-eye text-xs"></i>
+                      <div class="flex items-center justify-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto">
+                        <button @click="viewLog(log)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="View Details">
+                          <i class="fas fa-eye text-xs sm:text-sm"></i>
+                          <span class="hidden lg:inline text-xs font-medium ml-0.5">View</span>
                         </button>
-                        <button @click="editLog(log)" class="w-7 h-7 sm:w-8 sm:h-8 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center hover:bg-amber-100 transition-colors" title="Edit">
-                          <i class="fas fa-edit text-xs"></i>
+                        <button @click="editLog(log)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Edit">
+                          <i class="fas fa-edit text-xs sm:text-sm"></i>
+                          <span class="hidden lg:inline text-xs font-medium ml-0.5">Edit</span>
                         </button>
-                        <button @click="confirmDelete(log)" class="w-7 h-7 sm:w-8 sm:h-8 bg-red-50 text-red-600 rounded-lg flex items-center justify-center hover:bg-red-100 transition-colors" title="Delete">
-                          <i class="fas fa-trash text-xs"></i>
+                        <button @click="confirmDelete(log)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Delete">
+                          <i class="fas fa-trash text-xs sm:text-sm"></i>
+                          <span class="hidden lg:inline text-xs font-medium ml-0.5">Delete</span>
                         </button>
                       </div>
                     </td>
@@ -334,7 +337,7 @@
           <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             <div v-for="log in sortedLogs" :key="log.id" 
                  class="glass-card p-5 sm:p-6 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-                <div class="flex justify-between items-start mb-4">
+                <div class="flex items-start mb-4">
                   <div class="flex items-center gap-3 min-w-0 flex-1">
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center shadow-inner shrink-0">
                       <i class="fas fa-gas-pump"></i>
@@ -344,20 +347,9 @@
                       <div class="text-xs text-gray-500">{{ formatDate(log.created_at) }}</div>
                     </div>
                   </div>
-                  <div class="flex gap-1 shrink-0">
-                    <button @click.stop="viewLog(log)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="View">
-                      <i class="fas fa-eye text-xs sm:text-sm"></i>
-                    </button>
-                    <button @click.stop="editLog(log)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center hover:bg-amber-100 transition-colors" title="Edit">
-                      <i class="fas fa-edit text-xs sm:text-sm"></i>
-                    </button>
-                    <button @click.stop="confirmDelete(log)" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors" title="Delete">
-                      <i class="fas fa-trash text-xs sm:text-sm"></i>
-                    </button>
-                  </div>
                 </div>
 
-                <div class="space-y-3">
+                <div class="space-y-3 mb-4">
                   <div class="flex justify-between items-center p-3 sm:p-3.5 bg-blue-50 rounded-lg">
                     <div class="flex items-center gap-2">
                       <i class="fas fa-tint text-blue-600 text-sm"></i>
@@ -394,6 +386,22 @@
                     <i class="fas fa-route text-purple-600 text-xs shrink-0"></i>
                     <span class="text-xs sm:text-sm text-gray-900 truncate">{{ log.trip_reference }}</span>
                   </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-x-auto pt-4 border-t border-gray-100">
+                  <button @click.stop="viewLog(log)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="View Details">
+                    <i class="fas fa-eye text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">View</span>
+                  </button>
+                  <button @click.stop="editLog(log)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Edit">
+                    <i class="fas fa-edit text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">Edit</span>
+                  </button>
+                  <button @click.stop="confirmDelete(log)" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all hover:scale-105 active:scale-95 flex-shrink-0" title="Delete">
+                    <i class="fas fa-trash text-xs sm:text-sm"></i>
+                    <span class="text-xs font-medium">Remove</span>
+                  </button>
                 </div>
             </div>
           </div>
