@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: ['selector', '[data-theme="forest"]'], // DaisyUI forest theme as dark mode
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
@@ -39,5 +40,9 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
+  daisyui: {
+    themes: ["light", "forest"],
+    darkTheme: "forest",
+  },
 }

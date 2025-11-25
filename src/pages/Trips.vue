@@ -330,10 +330,10 @@
     </main>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
+    <div v-if="showModal" class="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-colors duration-200">
+      <div class="bg-white dark:bg-[#161b22] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl transition-colors duration-200">
         <!-- Modal Header -->
-        <div class="relative py-6 px-8 bg-gradient-to-br from-green-800 to-green-600 text-white p-6 flex justify-between items-center">
+        <div class="relative py-6 px-8 bg-gradient-to-br from-green-800 to-green-600 dark:from-[#1a2f23] dark:to-[#0f1e13] text-white p-6 flex justify-between items-center transition-colors duration-200">
           <div class="flex items-center gap-3">
             <div class="p-2 bg-white/20 rounded-lg">
               <i class="fas fa-route text-xl"></i>
@@ -349,19 +349,19 @@
         <form @submit.prevent="submitForm" class="p-6 overflow-y-auto max-h-[calc(90vh-88px)]">
           <!-- Route Information -->
           <div class="mb-6">
-            <h4 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4 flex items-center gap-2">
-              <i class="fas fa-map-marked-alt text-green-600"></i>
+            <h4 class="text-sm font-bold text-slate-700 dark:text-[#e6edf3] uppercase tracking-wide mb-4 flex items-center gap-2 transition-colors duration-200">
+              <i class="fas fa-map-marked-alt text-green-600 dark:text-[#3fb950]"></i>
               Route Information
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Origin Location *</label>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-[#e6edf3] mb-2 transition-colors duration-200">Origin Location *</label>
                 <input 
                   type="text" 
                   v-model="tripForm.origin" 
                   required 
                   placeholder="Starting point"
-                  class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  class="w-full px-4 py-3 border border-slate-300 dark:border-[#30363d] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-[#3fb950] focus:border-transparent bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] transition-colors duration-200"
                 >
               </div>
               <div>
@@ -455,7 +455,7 @@
             <button 
               type="button" 
               @click="closeModal" 
-              class="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-lg font-semibold hover:bg-slate-200 transition-colors"
+              class="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-[#30363d] text-gray-700 dark:text-[#e6edf3] rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-[#1c2128] transition-all"
             >
               Cancel
             </button>
@@ -474,9 +474,9 @@
     </div>
 
     <!-- View Trip Details Modal -->
-    <div v-if="selectedTrip" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm p-4" @click.self="selectedTrip = null">
-      <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl">
-        <div class="py-6 px-8 bg-gradient-to-r from-green-800 to-green-600 text-white flex justify-between items-center">
+    <div v-if="selectedTrip" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-[60] backdrop-blur-sm p-4 transition-colors duration-200" @click.self="selectedTrip = null">
+      <div class="bg-white dark:bg-[#161b22] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl transition-colors duration-200">
+        <div class="py-6 px-8 bg-gradient-to-r from-green-800 to-green-600 dark:from-[#1a2f23] dark:to-[#0f1e13] text-white flex justify-between items-center transition-colors duration-200">
           <div>
             <h3 class="text-xl font-bold">{{ selectedTrip.trip_id || 'Trip Details' }}</h3>
             <p class="text-green-100 text-sm">Trip Information</p>
@@ -609,9 +609,9 @@
     </div>
 
     <!-- Complete Trip Modal -->
-    <div v-if="tripToComplete" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm p-4">
-      <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-        <div class="py-6 px-8 bg-gradient-to-r from-purple-500 to-purple-600 text-white flex justify-between items-center rounded-t-2xl">
+    <div v-if="tripToComplete" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-[60] backdrop-blur-sm p-4 transition-colors duration-200">
+      <div class="bg-white dark:bg-[#161b22] rounded-2xl w-full max-w-md shadow-2xl transition-colors duration-200">
+        <div class="py-6 px-8 bg-gradient-to-r from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 text-white flex justify-between items-center rounded-t-2xl transition-colors duration-200">
           <h3 class="text-xl font-semibold">Complete Trip</h3>
           <button @click="tripToComplete = null" class="bg-white/10 hover:bg-white/20 w-8 h-8 rounded-lg flex items-center justify-center transition-colors">
             <i class="fas fa-times"></i>
@@ -646,9 +646,9 @@
     </div>
 
     <!-- Approve Confirmation Modal -->
-    <div v-if="tripToApprove" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] backdrop-blur-sm p-4">
-      <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-        <div class="py-6 px-8 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white flex justify-between items-center rounded-t-2xl">
+    <div v-if="tripToApprove" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-[60] backdrop-blur-sm p-4 transition-colors duration-200">
+      <div class="bg-white dark:bg-[#161b22] rounded-2xl w-full max-w-md shadow-2xl transition-colors duration-200">
+        <div class="py-6 px-8 bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-[#2d4a2f] dark:to-[#1a2f23] text-white flex justify-between items-center rounded-t-2xl transition-colors duration-200">
           <h3 class="text-xl font-semibold">Approve Trip</h3>
           <button @click="closeApproveModal" class="bg-white/10 hover:bg-white/20 w-8 h-8 rounded-lg flex items-center justify-center transition-colors">
             <i class="fas fa-times"></i>

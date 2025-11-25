@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 font-inter">
+  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 dark:from-[#0d1117] dark:via-[#0d1117] dark:to-[#161b22] font-inter transition-colors duration-200">
     <!-- Include Navbar Component -->
     <Navbar 
       :sidebar-collapsed="sidebarCollapsed"
@@ -30,61 +30,61 @@
       </div>
 
       <!-- Main Content -->
-      <div class="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto bg-gradient-to-br from-green-50/70 to-emerald-100/70">
+      <div class="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto bg-gradient-to-br from-green-50/70 to-emerald-100/70 dark:from-[#0d1117] dark:to-[#0d1117] transition-colors duration-200">
         <div class="max-w-7xl mx-auto">
           <!-- Stats Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
-            <div class="glass-card p-5">
+            <div class="glass-card dark:bg-[#161b22] dark:border-[#30363d] p-5 transition-colors duration-200">
               <div class="flex items-center justify-between mb-2">
-                <div class="stat-card-icon bg-emerald-100 text-emerald-600">
+                <div class="stat-card-icon bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
                   <i class="fas fa-warehouse"></i>
                 </div>
               </div>
-              <div class="text-2xl sm:text-3xl font-bold text-slate-900">{{ vehicles.length }}</div>
-              <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Total Vehicles</p>
+              <div class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#e6edf3] transition-colors duration-200">{{ vehicles.length }}</div>
+              <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-[#8b949e] mt-1 transition-colors duration-200">Total Vehicles</p>
             </div>
-            <div class="glass-card p-5">
+            <div class="glass-card dark:bg-[#161b22] dark:border-[#30363d] p-5 transition-colors duration-200">
               <div class="flex items-center justify-between mb-2">
-                <div class="stat-card-icon bg-amber-100 text-amber-600">
+                <div class="stat-card-icon bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400">
                   <i class="fas fa-hourglass-half"></i>
                 </div>
               </div>
-              <div class="text-2xl sm:text-3xl font-bold text-amber-600">{{ dueSoon }}</div>
-              <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Due (7 days)</p>
+              <div class="text-2xl sm:text-3xl font-bold text-amber-600 dark:text-amber-400 transition-colors duration-200">{{ dueSoon }}</div>
+              <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-[#8b949e] mt-1 transition-colors duration-200">Due (7 days)</p>
             </div>
-            <div class="glass-card p-5">
+            <div class="glass-card dark:bg-[#161b22] dark:border-[#30363d] p-5 transition-colors duration-200">
               <div class="flex items-center justify-between mb-2">
-                <div class="stat-card-icon bg-red-100 text-red-600">
+                <div class="stat-card-icon bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
                   <i class="fas fa-triangle-exclamation"></i>
                 </div>
               </div>
-              <div class="text-2xl sm:text-3xl font-bold text-red-600">{{ overdue }}</div>
-              <p class="text-xs uppercase tracking-wide text-slate-500 mt-1">Overdue</p>
+              <div class="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400 transition-colors duration-200">{{ overdue }}</div>
+              <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-[#8b949e] mt-1 transition-colors duration-200">Overdue</p>
             </div>
           </div>
 
           <!-- Filters Section -->
-          <div class="glass-card p-4 sm:p-5 mb-6">
+          <div class="glass-card dark:bg-[#161b22] dark:border-[#30363d] p-4 sm:p-5 mb-6 transition-colors duration-200">
             <div class="flex flex-col lg:flex-row gap-4">
               <div class="flex-1 relative">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#8b949e]"></i>
                 <input
                   type="text"
                   v-model="searchQuery"
                   placeholder="Search by plate, type, or service..."
-                  class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent"
+                  class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-[#30363d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] dark:focus:ring-[#3fb950] focus:border-transparent bg-white dark:bg-[#1c2128] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] transition-colors duration-200"
                 >
               </div>
 
               <div class="flex items-center gap-2 flex-wrap">
-                <select v-model="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                <select v-model="filterStatus" class="px-4 py-2 border border-gray-300 dark:border-[#30363d] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1c2128] transition-colors text-sm bg-white dark:bg-[#1c2128] text-gray-900 dark:text-[#e6edf3]">
                   <option value="">All Status</option>
                   <option value="overdue">Overdue</option>
                   <option value="due-soon">Due Soon</option>
                   <option value="up-to-date">Up to Date</option>
                 </select>
 
-                <select v-model="filterType" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                <select v-model="filterType" class="px-4 py-2 border border-gray-300 dark:border-[#30363d] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1c2128] transition-colors text-sm bg-white dark:bg-[#1c2128] text-gray-900 dark:text-[#e6edf3]">
                   <option value="">All Types</option>
                   <option value="car">Car</option>
                   <option value="van">Van</option>
@@ -96,7 +96,7 @@
 
                 <button 
                   @click="clearFilters" 
-                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  class="px-4 py-2 border border-gray-300 dark:border-[#30363d] rounded-lg hover:bg-gray-50 dark:hover:bg-[#1c2128] transition-colors text-gray-700 dark:text-[#e6edf3]"
                 >
                   <i class="fas fa-times mr-2"></i>
                   <span class="hidden sm:inline">Clear</span>
@@ -134,16 +134,16 @@
               <div
                 v-for="maintenance in filteredMaintenanceData"
                 :key="maintenance.id"
-                class="glass-card p-6 hover:-translate-y-1 transition-all duration-300"
+                class="glass-card dark:bg-[#161b22] dark:border-[#30363d] p-6 hover:-translate-y-1 transition-all duration-300"
               >
                 <div class="flex justify-between items-start mb-4">
                   <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 dark:from-[#2d4a2f] dark:to-[#1a2f23] text-white flex items-center justify-center">
                       <i class="fas fa-car-side"></i>
                     </div>
                     <div>
-                      <h3 class="text-base sm:text-lg font-bold text-slate-900">{{ maintenance.vehicle_plate }}</h3>
-                      <p class="text-xs sm:text-sm text-slate-500">{{ maintenance.vehicle_type }}</p>
+                      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-[#e6edf3] transition-colors duration-200">{{ maintenance.vehicle_plate }}</h3>
+                      <p class="text-xs sm:text-sm text-slate-500 dark:text-[#8b949e] transition-colors duration-200">{{ maintenance.vehicle_type }}</p>
                     </div>
                   </div>
                   <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
@@ -153,13 +153,13 @@
                   </span>
                 </div>
 
-                <div class="my-4 p-3 rounded-xl bg-slate-50 border border-white/50">
-                  <div class="flex items-center justify-between text-sm text-slate-600 mb-2">
+                <div class="my-4 p-3 rounded-xl bg-slate-50 dark:bg-[#1c2128] border border-white/50 dark:border-[#30363d] transition-colors duration-200">
+                  <div class="flex items-center justify-between text-sm text-slate-600 dark:text-[#8b949e] mb-2 transition-colors duration-200">
                     <span>Next Service Due</span>
-                    <span class="font-semibold text-slate-900">{{ formatDate(maintenance.next_due_date || maintenance.next_service_due) }}</span>
+                    <span class="font-semibold text-slate-900 dark:text-[#e6edf3] transition-colors duration-200">{{ formatDate(maintenance.next_due_date || maintenance.next_service_due) }}</span>
                   </div>
                   <div class="flex items-center gap-3 text-sm">
-                    <div class="flex items-center gap-1 text-emerald-600 font-semibold">
+                    <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold transition-colors duration-200">
                       <i class="fas fa-calendar-check"></i>
                       {{ calculateDaysUntil(maintenance.next_due_date || maintenance.next_service_due) }} days left
                     </div>
@@ -169,26 +169,26 @@
                   </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 text-sm text-slate-600 mb-3">
+                <div class="grid grid-cols-2 gap-3 text-sm text-slate-600 dark:text-[#8b949e] mb-3 transition-colors duration-200">
                   <div>
-                    <p class="text-xs uppercase text-slate-400">Service Type</p>
-                    <p class="font-semibold text-slate-900">{{ maintenance.service_type }}</p>
+                    <p class="text-xs uppercase text-slate-400 dark:text-[#6e7681] transition-colors duration-200">Service Type</p>
+                    <p class="font-semibold text-slate-900 dark:text-[#e6edf3] transition-colors duration-200">{{ maintenance.service_type }}</p>
                   </div>
                   <div>
-                    <p class="text-xs uppercase text-slate-400">Interval</p>
-                    <p class="font-semibold text-slate-900">{{ maintenance.interval_days }} days</p>
+                    <p class="text-xs uppercase text-slate-400 dark:text-[#6e7681] transition-colors duration-200">Interval</p>
+                    <p class="font-semibold text-slate-900 dark:text-[#e6edf3] transition-colors duration-200">{{ maintenance.interval_days }} days</p>
                   </div>
                   <div>
-                    <p class="text-xs uppercase text-slate-400">Estimated Cost</p>
-                    <p class="font-semibold text-slate-900">₱{{ maintenance.estimated_cost?.toLocaleString() || '0' }}</p>
+                    <p class="text-xs uppercase text-slate-400 dark:text-[#6e7681] transition-colors duration-200">Estimated Cost</p>
+                    <p class="font-semibold text-slate-900 dark:text-[#e6edf3] transition-colors duration-200">₱{{ maintenance.estimated_cost?.toLocaleString() || '0' }}</p>
                   </div>
                   <div>
-                    <p class="text-xs uppercase text-slate-400">Last Service</p>
-                    <p class="font-semibold text-slate-900">{{ formatDate(maintenance.last_service_date) }}</p>
+                    <p class="text-xs uppercase text-slate-400 dark:text-[#6e7681] transition-colors duration-200">Last Service</p>
+                    <p class="font-semibold text-slate-900 dark:text-[#e6edf3] transition-colors duration-200">{{ formatDate(maintenance.last_service_date) }}</p>
                   </div>
                 </div>
 
-                <div v-if="maintenance.notes" class="mb-4 p-3 rounded-xl bg-amber-50/80 text-amber-900 text-sm border border-amber-100">
+                <div v-if="maintenance.notes" class="mb-4 p-3 rounded-xl bg-amber-50/80 dark:bg-amber-900/20 text-amber-900 dark:text-amber-200 text-sm border border-amber-100 dark:border-amber-800 transition-colors duration-200">
                   <i class="fas fa-sticky-note mr-2"></i>
                   {{ maintenance.notes }}
                 </div>
@@ -224,10 +224,9 @@
     </main>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showAddModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
-      <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div class="py-4 px-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-br text-white rounded-t-lg"
-             style="background: linear-gradient(135deg, #0A400C, #155c1a);">
+    <div v-if="showAddModal" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm p-4 transition-colors duration-200">
+      <div class="bg-white dark:bg-[#161b22] rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transition-colors duration-200">
+        <div class="py-4 px-6 border-b border-gray-200 dark:border-[#30363d] flex justify-between items-center bg-gradient-to-br from-green-800 to-green-600 dark:from-[#1a2f23] dark:to-[#0f1e13] text-white rounded-t-lg transition-colors duration-200">
           <h3 class="m-0 text-lg font-semibold">
             {{ editingId ? 'Edit Maintenance Schedule' : 'Add Maintenance Schedule' }}
           </h3>
@@ -236,13 +235,13 @@
           </button>
         </div>
 
-        <form @submit.prevent="saveMaintenance" class="p-6 space-y-4">
+        <form @submit.prevent="saveMaintenance" class="p-6 space-y-4 bg-white dark:bg-[#0d1117] transition-colors duration-200">
           <!-- Select Vehicle -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Select Vehicle *</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-[#e6edf3] mb-2 transition-colors duration-200">Select Vehicle *</label>
             <select
               v-model="formData.vehicle_id"
-              class="w-full py-2.5 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-4"
+              class="w-full py-2.5 px-3 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm focus:outline-none focus:ring-4 dark:focus:ring-[#3fb950] bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] transition-colors duration-200"
               style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
               :style="{ 'border-color': formData.vehicle_id ? '#0A400C' : '' }"
               required
@@ -256,10 +255,10 @@
 
           <!-- Service Type -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Service Type *</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-[#e6edf3] mb-2 transition-colors duration-200">Service Type *</label>
             <select
               v-model="formData.service_type"
-              class="w-full py-2.5 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-4"
+              class="w-full py-2.5 px-3 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950] bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] transition-colors duration-200"
               style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
               :style="{ 'border-color': formData.service_type ? '#0A400C' : '' }"
               required
@@ -280,11 +279,11 @@
 
           <!-- Last Service Date -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Last Service Date *</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-[#e6edf3] mb-2 transition-colors duration-200">Last Service Date *</label>
             <input
               v-model="formData.last_service_date"
               type="date"
-              class="w-full py-2.5 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-4"
+              class="w-full py-2.5 px-3 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950] bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] transition-colors duration-200"
               style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
               :style="{ 'border-color': formData.last_service_date ? '#0A400C' : '' }"
               required
@@ -293,12 +292,12 @@
 
           <!-- Interval Days -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Interval (days) *</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-[#e6edf3] mb-2 transition-colors duration-200">Interval (days) *</label>
             <input
               v-model="formData.interval_days"
               type="number"
               placeholder="e.g., 90 for every 3 months"
-              class="w-full py-2.5 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-4"
+              class="w-full py-2.5 px-3 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950] bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] transition-colors duration-200"
               style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
               :style="{ 'border-color': formData.interval_days ? '#0A400C' : '' }"
               required
@@ -307,13 +306,13 @@
 
           <!-- Estimated Cost -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Estimated Cost (₱)</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-[#e6edf3] mb-2 transition-colors duration-200">Estimated Cost (₱)</label>
             <input
               v-model="formData.estimated_cost"
               type="number"
               step="0.01"
               placeholder="0.00"
-              class="w-full py-2.5 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-4"
+              class="w-full py-2.5 px-3 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950] bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] transition-colors duration-200"
               style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
               :style="{ 'border-color': formData.estimated_cost ? '#0A400C' : '' }"
             />
@@ -321,22 +320,22 @@
 
           <!-- Notes -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-[#e6edf3] mb-2 transition-colors duration-200">Notes</label>
             <textarea
               v-model="formData.notes"
               placeholder="Additional maintenance notes..."
-              class="w-full py-2.5 px-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-4 resize-y min-h-16"
+              class="w-full py-2.5 px-3 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950] resize-y min-h-16 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] transition-colors duration-200"
               style="--tw-ring-color: rgba(10, 64, 12, 0.1);"
               rows="3"
             ></textarea>
           </div>
 
           <!-- Buttons -->
-          <div class="flex gap-3 pt-4 border-t border-gray-200">
+          <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-[#30363d] transition-colors duration-200">
             <button
               type="button"
               @click="closeModal"
-              class="flex-1 bg-slate-500/10 text-slate-600 border border-slate-500/20 py-2.5 px-4 rounded-lg cursor-pointer font-medium transition-all duration-200 text-sm hover:bg-slate-500/20"
+              class="flex-1 bg-slate-500/10 dark:bg-[#1c2128] text-slate-600 dark:text-[#e6edf3] border border-slate-500/20 dark:border-[#30363d] py-2.5 px-4 rounded-lg cursor-pointer font-medium transition-all duration-200 text-sm hover:bg-slate-500/20 dark:hover:bg-[#21262d]"
             >
               Cancel
             </button>

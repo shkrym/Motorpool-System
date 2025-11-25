@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme=forest], [data-theme=forest] *));
+
 :root {
   --page-hero-border: rgba(255, 255, 255, 0.2);
 }
@@ -91,6 +93,19 @@
   border: 1px solid rgba(255, 255, 255, 0.45);
   box-shadow: 0 25px 45px rgba(13, 148, 136, 0.08);
   backdrop-filter: blur(18px);
+}
+
+/* Dark mode override for glass-card */
+.dark .glass-card {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="forest"] .glass-card {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3) !important;
 }
 
 .stat-card-icon {

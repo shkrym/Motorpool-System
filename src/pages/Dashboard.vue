@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 font-sans">
+  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 dark:from-[#0d1117] dark:via-[#0d1117] dark:to-[#161b22] transition-colors duration-200">
     <Navbar 
       :sidebarCollapsed="sidebarCollapsed"
       :sidebarOpen="sidebarOpen"
@@ -27,6 +27,13 @@
           </template>
           <template #actions>
             <div class="hidden sm:flex items-center gap-3">
+              <button 
+                @click="toggleDarkMode" 
+                class="flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                :title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+              >
+                <i :class="isDark ? 'fas fa-sun' : 'fas fa-moon'" class="text-white"></i>
+              </button>
               <div class="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-lg">
                 <div class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
                 <span class="text-xs text-green-100 font-medium">System Active</span>
@@ -41,69 +48,69 @@
       </div>
       
       <!-- Content Body -->
-      <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-green-100/80">
+      <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-green-100/80 dark:bg-[#0d1117] transition-colors duration-200">
         <div class="mx-auto max-w-7xl space-y-6">
           
           <!-- Stats Grid -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
             <!-- Total Vehicles -->
-            <div class="relative overflow-hidden rounded-xl bg-white p-4 md:p-6 shadow-lg border border-white/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-              <div class="absolute top-0 right-0 w-20 h-20 bg-[#0A400C] opacity-5 rounded-full -mr-10 -mt-10"></div>
+            <div class="relative overflow-hidden rounded-xl bg-white dark:bg-[#161b22] p-4 md:p-6 shadow-lg border border-white/30 dark:border-[#30363d] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-[#0A400C] dark:bg-[#1a2f23] opacity-5 rounded-full -mr-10 -mt-10"></div>
               <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-white shadow-lg" style="background-color: #0A400C;">
-                  <i class="fas fa-car text-base md:text-xl"></i>
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-white shadow-lg bg-green-900 dark:bg-[#1a2f23] transition-colors duration-200">
+                  <i class="fas fa-car text-base md:text-xl dark:text-[#3fb950]"></i>
                 </div>
-                <span class="text-xs font-medium px-2 py-1 bg-green-100 text-green-700 rounded-full">Fleet</span>
+                <span class="text-xs font-medium px-2 py-1 bg-green-100 dark:bg-[#1c2128] text-green-700 dark:text-[#3fb950] rounded-full transition-colors duration-200 border dark:border-[#30363d]">Fleet</span>
               </div>
-              <h3 class="text-2xl md:text-3xl font-bold mb-1" style="color: #0A400C;">{{ vehicleStats.total }}</h3>
-              <p class="text-xs md:text-sm text-gray-600 font-medium">Total Vehicles</p>
+              <h3 class="text-2xl md:text-3xl font-bold mb-1 text-green-900 dark:text-[#e6edf3] transition-colors duration-200">{{ vehicleStats.total }}</h3>
+              <p class="text-xs md:text-sm text-gray-600 dark:text-[#8b949e] font-medium transition-colors duration-200">Total Vehicles</p>
             </div>
 
             <!-- Available -->
-            <div class="relative overflow-hidden rounded-xl bg-white p-4 md:p-6 shadow-lg border border-white/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-              <div class="absolute top-0 right-0 w-20 h-20 bg-green-500 opacity-5 rounded-full -mr-10 -mt-10"></div>
+            <div class="relative overflow-hidden rounded-xl bg-white dark:bg-[#161b22] p-4 md:p-6 shadow-lg border border-white/30 dark:border-[#30363d] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-green-500 dark:bg-[#1a2f23] opacity-5 rounded-full -mr-10 -mt-10"></div>
               <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg">
-                  <i class="fas fa-check-circle text-base md:text-xl"></i>
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600 dark:from-[#1a2f23] dark:to-[#0f1e13] text-white shadow-lg">
+                  <i class="fas fa-check-circle text-base md:text-xl dark:text-[#3fb950]"></i>
                 </div>
-                <span class="text-xs font-medium px-2 py-1 bg-green-100 text-green-700 rounded-full">Ready</span>
+                <span class="text-xs font-medium px-2 py-1 bg-green-100 dark:bg-[#1c2128] text-green-700 dark:text-[#3fb950] rounded-full transition-colors duration-200 border dark:border-[#30363d]">Ready</span>
               </div>
-              <h3 class="text-2xl md:text-3xl font-bold text-green-600 mb-1">{{ vehicleStats.available }}</h3>
-              <p class="text-xs md:text-sm text-gray-600 font-medium">Available Now</p>
-              <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-green-500 h-1.5 rounded-full transition-all duration-500" :style="{ width: availabilityPercentage + '%' }"></div>
+              <h3 class="text-2xl md:text-3xl font-bold text-green-600 dark:text-[#3fb950] mb-1 transition-colors duration-200">{{ vehicleStats.available }}</h3>
+              <p class="text-xs md:text-sm text-gray-600 dark:text-[#8b949e] font-medium transition-colors duration-200">Available Now</p>
+              <div class="mt-2 w-full bg-gray-200 dark:bg-[#1c2128] rounded-full h-1.5 transition-colors duration-200">
+                <div class="bg-green-500 dark:bg-[#3fb950] h-1.5 rounded-full transition-all duration-500" :style="{ width: availabilityPercentage + '%' }"></div>
               </div>
             </div>
 
             <!-- In Use -->
-            <div class="relative overflow-hidden rounded-xl bg-white p-4 md:p-6 shadow-lg border border-white/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-              <div class="absolute top-0 right-0 w-20 h-20 bg-orange-500 opacity-5 rounded-full -mr-10 -mt-10"></div>
+            <div class="relative overflow-hidden rounded-xl bg-white dark:bg-[#161b22] p-4 md:p-6 shadow-lg border border-white/30 dark:border-[#30363d] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-orange-500 dark:bg-[#2d4a2f] opacity-5 rounded-full -mr-10 -mt-10"></div>
               <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg">
-                  <i class="fas fa-road text-base md:text-xl"></i>
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-orange-500 to-orange-600 dark:from-[#2d4a2f] dark:to-[#1a2f23] text-white shadow-lg">
+                  <i class="fas fa-road text-base md:text-xl dark:text-[#6fc276]"></i>
                 </div>
-                <span class="text-xs font-medium px-2 py-1 bg-orange-100 text-orange-700 rounded-full">Active</span>
+                <span class="text-xs font-medium px-2 py-1 bg-orange-100 dark:bg-[#1c2128] text-orange-700 dark:text-[#6fc276] rounded-full transition-colors duration-200 border dark:border-[#30363d]">Active</span>
               </div>
-              <h3 class="text-2xl md:text-3xl font-bold text-orange-600 mb-1">{{ vehicleStats.inUse }}</h3>
-              <p class="text-xs md:text-sm text-gray-600 font-medium">Currently In Use</p>
-              <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-orange-500 h-1.5 rounded-full transition-all duration-500" :style="{ width: inUsePercentage + '%' }"></div>
+              <h3 class="text-2xl md:text-3xl font-bold text-orange-600 dark:text-[#6fc276] mb-1 transition-colors duration-200">{{ vehicleStats.inUse }}</h3>
+              <p class="text-xs md:text-sm text-gray-600 dark:text-[#8b949e] font-medium transition-colors duration-200">Currently In Use</p>
+              <div class="mt-2 w-full bg-gray-200 dark:bg-[#1c2128] rounded-full h-1.5 transition-colors duration-200">
+                <div class="bg-orange-500 dark:bg-[#6fc276] h-1.5 rounded-full transition-all duration-500" :style="{ width: inUsePercentage + '%' }"></div>
               </div>
             </div>
 
             <!-- Maintenance -->
-            <div class="relative overflow-hidden rounded-xl bg-white p-4 md:p-6 shadow-lg border border-white/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-              <div class="absolute top-0 right-0 w-20 h-20 bg-red-500 opacity-5 rounded-full -mr-10 -mt-10"></div>
+            <div class="relative overflow-hidden rounded-xl bg-white dark:bg-[#161b22] p-4 md:p-6 shadow-lg border border-white/30 dark:border-[#30363d] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-red-500 dark:bg-[#1a2a1f] opacity-5 rounded-full -mr-10 -mt-10"></div>
               <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg">
-                  <i class="fas fa-wrench text-base md:text-xl"></i>
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-red-500 to-red-600 dark:from-[#1a2a1f] dark:to-[#0f1a13] text-white shadow-lg">
+                  <i class="fas fa-wrench text-base md:text-xl dark:text-[#8fbc8f]"></i>
                 </div>
-                <span class="text-xs font-medium px-2 py-1 bg-red-100 text-red-700 rounded-full">Service</span>
+                <span class="text-xs font-medium px-2 py-1 bg-red-100 dark:bg-[#1c2128] text-red-700 dark:text-[#8fbc8f] rounded-full transition-colors duration-200 border dark:border-[#30363d]">Service</span>
               </div>
-              <h3 class="text-2xl md:text-3xl font-bold text-red-600 mb-1">{{ vehicleStats.maintenance }}</h3>
-              <p class="text-xs md:text-sm text-gray-600 font-medium">Under Maintenance</p>
-              <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5">
-                <div class="bg-red-500 h-1.5 rounded-full transition-all duration-500" :style="{ width: maintenancePercentage + '%' }"></div>
+              <h3 class="text-2xl md:text-3xl font-bold text-red-600 dark:text-[#8fbc8f] mb-1 transition-colors duration-200">{{ vehicleStats.maintenance }}</h3>
+              <p class="text-xs md:text-sm text-gray-600 dark:text-[#8b949e] font-medium transition-colors duration-200">Under Maintenance</p>
+              <div class="mt-2 w-full bg-gray-200 dark:bg-[#1c2128] rounded-full h-1.5 transition-colors duration-200">
+                <div class="bg-red-500 dark:bg-[#8fbc8f] h-1.5 rounded-full transition-all duration-500" :style="{ width: maintenancePercentage + '%' }"></div>
               </div>
             </div>
           </div>
@@ -112,30 +119,30 @@
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             
             <!-- Recent Activity - Takes 2 columns on large screens -->
-            <div class="lg:col-span-2 rounded-xl bg-white p-5 md:p-6 shadow-lg border border-white/30">
+            <div class="lg:col-span-2 rounded-xl bg-white dark:bg-[#161b22] p-5 md:p-6 shadow-lg border border-white/30 dark:border-[#30363d] transition-colors duration-200">
               <div class="flex items-center justify-between mb-5">
-                <h3 class="text-lg md:text-xl font-bold flex items-center" style="color: #0A400C;">
-                  <i class="fas fa-history mr-2 text-yellow-500"></i>
+                <h3 class="text-lg md:text-xl font-bold flex items-center text-green-900 dark:text-[#e6edf3] transition-colors duration-200">
+                  <i class="fas fa-history mr-2 text-yellow-500 dark:text-[#6fc276]"></i>
                   Recent Activity
                 </h3>
-                <button class="text-xs text-gray-600 hover:text-[#0A400C] font-medium transition-colors">View All</button>
+                <button class="text-xs text-gray-600 dark:text-[#8b949e] hover:text-green-900 dark:hover:text-[#3fb950] font-medium transition-colors">View All</button>
               </div>
               
               <div class="space-y-3">
-                <div v-if="recentActivity.length === 0" class="text-center py-12 text-gray-400">
+                <div v-if="recentActivity.length === 0" class="text-center py-12 text-gray-400 dark:text-[#6e7681]">
                   <i class="fas fa-clipboard-list text-4xl mb-3 opacity-30"></i>
                   <p class="text-sm font-medium">No recent activity</p>
                   <p class="text-xs mt-1">Activity will appear here as actions are performed</p>
                 </div>
                 
                 <div v-else v-for="activity in recentActivity.slice(0, 6)" :key="activity.id" 
-                     class="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                     class="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-[#1c2128] transition-colors border border-gray-100 dark:border-[#30363d]">
                   <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs flex-shrink-0" :class="getActivityIconClass(activity.type)">
                     <i :class="getActivityIcon(activity.type)"></i>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-800 mb-1">{{ activity.description }}</p>
-                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <p class="text-sm font-medium text-gray-800 dark:text-[#e6edf3] mb-1 transition-colors duration-200">{{ activity.description }}</p>
+                    <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-[#8b949e] transition-colors duration-200">
                       <span>{{ activity.user || 'System' }}</span>
                       <span>•</span>
                       <span>{{ formatRelativeTime(activity.created_at) }}</span>
@@ -148,21 +155,21 @@
             <!-- Quick Actions & Status -->
             <div class="space-y-4 md:space-y-6">
               <!-- Quick Actions -->
-              <div class="rounded-xl bg-white p-5 md:p-6 shadow-lg border border-white/30">
-                <h3 class="text-lg md:text-xl font-bold mb-4 flex items-center" style="color: #0A400C;">
-                  <i class="fas fa-bolt mr-2 text-yellow-500"></i>
+              <div class="rounded-xl bg-white dark:bg-[#161b22] p-5 md:p-6 shadow-lg border border-white/30 dark:border-[#30363d] transition-colors duration-200">
+                <h3 class="text-lg md:text-xl font-bold mb-4 flex items-center text-green-900 dark:text-[#e6edf3] transition-colors duration-200">
+                  <i class="fas fa-bolt mr-2 text-yellow-500 dark:text-[#6fc276]"></i>
                   Quick Actions
                 </h3>
                 <div class="space-y-2.5">
-                  <button @click="navigateToVehicles" class="w-full flex items-center gap-3 rounded-lg text-white p-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm" style="background-color: #0A400C;">
+                  <button @click="navigateToVehicles" class="w-full flex items-center gap-3 rounded-lg text-white p-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm bg-green-900 dark:bg-[#238636] dark:hover:bg-[#2ea043]">
                     <i class="fas fa-plus text-sm"></i>
                     <span>Add Vehicle</span>
                   </button>
-                  <button @click="navigateToFuelLogs" class="w-full flex items-center gap-3 rounded-lg bg-gradient-to-br from-green-500 to-green-600 text-white p-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm">
+                  <button @click="navigateToFuelLogs" class="w-full flex items-center gap-3 rounded-lg bg-gradient-to-br from-green-500 to-green-600 dark:from-[#238636] dark:to-[#2ea043] text-white p-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm">
                     <i class="fas fa-gas-pump text-sm"></i>
                     <span>Log Fuel</span>
                   </button>
-                  <button @click="navigateToMaintenance" class="w-full flex items-center gap-3 rounded-lg bg-gradient-to-br from-red-500 to-red-600 text-white p-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm">
+                  <button @click="navigateToMaintenance" class="w-full flex items-center gap-3 rounded-lg bg-gradient-to-br from-red-500 to-red-600 dark:from-[#2d4a2f] dark:to-[#1a2f23] text-white p-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm">
                     <i class="fas fa-wrench text-sm"></i>
                     <span>Schedule Service</span>
                   </button>
@@ -170,32 +177,32 @@
               </div>
 
               <!-- Fleet Status Overview -->
-              <div class="rounded-xl bg-white p-5 md:p-6 shadow-lg border border-white/30">
-                <h3 class="text-lg md:text-xl font-bold mb-4 flex items-center" style="color: #0A400C;">
-                  <i class="fas fa-chart-pie mr-2 text-yellow-500"></i>
+              <div class="rounded-xl bg-white dark:bg-[#161b22] p-5 md:p-6 shadow-lg border border-white/30 dark:border-[#30363d] transition-colors duration-200">
+                <h3 class="text-lg md:text-xl font-bold mb-4 flex items-center text-green-900 dark:text-[#e6edf3] transition-colors duration-200">
+                  <i class="fas fa-chart-pie mr-2 text-yellow-500 dark:text-[#6fc276]"></i>
                   Fleet Status
                 </h3>
                 <div class="space-y-3">
-                  <div class="flex items-center justify-between p-2 rounded-lg bg-green-50">
+                  <div class="flex items-center justify-between p-2 rounded-lg bg-green-50 dark:bg-[#1c2128] transition-colors duration-200">
                     <div class="flex items-center gap-2">
-                      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span class="text-sm font-medium text-gray-700">Available</span>
+                      <div class="w-2 h-2 bg-green-500 dark:bg-[#3fb950] rounded-full"></div>
+                      <span class="text-sm font-medium text-gray-700 dark:text-[#e6edf3] transition-colors duration-200">Available</span>
                     </div>
-                    <span class="text-sm font-bold text-green-600">{{ availabilityPercentage }}%</span>
+                    <span class="text-sm font-bold text-green-600 dark:text-[#3fb950] transition-colors duration-200">{{ availabilityPercentage }}%</span>
                   </div>
-                  <div class="flex items-center justify-between p-2 rounded-lg bg-orange-50">
+                  <div class="flex items-center justify-between p-2 rounded-lg bg-orange-50 dark:bg-[#1c2128] transition-colors duration-200">
                     <div class="flex items-center gap-2">
-                      <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span class="text-sm font-medium text-gray-700">In Use</span>
+                      <div class="w-2 h-2 bg-orange-500 dark:bg-[#6fc276] rounded-full"></div>
+                      <span class="text-sm font-medium text-gray-700 dark:text-[#e6edf3] transition-colors duration-200">In Use</span>
                     </div>
-                    <span class="text-sm font-bold text-orange-600">{{ inUsePercentage }}%</span>
+                    <span class="text-sm font-bold text-orange-600 dark:text-[#6fc276] transition-colors duration-200">{{ inUsePercentage }}%</span>
                   </div>
-                  <div class="flex items-center justify-between p-2 rounded-lg bg-red-50">
+                  <div class="flex items-center justify-between p-2 rounded-lg bg-red-50 dark:bg-[#1c2128] transition-colors duration-200">
                     <div class="flex items-center gap-2">
-                      <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <span class="text-sm font-medium text-gray-700">Maintenance</span>
+                      <div class="w-2 h-2 bg-red-500 dark:bg-[#8fbc8f] rounded-full"></div>
+                      <span class="text-sm font-medium text-gray-700 dark:text-[#e6edf3] transition-colors duration-200">Maintenance</span>
                     </div>
-                    <span class="text-sm font-bold text-red-600">{{ maintenancePercentage }}%</span>
+                    <span class="text-sm font-bold text-red-600 dark:text-[#8fbc8f] transition-colors duration-200">{{ maintenancePercentage }}%</span>
                   </div>
                 </div>
               </div>
@@ -205,14 +212,14 @@
           <!-- Additional Info Cards -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
             <!-- Fuel Usage -->
-            <div class="rounded-xl bg-white p-5 shadow-lg border border-white/30">
+            <div class="rounded-xl bg-white dark:bg-[#161b22] p-5 shadow-lg border border-white/30 dark:border-[#30363d] transition-colors duration-200">
               <div class="flex items-center justify-between mb-3">
-                <h4 class="text-sm font-bold text-gray-700">Monthly Fuel Usage</h4>
-                <i class="fas fa-gas-pump text-green-500"></i>
+                <h4 class="text-sm font-bold text-gray-700 dark:text-[#e6edf3] transition-colors duration-200">Monthly Fuel Usage</h4>
+                <i class="fas fa-gas-pump text-green-500 dark:text-[#3fb950]"></i>
               </div>
-              <p class="text-2xl font-bold" style="color: #0A400C;">{{ fuelStats.monthly }} L</p>
-              <p class="text-xs text-gray-500 mt-1">
-                <span :class="fuelStats.trend >= 0 ? 'text-red-500' : 'text-green-500'">
+              <p class="text-2xl font-bold text-green-900 dark:text-[#3fb950] transition-colors duration-200">{{ fuelStats.monthly }} L</p>
+              <p class="text-xs text-gray-500 dark:text-[#8b949e] mt-1 transition-colors duration-200">
+                <span :class="fuelStats.trend >= 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-[#3fb950]'">
                   <i :class="fuelStats.trend >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
                   {{ Math.abs(fuelStats.trend) }}%
                 </span>
@@ -221,24 +228,24 @@
             </div>
 
             <!-- Maintenance Due -->
-            <div class="rounded-xl bg-white p-5 shadow-lg border border-white/30">
+            <div class="rounded-xl bg-white dark:bg-[#161b22] p-5 shadow-lg border border-white/30 dark:border-[#30363d] transition-colors duration-200">
               <div class="flex items-center justify-between mb-3">
-                <h4 class="text-sm font-bold text-gray-700">Maintenance Due</h4>
-                <i class="fas fa-calendar-alt text-red-500"></i>
+                <h4 class="text-sm font-bold text-gray-700 dark:text-[#e6edf3] transition-colors duration-200">Maintenance Due</h4>
+                <i class="fas fa-calendar-alt text-red-500 dark:text-[#8fbc8f]"></i>
               </div>
-              <p class="text-2xl font-bold text-red-600">{{ maintenanceStats.dueSoon }}</p>
-              <p class="text-xs text-gray-500 mt-1">vehicles need service soon</p>
+              <p class="text-2xl font-bold text-red-600 dark:text-[#8fbc8f] transition-colors duration-200">{{ maintenanceStats.dueSoon }}</p>
+              <p class="text-xs text-gray-500 dark:text-[#8b949e] mt-1 transition-colors duration-200">vehicles need service soon</p>
             </div>
 
             <!-- Total Trips -->
-            <div class="rounded-xl bg-white p-5 shadow-lg border border-white/30">
+            <div class="rounded-xl bg-white dark:bg-[#161b22] p-5 shadow-lg border border-white/30 dark:border-[#30363d] transition-colors duration-200">
               <div class="flex items-center justify-between mb-3">
-                <h4 class="text-sm font-bold text-gray-700">Trips This Month</h4>
-                <i class="fas fa-route text-orange-500"></i>
+                <h4 class="text-sm font-bold text-gray-700 dark:text-[#e6edf3] transition-colors duration-200">Trips This Month</h4>
+                <i class="fas fa-route text-orange-500 dark:text-[#6fc276]"></i>
               </div>
-              <p class="text-2xl font-bold" style="color: #0A400C;">{{ tripStats.monthly }}</p>
-              <p class="text-xs text-gray-500 mt-1">
-                <span class="text-green-500">
+              <p class="text-2xl font-bold text-green-900 dark:text-[#3fb950] transition-colors duration-200">{{ tripStats.monthly }}</p>
+              <p class="text-xs text-gray-500 dark:text-[#8b949e] mt-1 transition-colors duration-200">
+                <span class="text-green-500 dark:text-[#3fb950]">
                   <i class="fas fa-arrow-up"></i>
                   {{ tripStats.trend }}%
                 </span>
@@ -258,6 +265,7 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { useSidebar } from '../composables/useSidebar'
+import { useDarkMode } from '../composables/useDarkMode'
 import Navbar from '../pages/Navbar.vue'
 import PageHeader from '../components/PageHeader.vue'
 
@@ -271,6 +279,7 @@ export default {
     const router = useRouter()
     const route = useRoute()
     const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
+    const { isDark, toggleDarkMode, loadPreference } = useDarkMode()
     
     const userProfile = ref(null)
     const userRole = ref('staff')
@@ -716,6 +725,7 @@ export default {
     }
 
     onMounted(async () => {
+      loadPreference() // Initialize dark mode
       updateCurrentDate()
       await loadUserProfile()
       await loadDashboardData()
@@ -752,7 +762,9 @@ export default {
       getActivityIconClass,
       navigateToVehicles,
       navigateToFuelLogs,
-      navigateToMaintenance
+      navigateToMaintenance,
+      isDark,
+      toggleDarkMode
     }
   }
 }
@@ -783,5 +795,18 @@ div::-webkit-scrollbar-thumb {
 
 div::-webkit-scrollbar-thumb:hover {
   background: rgba(10, 64, 12, 0.5);
+}
+
+/* Dark mode scrollbar */
+.dark div::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark div::-webkit-scrollbar-thumb {
+  background: rgba(34, 197, 94, 0.3);
+}
+
+.dark div::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 197, 94, 0.5);
 }
 </style>

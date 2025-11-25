@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 to-green-100 font-inter">
+  <div class="flex h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-[#0d1117] dark:via-[#0d1117] dark:to-[#161b22] font-inter transition-colors duration-200">
     <!-- Include Navbar Component -->
     <Navbar 
       :sidebar-collapsed="sidebarCollapsed"
@@ -13,7 +13,7 @@
     <!-- Sidebar overlay for mobile -->
     <div
       v-if="sidebarOpen && !sidebarCollapsed"
-      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+      class="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 lg:hidden transition-colors duration-200"
       @click="closeSidebar"
     ></div>
 
@@ -48,22 +48,22 @@
         <div class="max-w-7xl mx-auto">
           
           <!-- Toolbar -->
-          <div class="glass-card p-4 sm:p-5 mb-6">
+          <div class="glass-card dark:bg-[#161b22] dark:border-[#30363d] p-4 sm:p-5 mb-6 transition-colors duration-200">
             <div class="flex flex-col lg:flex-row gap-4">
               <div class="flex-1 relative">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#8b949e]"></i>
                 <input
                   type="text"
                   v-model="searchQuery"
                   placeholder="Search by vehicle, driver, or station..."
-                  class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] focus:border-transparent text-sm sm:text-base"
+                  class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-[#30363d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] dark:focus:ring-[#3fb950] focus:border-transparent text-sm sm:text-base bg-white dark:bg-[#1c2128] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] transition-colors duration-200"
                 />
               </div>
 
               <div class="flex items-center gap-2 flex-wrap">
                 <button
                   @click="showFilters = !showFilters"
-                  class="btn btn-outline text-sm"
+                  class="btn btn-outline text-sm dark:border-[#30363d] dark:text-[#e6edf3] dark:hover:bg-[#1c2128]"
                 >
                   <i class="fas fa-filter"></i>
                   <span class="hidden sm:inline">Filters</span>
@@ -72,7 +72,7 @@
                 <button 
                   @click="clearFilters"
                   v-if="hasActiveFilters"
-                  class="btn btn-outline text-sm"
+                  class="btn btn-outline text-sm dark:border-[#30363d] dark:text-[#e6edf3] dark:hover:bg-[#1c2128]"
                 >
                   <i class="fas fa-times"></i>
                   <span class="hidden sm:inline">Clear</span>
@@ -97,22 +97,22 @@
             </div>
 
             <!-- Filters Panel -->
-            <div v-if="showFilters" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mt-4 pt-4 border-t border-gray-200">
-              <select v-model="vehicleFilter" class="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]">
+            <div v-if="showFilters" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mt-4 pt-4 border-t border-gray-200 dark:border-[#30363d] transition-colors duration-200">
+              <select v-model="vehicleFilter" class="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-[#30363d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] dark:focus:ring-[#3fb950] bg-white dark:bg-[#1c2128] text-gray-900 dark:text-[#e6edf3] transition-colors duration-200">
                 <option value="">All Vehicles</option>
                 <option v-for="vehicle in vehicles" :key="vehicle.id" :value="vehicle.id">
                   {{ vehicle.plate_number }}
                 </option>
               </select>
 
-              <select v-model="driverFilter" class="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]">
+              <select v-model="driverFilter" class="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-[#30363d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] dark:focus:ring-[#3fb950] bg-white dark:bg-[#1c2128] text-gray-900 dark:text-[#e6edf3] transition-colors duration-200">
                 <option value="">All Drivers</option>
                 <option v-for="driver in drivers" :key="driver.id" :value="driver.id">
                   {{ driver.full_name }}
                 </option>
               </select>
 
-              <select v-model="dateRangeFilter" class="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C]">
+              <select v-model="dateRangeFilter" class="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-[#30363d] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A400C] dark:focus:ring-[#3fb950] bg-white dark:bg-[#1c2128] text-gray-900 dark:text-[#e6edf3] transition-colors duration-200">
                 <option value="">All Time</option>
                 <option value="today">Today</option>
                 <option value="week">This Week</option>
@@ -172,20 +172,20 @@
 
           <!-- View Toggle & Sort -->
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
-            <div class="text-xs sm:text-sm text-gray-600">
-              Showing <span class="font-semibold text-gray-900">{{ filteredLogs.length }}</span> of 
-              <span class="font-semibold text-gray-900">{{ fuelLogs.length }}</span> fuel logs
+            <div class="text-xs sm:text-sm text-gray-600 dark:text-[#8b949e] transition-colors duration-200">
+              Showing <span class="font-semibold text-gray-900 dark:text-[#e6edf3]">{{ filteredLogs.length }}</span> of 
+              <span class="font-semibold text-gray-900 dark:text-[#e6edf3]">{{ fuelLogs.length }}</span> fuel logs
             </div>
             
             <div class="flex gap-2 items-center w-full sm:w-auto">
-              <div class="view-toggle flex bg-white/90 ml-auto sm:ml-0">
+              <div class="view-toggle flex bg-white/90 dark:bg-[#161b22] ml-auto sm:ml-0 transition-colors duration-200">
                 <button @click="viewMode = 'table'" 
-                        :class="viewMode === 'table' ? 'bg-green-600 text-white' : 'text-slate-500 bg-transparent'"
+                        :class="viewMode === 'table' ? 'bg-green-600 dark:bg-[#238636] text-white' : 'text-slate-500 dark:text-[#8b949e] bg-transparent'"
                 >
                   <i class="fas fa-table"></i>
                 </button>
                 <button @click="viewMode = 'grid'" 
-                        :class="viewMode === 'grid' ? 'bg-green-600 text-white' : 'text-slate-500 bg-transparent'"
+                        :class="viewMode === 'grid' ? 'bg-green-600 dark:bg-[#238636] text-white' : 'text-slate-500 dark:text-[#8b949e] bg-transparent'"
                 >
                   <i class="fas fa-th-large"></i>
                 </button>
@@ -214,11 +214,11 @@
           </div>
 
           <!-- Desktop Table View -->
-          <div v-else-if="viewMode === 'table'" class="glass-card overflow-hidden">
+          <div v-else-if="viewMode === 'table'" class="glass-card dark:bg-[#161b22] dark:border-[#30363d] overflow-hidden transition-colors duration-200">
             <div class="overflow-x-auto">
               <table class="w-full">
                 <thead>
-                  <tr class="bg-gradient-to-br from-green-800 to-green-600 text-white">
+                  <tr class="bg-gradient-to-br from-green-800 to-green-600 dark:from-[#1a2f23] dark:to-[#0f1e13] text-white">
                     <th class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs font-semibold uppercase tracking-wider">
                       <div class="flex items-center gap-1.5 sm:gap-2">
                         <i class="fas fa-calendar text-xs"></i>
@@ -265,29 +265,29 @@
                     <th class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center text-xs font-semibold uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
-                  <tr v-for="log in sortedLogs" :key="log.id" class="hover:bg-gray-50 transition-colors">
+                <tbody class="divide-y divide-gray-200 dark:divide-[#30363d]">
+                  <tr v-for="log in sortedLogs" :key="log.id" class="hover:bg-gray-50 dark:hover:bg-[#1c2128] transition-colors">
                     <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm">
-                      <div class="font-medium text-gray-900">{{ formatDate(log.created_at) }}</div>
-                      <div class="text-gray-500 text-xs">{{ formatTime(log.created_at) }}</div>
+                      <div class="font-medium text-gray-900 dark:text-[#e6edf3] transition-colors duration-200">{{ formatDate(log.created_at) }}</div>
+                      <div class="text-gray-500 dark:text-[#8b949e] text-xs transition-colors duration-200">{{ formatTime(log.created_at) }}</div>
                     </td>
                     <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm">
                       <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
-                          <i class="fas fa-car text-green-600 text-xs"></i>
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                          <i class="fas fa-car text-green-600 dark:text-green-400 text-xs"></i>
                         </div>
                         <div class="min-w-0">
-                          <div class="font-medium text-gray-900 truncate">{{ getVehiclePlate(log.vehicle_id) }}</div>
-                          <div class="text-gray-500 text-xs truncate hidden sm:block">{{ getVehicleDetails(log.vehicle_id) }}</div>
+                          <div class="font-medium text-gray-900 dark:text-[#e6edf3] truncate transition-colors duration-200">{{ getVehiclePlate(log.vehicle_id) }}</div>
+                          <div class="text-gray-500 dark:text-[#8b949e] text-xs truncate hidden sm:block transition-colors duration-200">{{ getVehicleDetails(log.vehicle_id) }}</div>
                         </div>
                       </div>
                     </td>
                     <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm hidden md:table-cell">
                       <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-                          <i class="fas fa-user text-blue-600 text-xs"></i>
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                          <i class="fas fa-user text-blue-600 dark:text-blue-400 text-xs"></i>
                         </div>
-                        <span class="font-medium text-gray-900 truncate">{{ log.driver_name || 'N/A' }}</span>
+                        <span class="font-medium text-gray-900 dark:text-[#e6edf3] truncate transition-colors duration-200">{{ log.driver_name || 'N/A' }}</span>
                       </div>
                     </td>
                     <td class="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-xs sm:text-sm">
@@ -336,44 +336,44 @@
           <!-- Grid View -->
           <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             <div v-for="log in sortedLogs" :key="log.id" 
-                 class="glass-card p-5 sm:p-6 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                 class="glass-card dark:bg-[#161b22] dark:border-[#30363d] p-5 sm:p-6 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                 <div class="flex items-start mb-4">
                   <div class="flex items-center gap-3 min-w-0 flex-1">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center shadow-inner shrink-0">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 dark:from-[#2d4a2f] dark:to-[#1a2f23] text-white flex items-center justify-center shadow-inner shrink-0">
                       <i class="fas fa-gas-pump"></i>
                     </div>
                     <div class="min-w-0">
-                      <div class="font-bold text-gray-900 truncate">{{ getVehiclePlate(log.vehicle_id) }}</div>
-                      <div class="text-xs text-gray-500">{{ formatDate(log.created_at) }}</div>
+                      <div class="font-bold text-gray-900 dark:text-[#e6edf3] truncate transition-colors duration-200">{{ getVehiclePlate(log.vehicle_id) }}</div>
+                      <div class="text-xs text-gray-500 dark:text-[#8b949e] transition-colors duration-200">{{ formatDate(log.created_at) }}</div>
                     </div>
                   </div>
                 </div>
 
                 <div class="space-y-3 mb-4">
-                  <div class="flex justify-between items-center p-3 sm:p-3.5 bg-blue-50 rounded-lg">
+                  <div class="flex justify-between items-center p-3 sm:p-3.5 bg-blue-50 dark:bg-blue-900/30 rounded-lg transition-colors duration-200">
                     <div class="flex items-center gap-2">
-                      <i class="fas fa-tint text-blue-600 text-sm"></i>
-                      <span class="text-xs sm:text-sm text-gray-600">Volume</span>
+                      <i class="fas fa-tint text-blue-600 dark:text-blue-400 text-sm"></i>
+                      <span class="text-xs sm:text-sm text-gray-600 dark:text-[#8b949e] transition-colors duration-200">Volume</span>
                     </div>
-                    <span class="font-bold text-blue-600 text-sm sm:text-base">{{ log.liters }}L</span>
+                    <span class="font-bold text-blue-600 dark:text-blue-400 text-sm sm:text-base transition-colors duration-200">{{ log.liters }}L</span>
                   </div>
 
-                  <div class="flex justify-between items-center p-3 sm:p-3.5 bg-green-50 rounded-lg">
+                  <div class="flex justify-between items-center p-3 sm:p-3.5 bg-green-50 dark:bg-green-900/30 rounded-lg transition-colors duration-200">
                     <div class="flex items-center gap-2">
-                      <i class="fas fa-peso-sign text-green-600 text-sm"></i>
-                      <span class="text-xs sm:text-sm text-gray-600">Cost</span>
+                      <i class="fas fa-peso-sign text-green-600 dark:text-green-400 text-sm"></i>
+                      <span class="text-xs sm:text-sm text-gray-600 dark:text-[#8b949e] transition-colors duration-200">Cost</span>
                     </div>
-                    <span class="font-bold text-green-600 text-sm sm:text-base">₱{{ log.cost || 'N/A' }}</span>
+                    <span class="font-bold text-green-600 dark:text-green-400 text-sm sm:text-base transition-colors duration-200">₱{{ log.cost || 'N/A' }}</span>
                   </div>
 
                   <div class="grid grid-cols-2 gap-2 sm:gap-3">
-                    <div class="p-2.5 sm:p-3 bg-gray-50 rounded-lg">
-                      <div class="text-xs text-gray-500 mb-1">Driver</div>
-                      <div class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ log.driver_name || 'N/A' }}</div>
+                    <div class="p-2.5 sm:p-3 bg-gray-50 dark:bg-[#1c2128] rounded-lg transition-colors duration-200">
+                      <div class="text-xs text-gray-500 dark:text-[#8b949e] mb-1 transition-colors duration-200">Driver</div>
+                      <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-[#e6edf3] truncate transition-colors duration-200">{{ log.driver_name || 'N/A' }}</div>
                     </div>
-                    <div class="p-2.5 sm:p-3 bg-gray-50 rounded-lg">
-                      <div class="text-xs text-gray-500 mb-1">Odometer</div>
-                      <div class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ log.odometer ? log.odometer.toLocaleString() + ' km' : 'N/A' }}</div>
+                    <div class="p-2.5 sm:p-3 bg-gray-50 dark:bg-[#1c2128] rounded-lg transition-colors duration-200">
+                      <div class="text-xs text-gray-500 dark:text-[#8b949e] mb-1 transition-colors duration-200">Odometer</div>
+                      <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-[#e6edf3] truncate transition-colors duration-200">{{ log.odometer ? log.odometer.toLocaleString() + ' km' : 'N/A' }}</div>
                     </div>
                   </div>
 
@@ -410,10 +410,10 @@
     </main>
 
     <!-- Add/Edit Fuel Log Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-3 sm:p-4">
-      <div class="bg-white rounded-xl sm:rounded-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div v-if="showModal" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm p-3 sm:p-4 transition-colors duration-200">
+      <div class="bg-white dark:bg-[#161b22] rounded-xl sm:rounded-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl transition-colors duration-200">
         <!-- Modal Header -->
-        <div class="relative py-4 sm:py-6 px-4 sm:px-8 bg-gradient-to-br from-green-800 to-green-600 text-white">
+        <div class="relative py-4 sm:py-6 px-4 sm:px-8 bg-gradient-to-br from-green-800 to-green-600 dark:from-[#1a2f23] dark:to-[#0f1e13] text-white transition-colors duration-200">
           <div class="flex items-center justify-between">
             <div class="min-w-0 flex-1 pr-3">
               <h3 class="text-lg sm:text-2xl font-bold truncate">{{ editingLog ? 'Edit Fuel Log' : 'Add New Fuel Log' }}</h3>
@@ -429,20 +429,20 @@
           <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400"></div>
         </div>
 
-        <form @submit.prevent="submitForm" class="p-4 sm:p-6 lg:p-8">
+        <form @submit.prevent="submitForm" class="p-4 sm:p-6 lg:p-8 bg-white dark:bg-[#0d1117] transition-colors duration-200">
           <!-- Vehicle & Trip Selection -->
           <div class="mb-6">
-            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-[#e6edf3] mb-3 flex items-center gap-2 transition-colors duration-200">
               <i class="fas fa-car text-green-600"></i>
               Vehicle & Trip Information
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">
                   Vehicle *
                   <span class="text-red-500">*</span>
                 </label>
-                <select v-model="form.vehicle_id" required class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4"
+                <select v-model="form.vehicle_id" required class="py-3 px-4 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                         style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
                   <option value="">Select Vehicle</option>
                   <option v-for="vehicle in vehicles" :key="vehicle.id" :value="vehicle.id">
@@ -451,11 +451,11 @@
                 </select>
               </div>
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">
                   Associated Trip
-                  <span class="text-gray-500 text-xs font-normal">(Optional)</span>
+                  <span class="text-gray-500 dark:text-[#8b949e] text-xs font-normal">(Optional)</span>
                 </label>
-                <select v-model="form.trip_id" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4"
+                <select v-model="form.trip_id" class="py-3 px-4 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                         style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
                   <option value="">General Fuel</option>
                   <option v-for="trip in trips" :key="trip.id" :value="trip.id">
@@ -468,39 +468,39 @@
 
           <!-- Fuel Details -->
           <div class="mb-6">
-            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <i class="fas fa-gas-pump text-green-600"></i>
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-[#e6edf3] mb-3 flex items-center gap-2 transition-colors duration-200">
+              <i class="fas fa-gas-pump text-green-600 dark:text-[#3fb950]"></i>
               Fuel Details
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">
                   Liters <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
                   <input type="number" v-model.number="form.liters" step="0.01" required 
                          placeholder="50.5"
-                         class="w-full py-3 pl-4 pr-10 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4"
+                         class="w-full py-3 pl-4 pr-10 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                          style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">L</span>
+                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-[#8b949e] text-sm">L</span>
                 </div>
               </div>
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">Total Cost</label>
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">Total Cost</label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">₱</span>
+                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-[#8b949e] text-sm">₱</span>
                   <input type="number" v-model.number="form.cost" step="0.01"
                          placeholder="2500.00"
-                         class="w-full py-3 pl-8 pr-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4"
+                         class="w-full py-3 pl-8 pr-4 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                          style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
                 </div>
               </div>
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">Price per Liter</label>
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">Price per Liter</label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">₱</span>
+                  <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-[#8b949e] text-sm">₱</span>
                   <input type="text" :value="pricePerLiter" readonly
-                         class="w-full py-3 pl-8 pr-4 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-600"
+                         class="w-full py-3 pl-8 pr-4 border border-gray-200 dark:border-[#30363d] rounded-lg text-sm bg-gray-50 dark:bg-[#1c2128] text-gray-600 dark:text-[#8b949e] transition-colors duration-200"
                          placeholder="Auto-calculated">
                 </div>
               </div>
@@ -509,24 +509,24 @@
 
           <!-- Vehicle Status -->
           <div class="mb-6">
-            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <i class="fas fa-tachometer-alt text-green-600"></i>
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-[#e6edf3] mb-3 flex items-center gap-2 transition-colors duration-200">
+              <i class="fas fa-tachometer-alt text-green-600 dark:text-[#3fb950]"></i>
               Vehicle Status
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">Odometer Reading</label>
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">Odometer Reading</label>
                 <div class="relative">
                   <input type="number" v-model.number="form.odometer"
                          placeholder="45000"
-                         class="w-full py-3 pl-4 pr-12 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4"
+                         class="w-full py-3 pl-4 pr-12 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                          style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
-                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">km</span>
+                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-[#8b949e] text-sm">km</span>
                 </div>
               </div>
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">Fuel Type</label>
-                <select v-model="form.fuel_type" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4"
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">Fuel Type</label>
+                <select v-model="form.fuel_type" class="py-3 px-4 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                         style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
                   <option value="">Select Fuel Type</option>
                   <option value="gasoline">Gasoline</option>
@@ -539,14 +539,14 @@
 
           <!-- Driver & Location -->
           <div class="mb-6">
-            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <i class="fas fa-map-marker-alt text-green-600"></i>
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-[#e6edf3] mb-3 flex items-center gap-2 transition-colors duration-200">
+              <i class="fas fa-map-marker-alt text-green-600 dark:text-[#3fb950]"></i>
               Driver & Location Information
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">Driver</label>
-                <select v-model="form.driver_id" class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4"
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">Driver</label>
+                <select v-model="form.driver_id" class="py-3 px-4 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                         style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
                   <option value="">Select Driver</option>
                   <option v-for="driver in drivers" :key="driver.id" :value="driver.id">
@@ -555,10 +555,10 @@
                 </select>
               </div>
               <div class="flex flex-col gap-2">
-                <label class="font-semibold text-gray-700 text-sm">Gas Station/Location</label>
+                <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">Gas Station/Location</label>
                 <input type="text" v-model="form.station"
                        placeholder="Shell Station EDSA"
-                       class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white focus:outline-none focus:ring-4"
+                       class="py-3 px-4 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                        style="--tw-ring-color: rgba(10, 64, 12, 0.1);">
               </div>
             </div>
@@ -566,21 +566,21 @@
 
           <!-- Additional Information -->
           <div class="mb-6">
-            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <i class="fas fa-sticky-note text-green-600"></i>
+            <h4 class="text-sm font-semibold text-gray-900 dark:text-[#e6edf3] mb-3 flex items-center gap-2 transition-colors duration-200">
+              <i class="fas fa-sticky-note text-green-600 dark:text-[#3fb950]"></i>
               Additional Information
             </h4>
             <div class="flex flex-col gap-2">
-              <label class="font-semibold text-gray-700 text-sm">Notes & Remarks</label>
+              <label class="font-semibold text-gray-700 dark:text-[#e6edf3] text-sm transition-colors duration-200">Notes & Remarks</label>
               <textarea v-model="form.notes" rows="4"
                         placeholder="Add any additional notes, observations, or remarks about this fuel transaction..."
-                        class="py-3 px-4 border border-gray-300 rounded-lg text-sm transition-colors duration-200 bg-white resize-y min-h-20 focus:outline-none focus:ring-4"
+                        class="py-3 px-4 border border-gray-300 dark:border-[#30363d] rounded-lg text-sm transition-colors duration-200 bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#e6edf3] placeholder-gray-400 dark:placeholder-[#6e7681] resize-y min-h-20 focus:outline-none focus:ring-4 focus:ring-emerald-500 dark:focus:ring-[#3fb950]"
                         style="--tw-ring-color: rgba(10, 64, 12, 0.1);"></textarea>
             </div>
           </div>
 
           <!-- Form Actions -->
-          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end pt-4 sm:pt-5 border-t border-gray-200">
+          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end pt-4 sm:pt-5 border-t border-gray-200 dark:border-[#30363d] transition-colors duration-200">
             <button type="button" @click="closeModal" class="btn btn-outline text-sm sm:text-base order-2 sm:order-1">
               <i class="fas fa-times"></i>
               Cancel
@@ -597,10 +597,9 @@
     </div>
 
     <!-- View Log Detail Modal -->
-    <div v-if="viewingLog" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
-      <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div class="py-6 px-8 border-b border-gray-200 flex justify-between items-center bg-gradient-to-br text-white rounded-t-2xl"
-             style="background: linear-gradient(135deg, #0A400C, #155c1a);">
+    <div v-if="viewingLog" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm p-4 transition-colors duration-200">
+      <div class="bg-white dark:bg-[#161b22] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl transition-colors duration-200">
+        <div class="py-6 px-8 border-b border-gray-200 dark:border-[#30363d] flex justify-between items-center bg-gradient-to-br from-green-800 to-green-600 dark:from-[#1a2f23] dark:to-[#0f1e13] text-white rounded-t-2xl transition-colors duration-200">
           <div>
             <h3 class="m-0 text-xl font-semibold">Fuel Log Details</h3>
             <p class="text-sm text-white/80 mt-1">Complete transaction information</p>
@@ -705,8 +704,8 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="logToDelete" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
-      <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-scale-in">
+    <div v-if="logToDelete" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm p-4 transition-colors duration-200">
+      <div class="bg-white dark:bg-[#161b22] rounded-2xl w-full max-w-md shadow-2xl animate-scale-in transition-colors duration-200">
         <div class="py-6 px-8 border-b border-gray-200 flex justify-between items-center bg-gradient-to-br from-red-500 to-red-600 text-white rounded-t-2xl">
           <div>
             <h3 class="m-0 text-xl font-semibold">Confirm Deletion</h3>

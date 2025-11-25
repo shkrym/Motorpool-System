@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100">
+  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-200">
     <Navbar 
       :sidebar-collapsed="sidebarCollapsed"
       :sidebar-open="sidebarOpen"
@@ -60,14 +60,14 @@
       </div>
 
       <!-- Main Content -->
-      <div class="flex-1 flex overflow-hidden bg-gradient-to-br from-green-50/70 to-emerald-100/70 relative">
+      <div class="flex-1 flex overflow-hidden bg-gradient-to-br from-green-50/70 to-emerald-100/70 dark:from-gray-900/70 dark:to-gray-800/70 relative transition-colors duration-200">
         
         <!-- Map Container -->
         <div class="flex-1 relative">
           <div id="map" class="w-full h-full"></div>
           
           <!-- Map Controls -->
-          <div class="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-2 sm:p-4 space-y-1.5 sm:space-y-2 z-10">
+          <div class="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-lg shadow-xl p-2 sm:p-4 space-y-1.5 sm:space-y-2 z-10 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
             <button 
               @click="centerMap"
               class="w-full px-2 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2"
@@ -95,64 +95,78 @@
             </button>
           </div>
 
-          <!-- Selected Vehicle Info Panel -->
+          <!-- Selected Vehicle Info Panel - Bottom Left -->
           <div 
             v-if="selectedVehicle"
-            class="absolute bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-auto bg-white/95 backdrop-blur-xl rounded-lg shadow-xl p-3 sm:p-6 sm:max-w-md z-10"
+            class="absolute bottom-4 left-4 bg-white/95 dark:bg-gray-800 backdrop-blur-xl rounded-xl shadow-2xl max-w-sm w-full sm:w-auto transition-colors duration-200 animate-slide-up"
           >
-            <div class="flex justify-between items-start mb-3 sm:mb-4">
-              <div class="flex-1 min-w-0">
-                <h3 class="text-base sm:text-xl font-bold text-gray-900 truncate">{{ selectedVehicle.plate_number }}</h3>
-                <p class="text-xs sm:text-sm text-gray-600 truncate">{{ selectedVehicle.vehicle_code }}</p>
+            <!-- Header with gradient -->
+            <div class="bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 text-white p-0 rounded-t-xl">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center p-2 gap-2">
+                  <div class="w-10 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-car"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold">{{ selectedVehicle.plate_number }}</h3>
+                    <p class="text-xs text-green-100">{{ selectedVehicle.vehicle_code }}</p>
+                  </div>
+                </div>
+                <button 
+                  @click="selectedVehicle = null"
+                  class="w-10 h-10 rounded-lg mr-4 bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
               </div>
-              <button 
-                @click="selectedVehicle = null"
-                class="text-gray-400 hover:text-gray-600 transition-colors ml-2 flex-shrink-0"
-              >
-                <i class="fas fa-times"></i>
-              </button>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
-              <div>
-                <div class="text-gray-500">Type</div>
-                <div class="font-semibold truncate">{{ selectedVehicle.vehicle_type }}</div>
+            <!-- Info Grid -->
+            <div class="p-4 space-y-3">
+              <div class="grid grid-cols-2 gap-1">
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Type</div>
+                  <div class="font-semibold text-gray-900 dark:text-white text-sm">{{ selectedVehicle.vehicle_type }}</div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Status</div>
+                  <div class="font-semibold capitalize text-gray-900 dark:text-white text-sm">{{ selectedVehicle.vehicle_status }}</div>
+                </div>
               </div>
-              <div>
-                <div class="text-gray-500">Status</div>
-                <div class="font-semibold capitalize truncate">{{ selectedVehicle.vehicle_status }}</div>
+
+              <div v-if="selectedVehicle.driver_code" class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Driver</div>
+                <div class="font-semibold text-gray-900 dark:text-white text-sm">{{ selectedVehicle.driver_code }}</div>
               </div>
-              <div v-if="selectedVehicle.driver_code" class="col-span-2">
-                <div class="text-gray-500">Driver</div>
-                <div class="font-semibold truncate">{{ selectedVehicle.driver_code }}</div>
-              </div>
-              <div class="col-span-2">
-                <div class="text-gray-500">GPS Coordinates</div>
-                <div class="font-mono text-xs bg-gray-100 p-2 rounded break-all">
+
+              <div class="col-span-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">GPS Coordinates</div>
+                <div class="font-mono text-xs text-gray-900 dark:text-white">
                   {{ selectedVehicle.latitude?.toFixed(6) || 'N/A' }}, {{ selectedVehicle.longitude?.toFixed(6) || 'N/A' }}
                 </div>
               </div>
-              <div class="col-span-2">
-                <div class="text-gray-500">Last GPS Update</div>
-                <div class="font-semibold text-xs sm:text-sm">{{ formatDateTime(selectedVehicle.device_timestamp) }}</div>
+
+              <div class="col-span-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Last GPS Update</div>
+                <div class="font-semibold text-gray-900 dark:text-white text-xs">{{ formatDateTime(selectedVehicle.device_timestamp) }}</div>
               </div>
             </div>
 
-            <div class="mt-3 sm:mt-4 space-y-1.5 sm:space-y-2">
+            <!-- Action Buttons -->
+            <div class="p-4 pt-0 space-y-2">
               <button 
                 @click="centerOnVehicle"
-                class="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
+                class="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg font-medium"
               >
                 <i class="fas fa-crosshairs"></i>
-                <span>Center on Vehicle</span>
+                <span class="text-sm">Center on Vehicle</span>
               </button>
               <button 
                 @click="show24HourHistory"
-                class="w-full px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
+                class="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg font-medium"
               >
                 <i class="fas fa-history"></i>
-                <span class="hidden xs:inline">View Route History (24H)</span>
-                <span class="xs:hidden">24H History</span>
+                <span class="text-sm">24H History</span>
               </button>
             </div>
           </div>
@@ -160,7 +174,7 @@
 
         <!-- Sidebar - Vehicle List (Desktop: sidebar, Mobile: slide-out overlay from right) -->
         <div 
-          class="w-80 bg-white shadow-2xl overflow-y-auto z-30 fixed inset-y-0 right-0"
+          class="w-80 bg-white dark:bg-gray-800 shadow-2xl overflow-y-auto z-30 fixed inset-y-0 right-0 border-l border-gray-200 dark:border-gray-700 transition-colors duration-200"
           :class="{
             'translate-x-0': vehicleListOpen,
             'translate-x-full': !vehicleListOpen
@@ -168,7 +182,7 @@
           style="transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform;"
         >
           <!-- Sidebar Header - Matching System Design -->
-          <div class="p-4 border-b border-green-200 bg-gradient-to-br from-green-800 to-green-600 text-white sticky top-0 z-10 shadow-md">
+          <div class="p-4 border-b border-green-200 dark:border-gray-700 bg-gradient-to-br from-green-800 to-green-600 dark:from-green-900 dark:to-gray-800 text-white sticky top-0 z-10 shadow-md transition-colors duration-200">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shadow-inner">
@@ -194,53 +208,81 @@
             />
           </div>
 
-          <div class="p-3 sm:p-4 space-y-3 bg-gradient-to-b from-white to-green-50/30 min-h-full">
+          <!-- Vehicle Cards with Enhanced Design -->
+          <div class="p-3 space-y-2">
             <div 
               v-for="vehicle in filteredVehicles" 
               :key="vehicle.vehicle_id"
               @click="selectVehicleAndClose(vehicle)"
-              class="bg-white rounded-lg p-3 sm:p-4 border-2 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transform"
-              :class="selectedVehicle?.vehicle_id === vehicle.vehicle_id ? 'border-green-500 shadow-lg bg-green-50 scale-[1.01] ring-2 ring-green-200' : 'border-gray-200 hover:border-green-300'"
+              class="bg-white dark:bg-gray-700/50 rounded-xl p-4 border-2 cursor-pointer transition-all hover:shadow-xl hover:-translate-y-0.5 backdrop-blur-sm"
+              :class="selectedVehicle?.vehicle_id === vehicle.vehicle_id 
+                ? 'border-green-500 dark:border-green-500 shadow-xl ring-2 ring-green-500/20' 
+                : 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-700'"
             >
-              <div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
-                  <div class="font-semibold text-gray-900 truncate">{{ vehicle.plate_number }}</div>
-                  <div class="text-sm text-gray-600 truncate">{{ vehicle.vehicle_code }}</div>
-                  <div class="text-xs text-gray-500 mt-1 truncate">{{ vehicle.make }} {{ vehicle.model }}</div>
-                </div>
-                <div class="text-right flex-shrink-0 ml-2">
-                  <div :class="getStatusColor(vehicle.seconds_since_update)" class="text-xs font-semibold">
-                    {{ formatTime(vehicle.device_timestamp) }}
+              <!-- Header Row -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shadow-md flex-shrink-0">
+                    <i class="fas fa-car text-white text-sm"></i>
                   </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-bold text-gray-900 dark:text-white transition-colors duration-200 truncate">{{ vehicle.plate_number }}</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 transition-colors duration-200 truncate">{{ vehicle.vehicle_code }}</div>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1">
+                  <span 
+                    class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
+                    :class="getStatusBadgeColor(vehicle.seconds_since_update)"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDotColor(vehicle.seconds_since_update)"></span>
+                    {{ getStatusText(vehicle.seconds_since_update) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Info Grid -->
+              <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Type</div>
+                  <div class="text-xs font-semibold text-gray-900 dark:text-white truncate">{{ vehicle.vehicle_type || 'N/A' }}</div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2">
+                  <div class="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Model</div>
+                  <div class="text-xs font-semibold text-gray-900 dark:text-white truncate">{{ vehicle.make }} {{ vehicle.model }}</div>
                 </div>
               </div>
 
               <!-- Driver Info -->
-              <div v-if="vehicle.driver_code" class="mt-2 pt-2 border-t border-gray-100">
-                <div class="text-xs text-gray-600 flex items-center gap-1">
-                  <i class="fas fa-user"></i>
-                  <span class="truncate">{{ vehicle.driver_code }}</span>
-                </div>
+              <div v-if="vehicle.driver_code" class="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 mb-2">
+                <i class="fas fa-user text-blue-600 dark:text-blue-400 text-xs"></i>
+                <span class="text-xs font-medium text-blue-900 dark:text-blue-300 truncate">{{ vehicle.driver_code }}</span>
               </div>
 
-              <!-- GPS Update Time -->
-              <div class="mt-2 pt-2 border-t border-gray-100">
-                <div class="text-xs text-gray-500 flex items-center gap-1">
+              <!-- Last Update -->
+              <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <div class="flex items-center gap-1">
                   <i class="fas fa-clock"></i>
-                  <span>Updated {{ formatTime(vehicle.device_timestamp) }}</span>
+                  <span>{{ formatTime(vehicle.device_timestamp) }}</span>
+                </div>
+                <div class="flex items-center gap-1 text-green-600 dark:text-green-400">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>GPS Active</span>
                 </div>
               </div>
             </div>
 
-            <div v-if="filteredVehicles.length === 0 && !loading" class="text-center py-8 text-gray-500">
-              <div class="text-4xl mb-2">🚗</div>
-              <div class="font-semibold">No vehicles found</div>
-              <div class="text-sm mt-1">{{ vehicles.length === 0 ? 'No GPS-enabled vehicles' : 'Try a different search' }}</div>
+            <div v-if="filteredVehicles.length === 0 && !loading" class="text-center py-12 text-gray-500 dark:text-gray-400">
+              <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-search text-3xl text-gray-400 dark:text-gray-500"></i>
+              </div>
+              <div class="font-semibold text-gray-700 dark:text-gray-300">No vehicles found</div>
+              <div class="text-xs mt-1">{{ vehicles.length === 0 ? 'No GPS-enabled vehicles' : 'Try adjusting your search' }}</div>
             </div>
 
-            <div v-if="loading" class="text-center py-8 text-gray-500">
-              <i class="fas fa-spinner fa-spin text-2xl mb-2 text-green-600"></i>
-              <div class="text-sm">Loading vehicles...</div>
+            <div v-if="loading" class="text-center py-12 text-gray-500 dark:text-gray-400">
+              <i class="fas fa-spinner fa-spin text-3xl mb-3 text-green-600 dark:text-green-400"></i>
+              <div class="text-sm font-medium">Loading vehicles...</div>
             </div>
           </div>
         </div>
@@ -265,10 +307,10 @@
     </main>
 
     <!-- 24-Hour Route History Modal -->
-    <div v-if="show24HModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[70] backdrop-blur-sm p-2 sm:p-4" @click.self="close24HModal">
-      <div class="bg-white rounded-xl sm:rounded-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl">
+    <div v-if="show24HModal" class="fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-[70] backdrop-blur-sm p-2 sm:p-4 transition-colors duration-200" @click.self="close24HModal">
+      <div class="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 transition-colors duration-200">
         <!-- Modal Header -->
-        <div class="relative py-4 px-4 sm:py-6 sm:px-8 bg-gradient-to-br from-blue-800 to-blue-600 text-white">
+        <div class="relative py-4 px-4 sm:py-6 sm:px-8 bg-gradient-to-br from-blue-800 to-blue-600 dark:from-gray-900 dark:to-gray-800 text-white transition-colors duration-200">
           <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0 mr-2">
               <h3 class="text-lg sm:text-2xl font-bold truncate">24-Hour Route History</h3>
@@ -286,51 +328,51 @@
         <!-- Modal Body -->
         <div class="p-3 sm:p-6 overflow-y-auto max-h-[calc(95vh-80px)] sm:max-h-[calc(90vh-120px)]">
           <div v-if="loading24H" class="text-center py-12 sm:py-16">
-            <i class="fas fa-spinner fa-spin text-4xl sm:text-5xl mb-4 sm:mb-5 text-blue-600"></i>
-            <p class="text-sm sm:text-base text-gray-600">Loading 24-hour route history...</p>
+            <i class="fas fa-spinner fa-spin text-4xl sm:text-5xl mb-4 sm:mb-5 text-blue-600 dark:text-blue-400"></i>
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 transition-colors duration-200">Loading 24-hour route history...</p>
           </div>
 
           <div v-else-if="history24H.length === 0" class="text-center py-12 sm:py-16">
-            <i class="fas fa-route text-5xl sm:text-7xl mb-4 sm:mb-5 text-gray-300"></i>
-            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">No Route History</h3>
-            <p class="text-sm sm:text-base text-gray-600">No GPS data found for the last 24 hours</p>
+            <i class="fas fa-route text-5xl sm:text-7xl mb-4 sm:mb-5 text-gray-300 dark:text-gray-600"></i>
+            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors duration-200">No Route History</h3>
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 transition-colors duration-200">No GPS data found for the last 24 hours</p>
           </div>
 
           <div v-else>
             <!-- Summary Stats -->
             <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
-              <div class="bg-blue-50 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center">
-                <div class="text-xl sm:text-3xl font-bold text-blue-600">{{ history24H.length }}</div>
-                <div class="text-xs sm:text-sm text-gray-600 mt-1">GPS Points</div>
+              <div class="bg-blue-50 dark:bg-blue-900/30 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center transition-colors duration-200">
+                <div class="text-xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">{{ history24H.length }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">GPS Points</div>
               </div>
-              <div class="bg-green-50 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center">
-                <div class="text-xl sm:text-3xl font-bold text-green-600">{{ formatDuration(history24HDuration) }}</div>
-                <div class="text-xs sm:text-sm text-gray-600 mt-1">Duration</div>
+              <div class="bg-green-50 dark:bg-green-900/30 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center transition-colors duration-200">
+                <div class="text-xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{{ formatDuration(history24HDuration) }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">Duration</div>
               </div>
-              <div class="bg-purple-50 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center">
-                <div class="text-xl sm:text-3xl font-bold text-purple-600">{{ history24H[0]?.timestamp ? formatTime(history24H[0].timestamp) : 'N/A' }}</div>
-                <div class="text-xs sm:text-sm text-gray-600 mt-1">Latest Update</div>
+              <div class="bg-purple-50 dark:bg-purple-900/30 rounded-lg sm:rounded-xl p-2 sm:p-4 text-center transition-colors duration-200">
+                <div class="text-xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">{{ history24H[0]?.timestamp ? formatTime(history24H[0].timestamp) : 'N/A' }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">Latest Update</div>
               </div>
             </div>
 
             <!-- Route Timeline -->
-            <div class="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-6">
-              <h4 class="font-semibold text-sm sm:text-base text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
-                <i class="fas fa-map-marked-alt text-blue-600"></i>
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg sm:rounded-xl p-3 sm:p-6 transition-colors duration-200">
+              <h4 class="font-semibold text-sm sm:text-base text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2 transition-colors duration-200">
+                <i class="fas fa-map-marked-alt text-blue-600 dark:text-blue-400"></i>
                 Route Timeline
               </h4>
               <div class="space-y-1.5 sm:space-y-2 max-h-80 sm:max-h-96 overflow-y-auto">
                 <div 
                   v-for="(point, index) in history24H" 
                   :key="index"
-                  class="flex items-center gap-2 sm:gap-3 bg-white rounded-lg p-2 sm:p-3 hover:shadow-md transition-shadow"
+                  class="flex items-center gap-2 sm:gap-3 bg-white dark:bg-gray-600/50 rounded-lg p-2 sm:p-3 hover:shadow-md transition-all duration-200"
                 >
-                  <div class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
+                  <div class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 flex items-center justify-center text-xs font-bold transition-colors duration-200">
                     {{ index + 1 }}
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ formatDateTime(point.timestamp) }}</div>
-                    <div class="text-xs text-gray-500 font-mono truncate">{{ point.lat.toFixed(6) }}, {{ point.long.toFixed(6) }}</div>
+                    <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate transition-colors duration-200">{{ formatDateTime(point.timestamp) }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 font-mono truncate transition-colors duration-200">{{ point.lat.toFixed(6) }}, {{ point.long.toFixed(6) }}</div>
                   </div>
                   <button 
                     @click="focusOnPoint(point)"
@@ -497,6 +539,28 @@ function getStatusColor(secondsSinceUpdate) {
   if (secondsSinceUpdate < 60) return 'text-green-600'
   if (secondsSinceUpdate < 300) return 'text-yellow-600'
   return 'text-red-600'
+}
+
+// Helper functions for status badges
+function getStatusBadgeColor(secondsSinceUpdate) {
+  if (!secondsSinceUpdate) return 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-200'
+  if (secondsSinceUpdate < 60) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+  if (secondsSinceUpdate < 300) return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+  return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+}
+
+function getStatusDotColor(secondsSinceUpdate) {
+  if (!secondsSinceUpdate) return 'bg-gray-400'
+  if (secondsSinceUpdate < 60) return 'bg-green-500 animate-pulse'
+  if (secondsSinceUpdate < 300) return 'bg-yellow-500'
+  return 'bg-red-500'
+}
+
+function getStatusText(secondsSinceUpdate) {
+  if (!secondsSinceUpdate) return 'Unknown'
+  if (secondsSinceUpdate < 60) return 'Live'
+  if (secondsSinceUpdate < 300) return 'Recent'
+  return 'Offline'
 }
 
 async function loadVehicleLocations() {
@@ -1339,7 +1403,23 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-/* Scrollbar styling */
+/* Slide up animation for info panel */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Scrollbar styling - Light Mode */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
 }
@@ -1355,6 +1435,25 @@ onUnmounted(() => {
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* Scrollbar styling - Dark Mode */
+.dark .overflow-y-auto::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Map container dark mode filter for better contrast */
+.dark #map {
+  filter: brightness(0.9) contrast(1.1);
 }
 </style>
 
@@ -1375,6 +1474,13 @@ onUnmounted(() => {
   border-top-color: rgba(0, 0, 0, 0.85) !important;
 }
 
+/* Dark mode tooltip enhancement */
+.dark .custom-tooltip {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border: 1px solid rgba(75, 85, 99, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+}
+
 /* Queued data tooltip styling - warning style for data without signal */
 .queued-tooltip {
   background: rgba(251, 191, 36, 0.95) !important;
@@ -1389,5 +1495,13 @@ onUnmounted(() => {
 
 .queued-tooltip::before {
   border-top-color: rgba(251, 191, 36, 0.95) !important;
+}
+
+/* Dark mode queued tooltip */
+.dark .queued-tooltip {
+  background: rgba(245, 158, 11, 0.95) !important;
+  border: 2px solid #fbbf24 !important;
+  color: #fef3c7 !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.5) !important;
 }
 </style>

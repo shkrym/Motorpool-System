@@ -1,171 +1,109 @@
 <template>
-  <div class="flex h-screen bg-gradient-to-br from-green-50 to-green-100 font-inter overflow-hidden">
-    <!-- Include Navbar Component -->
+  <div class="flex h-screen bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 dark:from-[#0d1117] dark:via-[#0d1117] dark:to-[#161b22] font-sanscan transition-colors duration-200">
     <Navbar 
-      :sidebar-collapsed="sidebarCollapsed"
-      :sidebar-open="sidebarOpen"
+      :sidebarCollapsed="sidebarCollapsed"
+      :sidebarOpen="sidebarOpen"
       @toggle-sidebar="toggleSidebar"
       @close-sidebar="closeSidebar"
       @open-sidebar="openSidebar"
       @menu-click="handleMenuClick"
     />
-    
-    <!-- Sidebar overlay for mobile -->
-    <div
-      v-if="sidebarOpen && !sidebarCollapsed"
-      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
-      @click="closeSidebar"
-    ></div>
 
-    <!-- Main Content -->
-    <main class="flex flex-1 flex-col overflow-hidden transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
-      <div class="sticky top-0 z-10">
+    <main class="flex flex-1 flex-col transition-all duration-300 ease-in-out min-w-0" :class="{ '!ml-0': sidebarCollapsed || !sidebarOpen }">
+      <div class="sticky top-0 z-50">
         <PageHeader
           icon="fas fa-cog"
           title="Settings"
-          subtitle="Manage your account preferences"
+          subtitle="Manage your account and preferences"
         >
           <template #leading>
-            <button
-              @click="openSidebar"
-              class="lg:hidden btn btn-secondary py-2 px-3"
+            <button 
+              @click="openSidebar" 
+              class="btn btn-secondary lg:hidden"
               v-if="!sidebarOpen"
             >
               <i class="fas fa-bars"></i>
             </button>
           </template>
           <template #actions>
-            <div class="chip text-xs sm:text-sm">
-              Currently viewing: <span class="font-semibold ml-1 capitalize">{{ activeTab }}</span>
+            <div class="hidden sm:flex items-center gap-3">
+              <div class="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-lg">
+                <div class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
+                <span class="text-xs text-green-100 font-medium">System Active</span>
+              </div>
+              <div class="flex items-center py-2 px-3 bg-white/15 rounded-lg font-semibold text-xs text-white">
+                <i class="fas fa-user-circle mr-2 text-sm text-emerald-300"></i>
+                {{ userProfile?.full_name || 'Admin' }}
+              </div>
             </div>
           </template>
         </PageHeader>
-
-        <!-- Tab Navigation (Desktop) -->
-        <div class="hidden sm:flex items-center bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mx-4 mt-2 mb-0">
+      </div>
+      
+      <!-- Tab Navigation -->
+      <div class="bg-white dark:bg-[#0d1117] border-b border-gray-200 dark:border-[#30363d] px-8 pt-2 transition-colors duration-200">
+        <div class="flex gap-2 overflow-x-auto">
           <button
             @click="activeTab = 'profile'"
-            :class="[
-              'px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 border-r border-gray-200',
-              activeTab === 'profile' ? 'bg-green-800 text-white' : 'text-gray-600 hover:bg-gray-50'
-            ]"
+            :class="['px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 rounded-t-lg',
+                      activeTab === 'profile' ? 'bg-gradient-to-br from-green-800 to-green-600 dark:from-[#238636] dark:to-[#2ea043] text-white' : 'text-gray-600 dark:text-[#8b949e] hover:bg-gray-50 dark:hover:bg-[#161b22]']"
           >
             <i class="fas fa-user-circle text-lg"></i>
             Profile
           </button>
           <button
             @click="activeTab = 'security'"
-            :class="[
-              'px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 border-r border-gray-200',
-              activeTab === 'security' ? 'bg-green-800 text-white' : 'text-gray-600 hover:bg-gray-50'
-            ]"
+            :class="['px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 rounded-t-lg',
+                      activeTab === 'security' ? 'bg-gradient-to-br from-green-800 to-green-600 dark:from-[#238636] dark:to-[#2ea043] text-white' : 'text-gray-600 dark:text-[#8b949e] hover:bg-gray-50 dark:hover:bg-[#161b22]']"
           >
             <i class="fas fa-shield-alt text-lg"></i>
             Security
           </button>
           <button
             @click="activeTab = 'theme'"
-            :class="[
-              'px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2',
-              activeTab === 'theme' ? 'bg-green-800 text-white' : 'text-gray-600 hover:bg-gray-50'
-            ]"
+            :class="['px-6 py-3 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 rounded-t-lg',
+                      activeTab === 'theme' ? 'bg-gradient-to-br from-green-800 to-green-600 dark:from-[#238636] dark:to-[#2ea043] text-white' : 'text-gray-600 dark:text-[#8b949e] hover:bg-gray-50 dark:hover:bg-[#161b22]']"
           >
             <i class="fas fa-palette text-lg"></i>
             Theme
           </button>
         </div>
       </div>
-
-      <!-- Mobile Tab Navigation -->
-      <div class="sm:hidden bg-white border-b border-gray-200 px-4 py-2 mx-4 mt-2 mb-0 rounded-xl">
-        <div class="flex gap-2">
-          <button
-            @click="activeTab = 'profile'"
-            :class="[
-              'flex-1 px-4 py-3 font-semibold text-sm rounded-lg transition-all duration-200 flex items-center justify-center gap-2',
-              activeTab === 'profile' ? 'bg-green-800 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'
-            ]"
-            :style="activeTab === 'profile' ? 'background-color: #0A400C;' : ''"
-          >
-            <i class="fas fa-user-circle"></i>
-            <span class="hidden xs:inline">Profile</span>
-          </button>
-          <button
-            @click="activeTab = 'security'"
-            :class="[
-              'flex-1 px-4 py-3 font-semibold text-sm rounded-lg transition-all duration-200 flex items-center justify-center gap-2',
-              activeTab === 'security' ? 'bg-green-800 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'
-            ]"
-            :style="activeTab === 'security' ? 'background-color: #0A400C;' : ''"
-          >
-            <i class="fas fa-shield-alt"></i>
-            <span class="hidden xs:inline">Security</span>
-          </button>
-          <button
-            @click="activeTab = 'theme'"
-            :class="[
-              'flex-1 px-4 py-3 font-semibold text-sm rounded-lg transition-all duration-200 flex items-center justify-center gap-2',
-              activeTab === 'theme' ? 'bg-green-800 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'
-            ]"
-            :style="activeTab === 'theme' ? 'background-color: #0A400C;' : ''"
-          >
-            <i class="fas fa-palette"></i>
-            <span class="hidden xs:inline">Theme</span>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Content Area -->
-      <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-        <div class="max-w-6xl mx-auto">
+    
+      <!-- Content -->
+      <div class="flex-1 p-8 overflow-y-auto bg-green-100/80 dark:bg-[#0d1117] transition-colors duration-200">
+        <div class="max-w-7xl mx-auto">
           <div class="tab-content">
-            <transition name="fade" mode="out-in">
-              <div v-if="activeTab === 'profile'" key="profile" class="space-y-6">
-                <ProfileSettings />
-              </div>
-              <div v-else-if="activeTab === 'security'" key="security" class="space-y-6">
-                <SecuritySettings />
-              </div>
-              <div v-else-if="activeTab === 'theme'" key="theme" class="space-y-6">
-                <ThemeSettings />
-              </div>
-            </transition>
+            <div v-if="activeTab === 'profile'" class="space-y-6">
+              <ProfileSettings />
+            </div>
+            <div v-if="activeTab === 'security'" class="space-y-6">
+              <SecuritySettings />
+            </div>
+            <div v-if="activeTab === 'theme'" class="space-y-6">
+              <ThemeSettings />
+            </div>
           </div>
         </div>
       </div>
     </main>
 
-    <!-- Notification Toast -->
     <div
       v-if="notification.show"
       :class="[
-        'fixed bottom-4 right-4 p-4 rounded-xl shadow-2xl z-50 transition-all duration-300 flex items-center gap-3 min-w-[280px] backdrop-blur-xl',
-        notification.type === 'success' ? 'bg-green-500/95 text-white border border-green-400' : 'bg-red-500/95 text-white border border-red-400'
+        'fixed bottom-4 right-4 p-4 rounded-lg shadow-xl z-50 transition-all duration-300 flex items-center gap-3',
+        notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
       ]"
     >
-      <div :class="[
-        'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
-        notification.type === 'success' ? 'bg-white/20' : 'bg-white/20'
-      ]">
-        <i :class="notification.type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'" class="text-xl"></i>
-      </div>
-      <div class="flex-1">
-        <p class="font-semibold text-sm">{{ notification.type === 'success' ? 'Success!' : 'Error!' }}</p>
-        <p class="text-sm opacity-90">{{ notification.message }}</p>
-      </div>
-      <button 
-        @click="notification.show = false"
-        class="text-white/80 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
-      >
-        <i class="fas fa-times"></i>
-      </button>
+      <i :class="notification.type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'" class="text-xl"></i>
+      <span class="font-medium">{{ notification.message }}</span>
     </div>
   </div>
 </template>
 
 <script>
 import { ref, reactive, onMounted, provide } from 'vue'
-import { useSidebar } from '../composables/useSidebar'
+import { supabase } from '../lib/supabase'
 import Navbar from './Navbar.vue'
 import PageHeader from '../components/PageHeader.vue'
 import ProfileSettings from './settings/Profile.vue'
@@ -182,7 +120,9 @@ export default {
     ThemeSettings
   },
   setup() {
-    const { sidebarCollapsed, sidebarOpen, toggleSidebar, closeSidebar, openSidebar, handleMenuClick } = useSidebar()
+    const sidebarCollapsed = ref(false)
+    const sidebarOpen = ref(true)
+    const userProfile = ref(null)
     const activeTab = ref('profile')
 
     const notification = reactive({
@@ -203,15 +143,63 @@ export default {
 
     provide('showNotification', showNotification)
 
-    // Sidebar methods are now from useSidebar composable
+    // Sidebar methods
+    const toggleSidebar = () => {
+      sidebarCollapsed.value = !sidebarCollapsed.value
+    }
 
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        sidebarOpen.value = true
+    const closeSidebar = () => {
+      if (window.innerWidth <= 768) {
+        sidebarOpen.value = false
+      } else {
+        sidebarCollapsed.value = true
       }
     }
 
-    onMounted(() => {
+    const openSidebar = () => {
+      sidebarOpen.value = true
+      if (window.innerWidth > 768) {
+        sidebarCollapsed.value = false
+      }
+    }
+
+    const handleMenuClick = () => {
+      if (window.innerWidth <= 768) {
+        sidebarOpen.value = false
+      }
+    }
+
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        sidebarOpen.value = true
+      } else if (window.innerWidth <= 768) {
+        sidebarCollapsed.value = false
+      }
+    }
+
+    const loadUserProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+
+          if (error) {
+            console.error('Error loading profile:', error)
+          } else {
+            userProfile.value = profile
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error)
+      }
+    }
+
+    onMounted(async () => {
+      await loadUserProfile()
       window.addEventListener('resize', handleResize)
       handleResize()
     })
@@ -219,6 +207,7 @@ export default {
     return {
       sidebarCollapsed,
       sidebarOpen,
+      userProfile,
       activeTab,
       notification,
       toggleSidebar,
@@ -231,42 +220,18 @@ export default {
 </script>
 
 <style scoped>
-/* Tab fade transition */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-/* Tab content animation */
 .tab-content {
-  animation: slideUp 0.4s ease-out;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-@keyframes slideUp {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* Responsive breakpoint for extra small screens */
-@media (min-width: 400px) {
-  .xs\:inline {
-    display: inline;
   }
 }
 </style>
